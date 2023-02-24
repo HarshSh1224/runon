@@ -53,9 +53,11 @@ class AddAppointment extends StatelessWidget {
                       padding: EdgeInsets.all(15.0),
                       child: SizedBox(
                           width: 150,
-                          child: Text(
-                            'Follow up Appointment',
-                            textAlign: TextAlign.center,
+                          child: FittedBox(
+                            child: Text(
+                              'Follow up Appointment',
+                              textAlign: TextAlign.center,
+                            ),
                           )),
                     ),
                   ),

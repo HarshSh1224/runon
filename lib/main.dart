@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.routeName: (ctx) => const LoginScreen(),
         PatientScreen.routeName: (ctx) => PatientScreen(),
         AddAppointment.routeName: (ctx) => const AddAppointment(),
-        NewAppointment.routeName: (ctx) => const NewAppointment(),
+        NewAppointment.routeName: (ctx) => NewAppointment(),
       },
     );
   }
