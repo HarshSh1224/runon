@@ -93,15 +93,18 @@ class LoginScreen extends StatelessWidget {
                       height: 40,
                     ),
                     Center(
-                      child: FilledButton(
-                        onPressed: () {
-                          Navigator.of(context)
-                              .pushReplacementNamed(PatientScreen.routeName);
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 38.0, vertical: 10),
-                          child: Text('LOGIN'),
+                      child: Transform.scale(
+                        scale: 1.2,
+                        child: FilledButton(
+                          onPressed: () {
+                            Navigator.of(context)
+                                .pushReplacementNamed(PatientScreen.routeName);
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 38.0, vertical: 10),
+                            child: Text('LOGIN'),
+                          ),
                         ),
                       ),
                     ),

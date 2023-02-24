@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:runon/screens/new_appointment.dart';
 import 'package:runon/widgets/clip_paths.dart';
 
 class AddAppointment extends StatelessWidget {
@@ -18,7 +19,7 @@ class AddAppointment extends StatelessWidget {
             fit: BoxFit.cover,
           ),
           ClipPath(
-            clipper: OneThirdScreenCoverEllipse(),
+            clipper: OneThirdScreenCoverEllipse(0.2),
             child: Container(color: Theme.of(context).colorScheme.background),
           ),
           Positioned.fill(
@@ -30,10 +31,17 @@ class AddAppointment extends StatelessWidget {
               child: Column(
                 children: [
                   FilledButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(NewAppointment.routeName);
+                    },
                     child: const Padding(
                       padding: EdgeInsets.all(15.0),
-                      child: Text('New Appointment'),
+                      child: SizedBox(
+                          width: 150,
+                          child: Text(
+                            'New Appointment',
+                            textAlign: TextAlign.center,
+                          )),
                     ),
                   ),
                   const SizedBox(
@@ -43,7 +51,12 @@ class AddAppointment extends StatelessWidget {
                     onPressed: () {},
                     child: const Padding(
                       padding: EdgeInsets.all(15.0),
-                      child: Text('Follow up Appointment'),
+                      child: SizedBox(
+                          width: 150,
+                          child: Text(
+                            'Follow up Appointment',
+                            textAlign: TextAlign.center,
+                          )),
                     ),
                   ),
                   const SizedBox(

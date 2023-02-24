@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:runon/screens/add_appointment.dart';
 import 'package:runon/screens/login.dart';
+import 'package:runon/screens/new_appointment.dart';
 import 'package:runon/screens/patient_screen.dart';
 
 void main() {
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.routeName: (ctx) => const LoginScreen(),
         PatientScreen.routeName: (ctx) => PatientScreen(),
         AddAppointment.routeName: (ctx) => const AddAppointment(),
+        NewAppointment.routeName: (ctx) => const NewAppointment(),
       },
     );
   }

@@ -43,6 +43,8 @@ class LowerEllipse extends CustomClipper<Path> {
 }
 
 class OneThirdScreenCoverEllipse extends CustomClipper<Path> {
+  final double amount;
+  OneThirdScreenCoverEllipse(this.amount);
   @override
   Path getClip(Size size) {
     Path path0 = Path();
@@ -50,7 +52,7 @@ class OneThirdScreenCoverEllipse extends CustomClipper<Path> {
     path0.lineTo(size.width, size.height);
     path0.lineTo(size.width, size.height * 0.3);
     path0.quadraticBezierTo(
-        size.width * 0.5, size.height * 0.2, 0, size.height * 0.3);
+        size.width * 0.5, size.height * amount, 0, size.height * 0.3);
     path0.close();
     return path0;
   }
