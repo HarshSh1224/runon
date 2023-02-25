@@ -22,7 +22,7 @@ class CategoryItem extends StatelessWidget {
             height: 150,
             width: double.infinity,
             child: Card(
-              elevation: 3,
+              elevation: 0,
               margin: EdgeInsets.zero,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),

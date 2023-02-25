@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:runon/providers/auth.dart';
 import '../screens/patient_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/clip_paths.dart';
@@ -9,6 +11,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<Auth>(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -97,6 +100,7 @@ class LoginScreen extends StatelessWidget {
                         scale: 1.2,
                         child: FilledButton(
                           onPressed: () {
+                            auth.signInWithPhone(context, '+919711978966');
                             Navigator.of(context)
                                 .pushReplacementNamed(PatientScreen.routeName);
                           },

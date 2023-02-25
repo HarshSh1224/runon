@@ -33,10 +33,12 @@ dependencies:
   dotted_border: ^2.0.0+3
   firebase_auth: ^4.2.9
   firebase_core: ^2.7.0
+  firebase_storage: ^11.0.14
   flutter:
     sdk: flutter
   google_fonts: ^4.0.3
   intl: ^0.17.0
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_lints: ^2.0.0

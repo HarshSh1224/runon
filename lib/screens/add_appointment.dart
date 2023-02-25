@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:runon/screens/new_appointment.dart';
 import 'package:runon/widgets/clip_paths.dart';
@@ -48,17 +49,26 @@ class AddAppointment extends StatelessWidget {
                     height: 10,
                   ),
                   FilledButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      try {
+                        // FirebaseFirestore.instance
+                        //     .collection('users')
+                        //     .add({'data': 'Testing success'});
+                      } catch (error) {
+                        print('Error');
+                      }
+                    },
                     child: const Padding(
                       padding: EdgeInsets.all(15.0),
                       child: SizedBox(
-                          width: 150,
-                          child: FittedBox(
-                            child: Text(
-                              'Follow up Appointment',
-                              textAlign: TextAlign.center,
-                            ),
-                          )),
+                        width: 150,
+                        child: FittedBox(
+                          child: Text(
+                            'Follow up Appointment',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(
