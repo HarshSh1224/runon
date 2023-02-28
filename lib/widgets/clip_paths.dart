@@ -62,3 +62,24 @@ class OneThirdScreenCoverEllipse extends CustomClipper<Path> {
     return true;
   }
 }
+
+class OnlyBottomEllipse extends CustomClipper<Path> {
+  final double amount;
+  OnlyBottomEllipse(this.amount);
+  @override
+  Path getClip(Size size) {
+    Path path0 = Path();
+    path0.moveTo(0, size.height);
+    path0.lineTo(size.width, size.height);
+    // path0.lineTo(size.width, size.height * 0.3);
+    path0.quadraticBezierTo(
+        size.width * 0.5, size.height * amount, 0, size.height);
+    path0.close();
+    return path0;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return true;
+  }
+}

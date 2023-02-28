@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:runon/screens/new_appointment.dart';
 import 'package:runon/widgets/clip_paths.dart';

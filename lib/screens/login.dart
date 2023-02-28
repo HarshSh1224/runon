@@ -100,7 +100,7 @@ class LoginScreen extends StatelessWidget {
                         scale: 1.2,
                         child: FilledButton(
                           onPressed: () {
-                            auth.signInWithPhone(context, '+919711978966');
+                            // auth.signInWithPhone(context, '+919711978966');
                             Navigator.of(context)
                                 .pushReplacementNamed(PatientScreen.routeName);
                           },
