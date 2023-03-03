@@ -1,3 +1,6 @@
 {
-    "emmet.preferences": {}
+    "emmet.preferences": {},
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true,
+    }
 }

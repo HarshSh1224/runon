@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.runon">
    <application
-        android:label="runon"
+        android:label="Run On"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

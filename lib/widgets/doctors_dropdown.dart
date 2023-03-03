@@ -5,7 +5,8 @@ import 'package:runon/providers/slots.dart';
 
 class DoctorsDropdown extends StatefulWidget {
   final Doctors _doctors;
-  const DoctorsDropdown(this._doctors, {super.key});
+  Function(String) _update;
+  DoctorsDropdown(this._doctors, this._update, {super.key});
 
   @override
   State<DoctorsDropdown> createState() => _DoctorsDropdownState();
@@ -24,6 +25,9 @@ class _DoctorsDropdownState extends State<DoctorsDropdown> {
     final slotsProvider = Provider.of<Slots>(context, listen: false);
 
     return DropdownButtonFormField(
+      validator: (value) {
+        return value == null ? 'Please choose a doctor' : null;
+      },
       hint: const Text('Choose a doctor'),
       decoration: const InputDecoration(
         label: Text('Select a Doctor*'),
@@ -58,15 +62,28 @@ class _DoctorsDropdownState extends State<DoctorsDropdown> {
           context: context,
           builder: (_) {
             _fetchSlots(slotsProvider, value!);
-            return const AlertDialog(
+            return AlertDialog(
                 content: SizedBox(
                     height: 100,
-                    child: Center(child: CircularProgressIndicator())));
+                    child: Center(
+                        child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        CircularProgressIndicator(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text('Please wait')
+                      ],
+                    ))));
           },
         );
         setState(() {
           _selectedValue = value;
         });
+      },
+      onSaved: (value) {
+        widget._update(value!);
       },
     );
   }

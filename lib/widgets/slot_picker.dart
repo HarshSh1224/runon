@@ -3,9 +3,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/slots.dart';
 import '../widgets/slots_dialog.dart';
+import '../providers/slot_timings.dart';
 
 class SlotPicker extends StatefulWidget {
-  const SlotPicker({
+  Function(String) _update;
+  SlotPicker(
+    this._update, {
     super.key,
   });
 
@@ -15,6 +18,11 @@ class SlotPicker extends StatefulWidget {
 
 class _SlotPickerState extends State<SlotPicker> {
   final TextEditingController _pickedDate = TextEditingController();
+  String? _chosenSlot = null;
+
+  void _chooseSlot(String slotValue) {
+    _chosenSlot = slotValue;
+  }
 
   void datePickerFunction(Slots slots) async {
     if (slots.isEmpty) {
@@ -37,21 +45,30 @@ class _SlotPickerState extends State<SlotPicker> {
               val == firstAvailDate;
         });
 
+    if (temp == null) return;
     // print();
 
     await showDialog(
-        context: context,
-        builder: (ctx) {
-          return SlotDialog(
-              temp: temp,
-              context: context,
-              slotsList:
-                  slots.slotTimes('${DateFormat('ddMMyyyy').format(temp!)}'));
-        });
+      context: context,
+      builder: (ctx) {
+        return SlotDialog(
+            update: _chooseSlot,
+            temp: temp,
+            context: context,
+            slotsList: slots.slotTimes(DateFormat('ddMMyyyy').format(temp)));
+      },
+    );
+
+    if (_chosenSlot == null) return;
 
     setState(
       () {
-        _pickedDate.text = DateFormat('dd MMM').format(temp!);
+        // print(
+        //     '${DateFormat('ddMMyyyy').format(temp)}${_chosenSlot!.length == 1 ? '0' : ''}$_chosenSlot');
+        widget._update(
+            '${DateFormat('ddMMyyyy').format(temp)}${_chosenSlot!.length == 1 ? '0' : ''}$_chosenSlot');
+        _pickedDate.text =
+            '${DateFormat('dd MMM').format(temp)} ${slotTimings[_chosenSlot]} - ${slotTimings[(int.parse(_chosenSlot!) + 1).toString()]}';
       },
     );
   }
@@ -71,6 +88,11 @@ class _SlotPickerState extends State<SlotPicker> {
           Stack(
             children: [
               TextFormField(
+                validator: (value) {
+                  if (_pickedDate.text == 'No Slot Chosen')
+                    return 'Please choose a slot';
+                  return null;
+                },
                 enabled: slots.isEmpty ? false : true,
                 readOnly: true,
                 controller: _pickedDate,

@@ -57,8 +57,6 @@ class Slots with ChangeNotifier {
   }
 
   List<String> slotTimes(String date) {
-    return _slots[date]!.map((element) {
-      return slotTimings[element] ?? 'error';
-    }).toList();
+    return [..._slots[date]!];
   }
 }

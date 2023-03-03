@@ -3,7 +3,9 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 
 class AddReportsBox extends StatefulWidget {
-  const AddReportsBox({
+  final Function(List<PlatformFile>) _update;
+  AddReportsBox(
+    this._update, {
     super.key,
   });
 
@@ -12,7 +14,7 @@ class AddReportsBox extends StatefulWidget {
 }
 
 class _AddReportsBoxState extends State<AddReportsBox> {
-  List<PlatformFile> _files = [];
+  final List<PlatformFile> _files = [];
 
   void _filePicker() async {
     if (_files.length >= 3) {
@@ -41,9 +43,10 @@ class _AddReportsBoxState extends State<AddReportsBox> {
 
       setState(() {
         _files.add(file);
+        widget._update(_files);
       });
 
-      print(file.name);
+      // print(file.name);
       // print(file.bytes);
       // print(file.size);
       // print(file.extension);
@@ -75,7 +78,7 @@ class _AddReportsBoxState extends State<AddReportsBox> {
               color: Theme.of(context)
                   .colorScheme
                   .primaryContainer
-                  .withOpacity(0.1),
+                  .withOpacity(0.2),
               alignment: Alignment.topCenter,
               child: Column(
                 children: [
@@ -137,6 +140,7 @@ class _AddReportsBoxState extends State<AddReportsBox> {
                                                       (element) =>
                                                           element.name ==
                                                           e.name);
+                                                  widget._update(_files);
                                                 });
                                               },
                                               icon: const Icon(Icons.close)),
@@ -168,7 +172,7 @@ class _AddReportsBoxState extends State<AddReportsBox> {
                   const SizedBox(
                     height: 10,
                   ),
-                  FilledButton(
+                  FilledButton.tonal(
                       onPressed: _filePicker,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12.0),

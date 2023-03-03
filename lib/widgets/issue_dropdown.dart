@@ -3,7 +3,8 @@ import 'package:runon/providers/issue_data.dart';
 
 class IssueDropdown extends StatefulWidget {
   final IssueData _issueData;
-  const IssueDropdown(this._issueData, {super.key});
+  Function(String) _update;
+  IssueDropdown(this._issueData, this._update, {super.key});
 
   @override
   State<IssueDropdown> createState() => _IssueDropdownState();
@@ -14,6 +15,10 @@ class _IssueDropdownState extends State<IssueDropdown> {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField(
+      validator: (value) {
+        if (value == null) return 'Please select a problem';
+        return null;
+      },
       hint: const Text('Choose an issue'),
       decoration: const InputDecoration(
         label: Text('Select an Issue*'),
@@ -30,6 +35,10 @@ class _IssueDropdownState extends State<IssueDropdown> {
         }),
         // DropdownMenuItem(child: Text)
       ],
+      onSaved: (value) {
+        // print('Saving issue');
+        widget._update(value!);
+      },
       onChanged: (value) {
         setState(() {
           _selectedValue = value;

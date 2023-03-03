@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:runon/providers/auth.dart';
 import 'package:runon/screens/add_appointment.dart';
 import '../widgets/category_item.dart';
 import '../widgets/clip_paths.dart';
+import '../screens/my_appointments.dart';
 
 class PatientScreen extends StatelessWidget {
   final _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -11,6 +14,7 @@ class PatientScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<Auth>(context);
     var pageController = PageController(initialPage: 0, viewportFraction: 0.8);
     return Scaffold(
       key: _scaffoldKey,
@@ -58,7 +62,7 @@ class PatientScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        'Hi Username!',
+                        'Hi ${user.fName}!',
                         style: GoogleFonts.raleway(),
                       ),
                     ],
@@ -84,8 +88,16 @@ class PatientScreen extends StatelessWidget {
                                 Color(0xFF028E81)),
                           ),
                         ),
-                        const CategoryItem('assets/images/checklist.png',
-                            'My Appointments', Color(0xFFAC4211)),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context)
+                                .pushNamed(MyAppointmentsScreen.routeName);
+                          },
+                          child: const CategoryItem(
+                              'assets/images/checklist.png',
+                              'My Appointments',
+                              Color(0xFFAC4211)),
+                        ),
                         const CategoryItem('assets/images/calender.jpg',
                             'My Schedule', Color(0xFF7660AB)),
                       ],

@@ -1,13 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
 import '../screens/patient_screen.dart';
+import '../screens/signup.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/clip_paths.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/login';
-  const LoginScreen({super.key});
+  LoginScreen({super.key});
+  GlobalKey<FormState> _formKey = GlobalKey();
+
+  Map<String, String> _formData = {'email': '', 'password': ''};
+  bool _isLoading = false;
+
+  void _submit(context, setState) async {
+    FocusScope.of(context).unfocus();
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    _formKey.currentState!.save();
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await Provider.of<Auth>(context, listen: false).authenticate(
+          context: context,
+          email: _formData['email']!,
+          password: _formData['password']!);
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10.0),
+        child: Text('Internal Error'),
+      )));
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10.0),
+        child: Text('Welcome'),
+      ),
+    ));
+
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).pushReplacementNamed(PatientScreen.routeName);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,97 +75,159 @@ class LoginScreen extends StatelessWidget {
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 400),
                 padding: const EdgeInsets.symmetric(horizontal: 35.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  // mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(
-                      height: 80,
-                    ),
-                    Center(
-                      child: Text(
-                        'RUN ON\nLOGO',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.bebasNeue(
-                          fontSize: 40,
-                          letterSpacing: 3,
-                        ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 80,
                       ),
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    const Text('Login to your account'),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {},
-                        ),
-                        label: const Text('Mobile Number'),
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    TextFormField(
-                      obscureText: true,
-                      keyboardType: TextInputType.visiblePassword,
-                      decoration: InputDecoration(
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {},
-                        ),
-                        label: const Text('Password'),
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    Center(
-                      child: Transform.scale(
-                        scale: 1.2,
-                        child: FilledButton(
-                          onPressed: () {
-                            // auth.signInWithPhone(context, '+919711978966');
-                            Navigator.of(context)
-                                .pushReplacementNamed(PatientScreen.routeName);
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 38.0, vertical: 10),
-                            child: Text('LOGIN'),
+                      Center(
+                        child: Text(
+                          'RUN ON\nLOGO',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.bebasNeue(
+                            fontSize: 40,
+                            letterSpacing: 3,
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 50,
-                    ),
-                    const Text('Dont have an account?'),
-                    const SizedBox(
-                      height: 70,
-                    )
-                  ],
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      const Text('Login to your account'),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'Please enter your email';
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _formData['email'] = value!;
+                        },
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {},
+                          ),
+                          label: const Text('Email'),
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'Please enter a password';
+                          if (value.length < 8)
+                            return 'Password has to be min 8 characters long';
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _formData['password'] = value!;
+                        },
+                        obscureText: true,
+                        keyboardType: TextInputType.visiblePassword,
+                        decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {},
+                          ),
+                          label: const Text('Password'),
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      Center(
+                        child: Transform.scale(
+                          scale: 1.2,
+                          child: StatefulBuilder(builder: (context, setState) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 35.0, vertical: 10),
+                              child: FilledButton(
+                                onPressed: () {
+                                  _submit(context, setState);
+                                },
+                                child: SizedBox(
+                                    width: double.infinity,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12),
+                                      child: _isLoading
+                                          ? Center(
+                                              child: SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primaryContainer,
+                                              ),
+                                            ))
+                                          : Text(
+                                              'LOGIN',
+                                              textAlign: TextAlign.center,
+                                            ),
+                                    )),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 50,
+                      ),
+                      Center(
+                        child: RichText(
+                            text: TextSpan(
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onBackground),
+                                children: [
+                              const TextSpan(text: 'Dont have an account? '),
+                              TextSpan(
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.of(context)
+                                          .pushNamed(SignupScreen.routeName);
+                                    },
+                                  text: 'Sign Up',
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary))
+                            ])),
+                      ),
+                      const SizedBox(
+                        height: 70,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

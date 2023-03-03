@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:runon/screens/new_appointment.dart';
 import 'package:runon/widgets/clip_paths.dart';
+import 'package:runon/widgets/previous_appointments.dart';
 
 class AddAppointment extends StatelessWidget {
   static const routeName = '/add-appointment';
@@ -73,7 +74,7 @@ class AddAppointment extends StatelessWidget {
                   const SizedBox(
                     height: 20,
                   ),
-                  const Text('Prev Appointments'),
+                  Expanded(child: PreviousAppointments()),
                 ],
               ),
             ),

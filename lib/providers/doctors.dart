@@ -22,6 +22,13 @@ class Doctors with ChangeNotifier {
     return [..._doctors];
   }
 
+  Doctor? doctorFromId(String doctorId) {
+    for (int i = 0; i < _doctors.length; i++) {
+      if (_doctors[i].id == doctorId) return _doctors[i];
+    }
+    return null;
+  }
+
   Future<void> fetchAndSetDoctors() async {
     try {
       final fetchedData =

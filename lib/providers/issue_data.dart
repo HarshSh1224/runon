@@ -25,11 +25,16 @@ class IssueData with ChangeNotifier {
       List<Issue> temp = [];
 
       for (int i = 0; i < fetchedDocsList.length; i++) {
-        temp.add(Issue(fetchedDocsList[i]['id'], fetchedDocsList[i]['title']));
+        temp.add(Issue(fetchedDocsList[i].id, fetchedDocsList[i]['title']));
       }
       _issueData = temp;
     } catch (err) {
       print(err);
     }
+  }
+
+  String issueFromId(String id) {
+    int i = _issueData.indexWhere((element) => element.id == id);
+    return _issueData[i].title;
   }
 }
