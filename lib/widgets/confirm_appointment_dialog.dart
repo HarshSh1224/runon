@@ -7,8 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
 import '../widgets/method_slot_formatter.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
-class ConfirmAppointmentDialog extends StatelessWidget {
+class ConfirmAppointmentDialog extends StatefulWidget {
   const ConfirmAppointmentDialog(
       this._doctorId, this._slot, this._issue, this._formData, this._files,
       {super.key});
@@ -18,6 +19,81 @@ class ConfirmAppointmentDialog extends StatelessWidget {
   final String _issue;
   final _formData;
   final _files;
+
+  @override
+  State<ConfirmAppointmentDialog> createState() =>
+      _ConfirmAppointmentDialogState();
+}
+
+class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
+  final _razorpay = Razorpay();
+
+  @override
+  void initState() {
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    super.initState();
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          content: Text(
+              '${response.paymentId!} ${response.signature ?? 'no sign'} ${response.orderId ?? 'no orderid'}'),
+          actions: [
+            TextButton(
+                onPressed: Navigator.of(context).pop,
+                child: const Text('Close'))
+          ],
+        );
+      },
+    );
+    widget._formData['paymentId'] = response.paymentId;
+    _sendDataToServer(context);
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          content: Text('${response.code!} ${response.message!}'),
+          actions: [
+            TextButton(
+                onPressed: Navigator.of(context).pop,
+                child: const Text('Close'))
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          content: Text(response.walletName!),
+          actions: [
+            TextButton(
+                onPressed: Navigator.of(context).pop,
+                child: const Text('Close'))
+          ],
+        );
+      },
+    );
+  }
+
+  var options = {
+    'key': 'rzp_test_yWxLo2XrBxw3WX',
+    'amount': 20000,
+    'name': 'Run On',
+    'description': 'Appointment',
+    'prefill': {'contact': '8888888888', 'email': 'test@razorpay.com'}
+  };
 
   void _sendDataToServer(context) async {
     final firebaseDatabase =
@@ -41,18 +117,18 @@ class ConfirmAppointmentDialog extends StatelessWidget {
                   ))));
         });
     try {
-      final response = await firebaseDatabase.add(_formData);
-      for (int i = 0; i < _files.length; i++) {
+      final response = await firebaseDatabase.add(widget._formData);
+      for (int i = 0; i < widget._files.length; i++) {
         final ref = FirebaseStorage.instance
             .ref()
             .child('previousReports')
             .child('${response.id}$i');
-        await ref.putFile(File(_files[i].path));
+        await ref.putFile(File(widget._files[i].path));
         final url = await ref.getDownloadURL();
-        _formData['reportUrl'].add(url);
+        widget._formData['reportUrl'].add(url);
       }
 
-      await firebaseDatabase.doc(response.id).set(_formData);
+      await firebaseDatabase.doc(response.id).set(widget._formData);
     } catch (error) {}
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -65,12 +141,13 @@ class ConfirmAppointmentDialog extends StatelessWidget {
     Navigator.of(context).pop();
     Navigator.of(context).pop();
     Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final doctor =
-        Provider.of<Doctors>(context, listen: false).doctorFromId(_doctorId);
+    final doctor = Provider.of<Doctors>(context, listen: false)
+        .doctorFromId(widget._doctorId);
     final auth = Provider.of<Auth>(context, listen: false);
 
     return AlertDialog(
@@ -98,10 +175,10 @@ class ConfirmAppointmentDialog extends StatelessWidget {
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onBackground),
                 children: [
-                  TextSpan(text: 'Issue : '),
+                  const TextSpan(text: 'Issue : '),
                   TextSpan(
-                      text: _issue,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                      text: widget._issue,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
           RichText(
@@ -122,7 +199,7 @@ class ConfirmAppointmentDialog extends StatelessWidget {
                 children: [
                   const TextSpan(text: 'Chosen Slot : '),
                   TextSpan(
-                      text: expandSlot(_slot),
+                      text: expandSlot(widget._slot),
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
@@ -143,7 +220,8 @@ class ConfirmAppointmentDialog extends StatelessWidget {
         TextButton(
             onPressed: Navigator.of(context).pop, child: const Text('Cancel')),
         TextButton(
-            onPressed: () => _sendDataToServer(context),
+            // onPressed: () => _sendDataToServer(context),
+            onPressed: () => _razorpay.open(options),
             child: const Text('Proceed to payment')),
       ],
     );

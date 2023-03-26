@@ -24,6 +24,8 @@ class SignupScreen extends StatelessWidget {
     'gender': '',
     'email': '',
     'address': '',
+    'imageUrl':
+        'https://firebasestorage.googleapis.com/v0/b/runon-c2c2e.appspot.com/o/profilePics%2Fdefault.jpg?alt=media&token=dbbd8628-1910-40dd-a2cc-fdf9ba86278e'
   };
 
   void _submit(BuildContext context, setState) async {

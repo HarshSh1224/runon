@@ -12,6 +12,15 @@ class AddAppointment extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book an Appointment'),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.supervised_user_circle_outlined,
+              size: 32,
+            ),
+            onPressed: () {},
+          )
+        ],
       ),
       body: Stack(
         children: [
@@ -74,7 +83,7 @@ class AddAppointment extends StatelessWidget {
                   const SizedBox(
                     height: 20,
                   ),
-                  Expanded(child: PreviousAppointments()),
+                  Expanded(child: IgnorePointer(child: PreviousAppointments())),
                 ],
               ),
             ),

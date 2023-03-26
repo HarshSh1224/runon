@@ -7,12 +7,19 @@ import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
 import 'package:runon/providers/issue_data.dart';
 import 'package:runon/screens/add_appointment.dart';
+import 'package:runon/screens/knock_knee_screen.dart';
 import 'package:runon/screens/login.dart';
 import 'package:runon/screens/new_appointment.dart';
 import 'package:runon/screens/patient_screen.dart';
 import 'package:runon/screens/signup.dart';
+import 'package:runon/screens/forgot_password_screen.dart';
 import 'package:runon/screens/my_appointments.dart';
 import 'package:runon/screens/appointement_detail_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:runon/screens/profile_screen.dart';
+import 'package:runon/screens/documents_screen.dart';
+import 'package:runon/screens/my_schedule_screen.dart';
+import 'package:runon/screens/flat_feet_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,8 +37,23 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+var themeBrightness = Brightness.light;
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  void toggleTheme() async {
+    setState(() {
+      themeBrightness = themeBrightness == Brightness.dark
+          ? Brightness.light
+          : Brightness.dark;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,26 +72,44 @@ class MyApp extends StatelessWidget {
           create: (_) => Appointments(),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          // brightness: Brightness.dark,
-          useMaterial3: true,
-          colorSchemeSeed: const Color(0xFF51B154),
-        ),
-        home: LoginScreen(),
-        routes: {
-          LoginScreen.routeName: (ctx) => LoginScreen(),
-          MyAppointmentsScreen.routeName: (ctx) => MyAppointmentsScreen(),
-          SignupScreen.routeName: (ctx) => SignupScreen(),
-          PatientScreen.routeName: (ctx) => PatientScreen(),
-          AddAppointment.routeName: (ctx) => const AddAppointment(),
-          NewAppointment.routeName: (ctx) => NewAppointment(),
-          AppointmentDetailScreen.routeName: (ctx) =>
-              const AppointmentDetailScreen(),
-        },
-      ),
+      child: Consumer<Auth>(builder: (context, auth, ch) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            brightness: themeBrightness,
+            useMaterial3: true,
+            colorSchemeSeed: const Color(0xFF51B154),
+          ),
+          home: FirebaseAuth.instance.currentUser == null
+              ? LoginScreen()
+              : FutureBuilder(
+                  future: auth.tryLogin(),
+                  builder: (context, snapshot) {
+                    return snapshot.connectionState == ConnectionState.waiting
+                        ? const Scaffold(
+                            body: Center(child: CircularProgressIndicator()),
+                          )
+                        : PatientScreen();
+                  }),
+          routes: {
+            LoginScreen.routeName: (ctx) => LoginScreen(),
+            MyAppointmentsScreen.routeName: (ctx) => MyAppointmentsScreen(),
+            SignupScreen.routeName: (ctx) => SignupScreen(),
+            PatientScreen.routeName: (ctx) => PatientScreen(),
+            AddAppointment.routeName: (ctx) => const AddAppointment(),
+            NewAppointment.routeName: (ctx) => NewAppointment(),
+            AppointmentDetailScreen.routeName: (ctx) =>
+                AppointmentDetailScreen(),
+            ForgotPasswordScreen.routeName: (ctx) => ForgotPasswordScreen(),
+            ProfileScreen.routeName: (ctx) => ProfileScreen(toggleTheme),
+            DocumentsScreen.routeName: (ctx) => const DocumentsScreen(),
+            MyScheduleScreen.routeName: (ctx) => const MyScheduleScreen(),
+            FlatFeetScreen.routeName: (ctx) => const FlatFeetScreen(),
+            KnockKneeScreen.routeName: (ctx) => const KnockKneeScreen(),
+          },
+        );
+      }),
     );
   }
 }

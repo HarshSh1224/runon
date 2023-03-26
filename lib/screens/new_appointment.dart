@@ -23,6 +23,7 @@ class NewAppointment extends StatelessWidget {
     'issueId': '',
     'slotId': '',
     'reportUrl': [],
+    'paymentId': '',
   };
 
   void updateDoctorId(doctorId) => _formData['doctorId'] = doctorId;

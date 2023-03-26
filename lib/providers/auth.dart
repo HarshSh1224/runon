@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Auth with ChangeNotifier {
+  String? imageUrl;
   String? userId;
   String? fName;
   String? lName;
@@ -13,7 +16,11 @@ class Auth with ChangeNotifier {
   String? email;
 
   bool get isAuth {
-    return userId == null;
+    return userId != null;
+  }
+
+  String get age {
+    return (DateTime.now().year - dateOfBirth!.year).toString();
   }
 
   Future<void> authenticate(
@@ -25,12 +32,9 @@ class Auth with ChangeNotifier {
     final auth = FirebaseAuth.instance;
     try {
       if (isSignUp) {
-        print('Signing up');
         final authResponse = await auth.createUserWithEmailAndPassword(
             email: email, password: password);
         userId = authResponse.user!.uid;
-
-        print('Adding User');
 
         await FirebaseFirestore.instance
             .collection('users')
@@ -43,6 +47,7 @@ class Auth with ChangeNotifier {
         address = userData['address'];
         gender = userData['gender'];
         email = userData['email'];
+        imageUrl = userData['imageUrl'];
       } else {
         final authResponse = await auth.signInWithEmailAndPassword(
             email: email, password: password);
@@ -60,8 +65,7 @@ class Auth with ChangeNotifier {
         address = userDataLogin['address'];
         gender = userDataLogin['gender'];
         email = userDataLogin['email'];
-
-        print('Login Success ');
+        imageUrl = userDataLogin['imageUrl'];
       }
     } on FirebaseAuthException catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -69,6 +73,93 @@ class Auth with ChangeNotifier {
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         child: Text(error.message.toString()),
       )));
+      rethrow;
+    }
+  }
+
+  Future<void> tryLogin() async {
+    final currUser = FirebaseAuth.instance.currentUser;
+    if (currUser != null) {
+      final DocumentSnapshot<Map<String, dynamic>> userData;
+      try {
+        userData = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currUser.uid)
+            .get();
+
+        userId = currUser.uid;
+        final userDataLogin = userData.data();
+        fName = userDataLogin!['fName'];
+        lName = userDataLogin['lName'];
+        type = int.parse('${userDataLogin['type']}');
+        dateOfBirth = DateTime.parse(userDataLogin['dateOfBirth']);
+        address = userDataLogin['address'];
+        gender = userDataLogin['gender'];
+        email = userDataLogin['email'];
+        imageUrl = userDataLogin['imageUrl'];
+
+        // print('FETCHED IMAGE URL $imageUrl');
+      } catch (error) {
+        rethrow;
+      }
+    }
+  }
+
+  void logout() {
+    FirebaseAuth.instance.signOut();
+    userId = null;
+    fName = null;
+    lName = null;
+    type = null;
+    dateOfBirth = null;
+    address = null;
+    gender = null;
+    email = null;
+    imageUrl = null;
+  }
+
+  Future<void> updateUserData(fname, lname, DateTime dob, addresss) async {
+    final formData = {
+      'fName': fname,
+      'lName': lname,
+      'type': type,
+      'dateOfBirth': dob.toIso8601String(),
+      'gender': gender,
+      'email': email,
+      'address': addresss,
+      'imageUrl': imageUrl,
+    };
+
+    try {
+      FirebaseFirestore.instance.collection('users').doc(userId).set(formData);
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateProfileImage(File image) async {
+    try {
+      final ref =
+          FirebaseStorage.instance.ref().child('profilePics').child(userId!);
+      await ref.putFile(image);
+      final url = await ref.getDownloadURL();
+
+      final formData = {
+        'fName': fName,
+        'lName': lName,
+        'type': type,
+        'dateOfBirth': dateOfBirth!.toIso8601String(),
+        'gender': gender,
+        'email': email,
+        'address': address,
+        'imageUrl': url,
+      };
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .set(formData);
+    } catch (error) {
       rethrow;
     }
   }

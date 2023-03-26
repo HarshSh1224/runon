@@ -106,36 +106,35 @@ class PreviousAppointments extends StatelessWidget {
                             )
                           : Expanded(
                               child: ListView.builder(
-                                  itemCount: _myAppointments.length,
-                                  itemBuilder: ((context, index) {
-                                    return Card(
-                                      margin: const EdgeInsets.only(bottom: 20),
-                                      elevation: 4,
-                                      child: ListTile(
-                                        onTap: () {
-                                          Navigator.of(context).pushNamed(
-                                              AppointmentDetailScreen
-                                                  .routeName);
-                                        },
-                                        leading: CircleAvatar(
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .tertiaryContainer,
-                                          child: Text(issue.issueFromId(
-                                              _myAppointments[index]
-                                                  .issueId)[0]),
-                                        ),
-                                        title: Text(
-                                          expandSlot(
-                                              _myAppointments[index].slotId),
-                                        ),
-                                        subtitle: Text(issue.issueFromId(
-                                            _myAppointments[index].issueId)),
-                                        trailing: const Icon(
-                                            Icons.chevron_right_rounded),
+                                itemCount: _myAppointments.length,
+                                itemBuilder: ((context, index) {
+                                  return Card(
+                                    margin: const EdgeInsets.only(bottom: 20),
+                                    elevation: 4,
+                                    child: ListTile(
+                                      onTap: () {
+                                        Navigator.of(context).pushNamed(
+                                            AppointmentDetailScreen.routeName);
+                                      },
+                                      leading: CircleAvatar(
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .tertiaryContainer,
+                                        child: Text(issue.issueFromId(
+                                            _myAppointments[index].issueId)[0]),
                                       ),
-                                    );
-                                  })),
+                                      title: Text(
+                                        expandSlot(
+                                            _myAppointments[index].slotId),
+                                      ),
+                                      subtitle: Text(issue.issueFromId(
+                                          _myAppointments[index].issueId)),
+                                      trailing: const Icon(
+                                          Icons.chevron_right_rounded),
+                                    ),
+                                  );
+                                }),
+                              ),
                             ),
                     ],
                   ),

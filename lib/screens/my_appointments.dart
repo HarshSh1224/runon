@@ -91,7 +91,9 @@ class MyAppointmentsScreen extends StatelessWidget {
                                           onTap: () {
                                             Navigator.of(context).pushNamed(
                                                 AppointmentDetailScreen
-                                                    .routeName);
+                                                    .routeName,
+                                                arguments:
+                                                    _myAppointments[index]);
                                           },
                                           leading: CircleAvatar(
                                             backgroundColor: Theme.of(context)

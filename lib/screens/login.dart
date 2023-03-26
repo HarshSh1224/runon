@@ -6,13 +6,14 @@ import '../screens/patient_screen.dart';
 import '../screens/signup.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/clip_paths.dart';
+import 'package:runon/screens/forgot_password_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/login';
   LoginScreen({super.key});
-  GlobalKey<FormState> _formKey = GlobalKey();
+  final GlobalKey<FormState> _formKey = GlobalKey();
 
-  Map<String, String> _formData = {'email': '', 'password': ''};
+  final Map<String, String> _formData = {'email': '', 'password': ''};
   bool _isLoading = false;
 
   void _submit(context, setState) async {
@@ -103,8 +104,9 @@ class LoginScreen extends StatelessWidget {
                       ),
                       TextFormField(
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Please enter your email';
+                          }
                           return null;
                         },
                         onSaved: (value) {
@@ -125,10 +127,12 @@ class LoginScreen extends StatelessWidget {
                       ),
                       TextFormField(
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Please enter a password';
-                          if (value.length < 8)
+                          }
+                          if (value.length < 8) {
                             return 'Password has to be min 8 characters long';
+                          }
                           return null;
                         },
                         onSaved: (value) {
@@ -151,15 +155,21 @@ class LoginScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pushNamed(ForgotPasswordScreen.routeName);
+                            },
+                            child: Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary),
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(
-                        height: 40,
+                        height: 30,
                       ),
                       Center(
                         child: Transform.scale(
@@ -188,7 +198,7 @@ class LoginScreen extends StatelessWidget {
                                                     .primaryContainer,
                                               ),
                                             ))
-                                          : Text(
+                                          : const Text(
                                               'LOGIN',
                                               textAlign: TextAlign.center,
                                             ),
