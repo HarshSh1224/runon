@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:provider/provider.dart';
+import 'package:runon/screens/chats_screen.dart';
 import 'package:runon/screens/my_appointments.dart';
 import 'package:runon/widgets/user_detail_card.dart';
 import 'package:runon/screens/documents_screen.dart';
+import 'package:runon/screens/feedback_screen.dart';
+import 'package:runon/screens/about_us_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   static const routeName = 'profile-screen';
@@ -39,6 +42,9 @@ class ProfileScreen extends StatelessWidget {
                                     context,
                                     ModalRoute.withName('/'),
                                   );
+                                  if (!Navigator.of(context).canPop()) {
+                                    Navigator.of(context).pushNamed('/');
+                                  }
                                 },
                                 child: const Text('Yes'))
                           ],
@@ -86,7 +92,10 @@ class ProfileScreen extends StatelessWidget {
                         child: Column(children: [
                           ListTile(
                             title: const Text('Messages'),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.of(context)
+                                  .pushNamed(ChatsScreen.routeName);
+                            },
                             leading: const Icon(Icons.chat),
                             trailing: const Icon(Icons.chevron_right_sharp),
                           ),
@@ -147,13 +156,19 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           ListTile(
                             title: const Text('Provide Feedback'),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.of(context)
+                                  .pushNamed(FeedbackForm.routeName);
+                            },
                             leading: const Icon(Icons.feedback),
                             trailing: const Icon(Icons.chevron_right_sharp),
                           ),
                           ListTile(
                             title: const Text('About'),
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.of(context)
+                                  .pushNamed(AboutUsScreen.routeName);
+                            },
                             leading: const Icon(Icons.info),
                             trailing: const Icon(Icons.chevron_right_sharp),
                           )

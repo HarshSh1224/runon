@@ -234,6 +234,8 @@ class SignupScreen extends StatelessWidget {
                                       child: GestureDetector(
                                     onTap: () async {
                                       final temp = await showDatePicker(
+                                          initialEntryMode:
+                                              DatePickerEntryMode.calendarOnly,
                                           context: context,
                                           initialDate: DateTime.now(),
                                           firstDate: DateTime(1950),

@@ -4,10 +4,12 @@ import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
 import 'package:runon/providers/issue_data.dart';
 import 'package:runon/providers/slots.dart';
+import 'package:runon/providers/temp_provider.dart';
 import 'package:runon/widgets/clip_paths.dart';
 import '../widgets/slot_picker.dart';
 import 'package:runon/widgets/issue_dropdown.dart';
 import 'package:runon/widgets/doctors_dropdown.dart';
+import 'package:runon/widgets/flat_feet_image_upload.dart';
 import '../widgets/add_reports_box.dart';
 import '../widgets/confirm_appointment_dialog.dart';
 import 'package:file_picker/file_picker.dart';
@@ -24,6 +26,8 @@ class NewAppointment extends StatelessWidget {
     'slotId': '',
     'reportUrl': [],
     'paymentId': '',
+    'height': '',
+    'weight': '',
   };
 
   void updateDoctorId(doctorId) => _formData['doctorId'] = doctorId;
@@ -131,7 +135,7 @@ class NewAppointment extends StatelessWidget {
                                 ),
                                 IssueDropdown(issueProvider, updateIssueId),
                                 const SizedBox(
-                                  height: 20,
+                                  height: 30,
                                 ),
                                 DoctorsDropdown(
                                     doctorsProvider, updateDoctorId),
@@ -139,6 +143,132 @@ class NewAppointment extends StatelessWidget {
                                   height: 20,
                                 ),
                                 SlotPicker(updateSlotId),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      flex: 1,
+                                      child: TextFormField(
+                                        keyboardType: TextInputType.number,
+                                        onSaved: (value) {
+                                          _formData['height'] = value!;
+                                        },
+                                        validator: (value) {
+                                          if (value!.isEmpty ||
+                                              double.tryParse(value) == null ||
+                                              double.parse(value) < 0) {
+                                            return 'Invalid Value';
+                                          }
+                                          return null;
+                                        },
+                                        decoration: const InputDecoration(
+                                            // icon: Icon(Icons.attribution_sharp),
+                                            label: Text('Height (cm)*'),
+                                            border: OutlineInputBorder()),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Flexible(
+                                      flex: 1,
+                                      child: TextFormField(
+                                        keyboardType: TextInputType.number,
+                                        onSaved: (value) {
+                                          _formData['weight'] = value!;
+                                        },
+                                        validator: (value) {
+                                          if (value!.isEmpty ||
+                                              double.tryParse(value) == null ||
+                                              double.parse(value) < 0) {
+                                            return 'Invalid Value';
+                                          }
+                                          return null;
+                                        },
+                                        decoration: const InputDecoration(
+                                            label: Text('Weight (kg)*'),
+                                            border: OutlineInputBorder()),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Consumer<TempProvider>(
+                                    builder: (context, temp, ch) {
+                                  return _formData['issueId'] != 'I8'
+                                      ? Container()
+                                      : Column(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                FlatFeetImageUploadBox(
+                                                    updateReportList),
+                                                const SizedBox(
+                                                  width: 15,
+                                                ),
+                                                FlatFeetImageUploadBox(
+                                                    updateReportList),
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              height: 20,
+                                            ),
+                                            Row(
+                                              children: [
+                                                const Text(
+                                                  'Upload 2 Images for flat feet',
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                InkWell(
+                                                    onTap: () {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (ctx) {
+                                                            return AlertDialog(
+                                                              title: const Text(
+                                                                  'Sample Images'),
+                                                              actions: [
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop,
+                                                                  child: const Text(
+                                                                      'Close'),
+                                                                )
+                                                              ],
+                                                              content: Column(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    Image.asset(
+                                                                      'assets/images/sample1.jpg',
+                                                                    ),
+                                                                    const SizedBox(
+                                                                        height:
+                                                                            10),
+                                                                    Image.asset(
+                                                                      'assets/images/sample2.jpg',
+                                                                    ),
+                                                                  ]),
+                                                            );
+                                                          });
+                                                    },
+                                                    child: const Icon(
+                                                        Icons.info_outline))
+                                              ],
+                                            ),
+                                          ],
+                                        );
+                                }),
+
                                 const SizedBox(
                                   height: 20,
                                 ),

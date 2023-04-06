@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:runon/screens/messages_screen.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
   static const routeName = '/appointment-detail-screen';
@@ -63,9 +64,12 @@ class AppointmentDetailScreen extends StatelessWidget {
             const SizedBox(
               width: 15,
             ),
-            Text(name,
-                style: GoogleFonts.raleway(
-                    fontWeight: FontWeight.w600, fontSize: 18)),
+            Flexible(
+              child: Text(name,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.raleway(
+                      fontWeight: FontWeight.w600, fontSize: 18)),
+            ),
           ],
         ),
       ],
@@ -79,7 +83,14 @@ class AppointmentDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Appointment Details'),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.chat))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(MessagesScreen.routeName,
+                    arguments: appointment.appointmentId);
+              },
+              icon: const Icon(Icons.chat))
+        ],
       ),
       body: FutureBuilder(
         future: _fetchAndSetData(appointment),
@@ -90,34 +101,35 @@ class AppointmentDetailScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 30, vertical: 10),
-                    child: Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _customWidgetBuilder(
-                              'PATIENT',
-                              _appointmentData['patient']!,
-                              _appointmentData['patientImage']!),
-                          _customWidgetBuilder(
-                              'DOCTOR',
-                              _appointmentData['doctor']!,
-                              _appointmentData['doctorImage']!),
-                          _customWidgetBuilder(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _customWidgetBuilder(
+                            'PATIENT',
+                            _appointmentData['patient']!,
+                            _appointmentData['patientImage']!),
+                        _customWidgetBuilder(
+                            'DOCTOR',
+                            _appointmentData['doctor']!,
+                            _appointmentData['doctorImage']!),
+                        SizedBox(
+                          width: double.infinity,
+                          child: _customWidgetBuilder(
                               'ISSUE',
                               _appointmentData['issue']!,
                               'https://static.vecteezy.com/system/resources/previews/000/553/397/original/foot-cartoon-vector-icon.jpg'),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            'TIMELINE',
-                            style: GoogleFonts.raleway(),
-                          ),
-                          const SizedBox(
-                            height: 40,
-                          ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          'TIMELINE',
+                          style: GoogleFonts.raleway(),
+                        ),
+                        const SizedBox(
+                          height: 40,
+                        ),
+                      ],
                     ),
                   ),
                 );

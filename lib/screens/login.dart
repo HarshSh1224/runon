@@ -7,6 +7,7 @@ import '../screens/signup.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/clip_paths.dart';
 import 'package:runon/screens/forgot_password_screen.dart';
+import 'package:runon/screens/doctor_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/login';
@@ -32,6 +33,10 @@ class LoginScreen extends StatelessWidget {
           context: context,
           email: _formData['email']!,
           password: _formData['password']!);
+      Navigator.of(context).pushReplacementNamed(
+          Provider.of<Auth>(context, listen: false).type == 1
+              ? DoctorScreen.routeName
+              : PatientScreen.routeName);
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Padding(
@@ -53,7 +58,6 @@ class LoginScreen extends StatelessWidget {
     setState(() {
       _isLoading = false;
     });
-    Navigator.of(context).pushReplacementNamed(PatientScreen.routeName);
   }
 
   @override

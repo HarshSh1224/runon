@@ -15,15 +15,14 @@ import '../screens/knock_knee_screen.dart';
 import '../screens/about_us_screen.dart';
 import 'package:runon/widgets/side_drawer.dart';
 
-class PatientScreen extends StatelessWidget {
+class DoctorScreen extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  static const routeName = '/patient-screen';
-  PatientScreen({super.key});
+  static const routeName = '/doctor-screen';
+  DoctorScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<Auth>(context);
-    var pageController = PageController(initialPage: 0, viewportFraction: 0.8);
     return StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -92,7 +91,7 @@ class PatientScreen extends StatelessWidget {
                                                 MainAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Hi ${user.fName}!',
+                                                'Hi Dr. ${user.fName}!',
                                                 style: GoogleFonts.raleway(),
                                               ),
                                             ],
@@ -113,13 +112,13 @@ class PatientScreen extends StatelessWidget {
                                                     onTap: () {
                                                       Navigator.of(context)
                                                           .pushNamed(
-                                                              AddAppointment
+                                                              MyAppointmentsScreen
                                                                   .routeName);
                                                     },
                                                     child: const CategoryItem(
-                                                        'assets/images/book_appoint.png',
-                                                        'Book An Appointment',
-                                                        Color(0xFF028E81)),
+                                                        'assets/images/checklist.png',
+                                                        'Current Appointments',
+                                                        Color(0xFFAC4211)),
                                                   ),
                                                 ),
                                                 MouseRegion(
@@ -129,13 +128,14 @@ class PatientScreen extends StatelessWidget {
                                                     onTap: () {
                                                       Navigator.of(context)
                                                           .pushNamed(
-                                                              MyAppointmentsScreen
+                                                              AddAppointment
                                                                   .routeName);
                                                     },
                                                     child: const CategoryItem(
-                                                        'assets/images/checklist.png',
-                                                        'My Appointments',
-                                                        Color(0xFFAC4211)),
+                                                      'assets/images/calender.jpg',
+                                                      'Manage Slots',
+                                                      Color(0xFF7660AB),
+                                                    ),
                                                   ),
                                                 ),
                                                 MouseRegion(
@@ -149,9 +149,9 @@ class PatientScreen extends StatelessWidget {
                                                                   .routeName);
                                                     },
                                                     child: const CategoryItem(
-                                                        'assets/images/calender.jpg',
-                                                        'My Schedule',
-                                                        Color(0xFF7660AB)),
+                                                        'assets/images/messages.jpg',
+                                                        'Messages',
+                                                        Color(0xFF028E81)),
                                                   ),
                                                 ),
                                               ],

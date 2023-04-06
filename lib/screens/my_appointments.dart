@@ -40,7 +40,7 @@ class MyAppointmentsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Scheduled Appointments',
+                          'All Appointments',
                           style: TextStyle(
                               fontFamily: 'MoonBold',
                               color: Theme.of(context).colorScheme.outline,

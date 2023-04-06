@@ -6,7 +6,12 @@ import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
 import 'package:runon/providers/issue_data.dart';
+import 'package:runon/providers/temp_provider.dart';
+import 'package:runon/screens/about_us_screen.dart';
 import 'package:runon/screens/add_appointment.dart';
+import 'package:runon/screens/chats_screen.dart';
+import 'package:runon/screens/doctor_screen.dart';
+import 'package:runon/screens/feedback_screen.dart';
 import 'package:runon/screens/knock_knee_screen.dart';
 import 'package:runon/screens/login.dart';
 import 'package:runon/screens/new_appointment.dart';
@@ -20,6 +25,7 @@ import 'package:runon/screens/profile_screen.dart';
 import 'package:runon/screens/documents_screen.dart';
 import 'package:runon/screens/my_schedule_screen.dart';
 import 'package:runon/screens/flat_feet_screen.dart';
+import 'package:runon/screens/messages_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,6 +72,9 @@ class _MyAppState extends State<MyApp> {
           create: (_) => IssueData(),
         ),
         ChangeNotifierProvider(
+          create: (_) => TempProvider(),
+        ),
+        ChangeNotifierProvider(
           create: (_) => Doctors(),
         ),
         ChangeNotifierProvider(
@@ -90,7 +99,9 @@ class _MyAppState extends State<MyApp> {
                         ? const Scaffold(
                             body: Center(child: CircularProgressIndicator()),
                           )
-                        : PatientScreen();
+                        : auth.type == 1
+                            ? DoctorScreen()
+                            : PatientScreen();
                   }),
           routes: {
             LoginScreen.routeName: (ctx) => LoginScreen(),
@@ -107,6 +118,11 @@ class _MyAppState extends State<MyApp> {
             MyScheduleScreen.routeName: (ctx) => const MyScheduleScreen(),
             FlatFeetScreen.routeName: (ctx) => const FlatFeetScreen(),
             KnockKneeScreen.routeName: (ctx) => const KnockKneeScreen(),
+            ChatsScreen.routeName: (ctx) => const ChatsScreen(),
+            FeedbackForm.routeName: (ctx) => const FeedbackForm(),
+            AboutUsScreen.routeName: (ctx) => const AboutUsScreen(),
+            MessagesScreen.routeName: (ctx) => const MessagesScreen(),
+            DoctorScreen.routeName: (ctx) => DoctorScreen(),
           },
         );
       }),

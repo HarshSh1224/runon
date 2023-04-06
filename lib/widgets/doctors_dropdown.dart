@@ -5,7 +5,7 @@ import 'package:runon/providers/slots.dart';
 
 class DoctorsDropdown extends StatefulWidget {
   final Doctors _doctors;
-  Function(String) _update;
+  final Function(String) _update;
   DoctorsDropdown(this._doctors, this._update, {super.key});
 
   @override
@@ -82,6 +82,7 @@ class _DoctorsDropdownState extends State<DoctorsDropdown> {
           _selectedValue = value;
         });
       },
+      isExpanded: true,
       onSaved: (value) {
         widget._update(value!);
       },

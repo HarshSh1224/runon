@@ -129,7 +129,16 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
       }
 
       await firebaseDatabase.doc(response.id).set(widget._formData);
-    } catch (error) {}
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Padding(
+            padding: EdgeInsets.symmetric(vertical: 10.0),
+            child: Text('Error'),
+          ),
+        ),
+      );
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Padding(
@@ -167,6 +176,50 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
                   const TextSpan(text: 'Patient Name : '),
                   TextSpan(
                       text: '${auth.fName!} ${auth.lName!}',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                ]),
+          ),
+          RichText(
+            text: TextSpan(
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground),
+                children: [
+                  const TextSpan(text: 'Age : '),
+                  TextSpan(
+                      text: auth.age,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                ]),
+          ),
+          RichText(
+            text: TextSpan(
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground),
+                children: [
+                  const TextSpan(text: 'Gender : '),
+                  TextSpan(
+                      text: auth.gender,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                ]),
+          ),
+          RichText(
+            text: TextSpan(
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground),
+                children: [
+                  const TextSpan(text: 'Height : '),
+                  TextSpan(
+                      text: widget._formData['height'],
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                ]),
+          ),
+          RichText(
+            text: TextSpan(
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground),
+                children: [
+                  const TextSpan(text: 'Weight : '),
+                  TextSpan(
+                      text: widget._formData['weight'],
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
