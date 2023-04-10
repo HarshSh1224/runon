@@ -6,10 +6,13 @@ import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
 import 'package:runon/providers/issue_data.dart';
+import 'package:runon/providers/slots.dart';
 import 'package:runon/providers/temp_provider.dart';
 import 'package:runon/screens/about_us_screen.dart';
 import 'package:runon/screens/add_appointment.dart';
 import 'package:runon/screens/chats_screen.dart';
+import 'package:runon/screens/doctor/manage_slots.dart';
+import 'package:runon/screens/doctor/my_appointments.dart';
 import 'package:runon/screens/doctor_screen.dart';
 import 'package:runon/screens/feedback_screen.dart';
 import 'package:runon/screens/knock_knee_screen.dart';
@@ -69,6 +72,9 @@ class _MyAppState extends State<MyApp> {
           create: (_) => Auth(),
         ),
         ChangeNotifierProvider(
+          create: (_) => Slots(),
+        ),
+        ChangeNotifierProvider(
           create: (_) => IssueData(),
         ),
         ChangeNotifierProvider(
@@ -123,6 +129,9 @@ class _MyAppState extends State<MyApp> {
             AboutUsScreen.routeName: (ctx) => const AboutUsScreen(),
             MessagesScreen.routeName: (ctx) => const MessagesScreen(),
             DoctorScreen.routeName: (ctx) => DoctorScreen(),
+            MyAppointmentsScreenDoctor.routeName: (ctx) =>
+                MyAppointmentsScreenDoctor(),
+            ManageSlotsScreen.routeName: (ctx) => const ManageSlotsScreen(),
           },
         );
       }),

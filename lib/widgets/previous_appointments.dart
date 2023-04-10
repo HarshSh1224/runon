@@ -14,7 +14,8 @@ class PreviousAppointments extends StatelessWidget {
       Appointments appointmentsProvider, Auth auth, IssueData issue) async {
     await appointmentsProvider.fetchAndSetAppointments();
     await issue.fetchAndSetIssues();
-    _myAppointments = appointmentsProvider.getAppointmentsById(auth.userId!);
+    _myAppointments =
+        appointmentsProvider.getAppointmentsByPatientId(auth.userId!);
   }
 
   @override

@@ -6,17 +6,18 @@ import 'package:runon/providers/issue_data.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
 import 'package:runon/screens/appointement_detail_screen.dart';
 
-class MyAppointmentsScreen extends StatelessWidget {
-  static const routeName = '/my-appointments-screen';
-  MyAppointmentsScreen({super.key});
+class MyAppointmentsScreenDoctor extends StatelessWidget {
+  static const routeName = '/my-appointments-screen-doctor';
+  MyAppointmentsScreenDoctor({super.key});
   List<Appointment> _myAppointments = [];
 
   Future<void> _fetchAppointments(
       Appointments appointmentsProvider, Auth auth, IssueData issue) async {
+    // print('DOCTOR ID IS : ${auth.userId!}');
     await appointmentsProvider.fetchAndSetAppointments();
     await issue.fetchAndSetIssues();
     _myAppointments =
-        appointmentsProvider.getAppointmentsByPatientId(auth.userId!);
+        appointmentsProvider.getAppointmentsByDoctorId(auth.userId!);
   }
 
   @override
@@ -26,7 +27,7 @@ class MyAppointmentsScreen extends StatelessWidget {
     final auth = Provider.of<Auth>(context, listen: false);
     final issue = Provider.of<IssueData>(context, listen: false);
     return Scaffold(
-      appBar: AppBar(title: const Text('My Appointments')),
+      appBar: AppBar(title: const Text('Current Appointments')),
       body: FutureBuilder(
           future: _fetchAppointments(appointmentsProvider, auth, issue),
           builder: (context, snapshot) {
@@ -43,9 +44,10 @@ class MyAppointmentsScreen extends StatelessWidget {
                         Text(
                           'All Appointments',
                           style: TextStyle(
-                              fontFamily: 'MoonBold',
-                              color: Theme.of(context).colorScheme.outline,
-                              letterSpacing: 2),
+                            fontFamily: 'MoonBold',
+                            color: Theme.of(context).colorScheme.outline,
+                            letterSpacing: 2,
+                          ),
                         ),
                         const SizedBox(
                           height: 20,

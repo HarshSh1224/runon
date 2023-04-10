@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:runon/providers/slot_timings.dart';
 
 class Slots with ChangeNotifier {
   // Map < Date, List of available slot indexes >
   Map<String, List<String>> _slots = {};
+
+  Map<String, List<String>> get slots {
+    return {..._slots};
+  }
 
   bool get isEmpty {
     return _slots.isEmpty;
@@ -58,5 +61,37 @@ class Slots with ChangeNotifier {
 
   List<String> slotTimes(String date) {
     return [..._slots[date]!];
+  }
+
+  Future<void> addSlot(String date, String slot, String doctorId) async {
+    List<String> slotsList = _slots[date] == null ? [] : [..._slots[date]!];
+
+    if (slotsList.indexWhere((element) => element == slot) != -1) {
+      return;
+    } else {
+      slotsList.add(slot);
+    }
+
+    await FirebaseFirestore.instance
+        .collection('doctors/$doctorId/slots')
+        .doc(date)
+        .set({'slots': slotsList});
+  }
+
+  removeSlot(String date, String slot, String doctorId) async {
+    List<String> slotsList = _slots[date] == null ? [] : [..._slots[date]!];
+    slotsList.removeWhere((element) => element == slot);
+
+    if (slotsList.isEmpty) {
+      await FirebaseFirestore.instance
+          .collection('doctors/$doctorId/slots')
+          .doc(date)
+          .delete();
+    } else {
+      await FirebaseFirestore.instance
+          .collection('doctors/$doctorId/slots')
+          .doc(date)
+          .set({'slots': slotsList});
+    }
   }
 }

@@ -23,7 +23,7 @@ class Auth with ChangeNotifier {
     return (DateTime.now().year - dateOfBirth!.year).toString();
   }
 
-  Future<void> authenticate(
+  Future<int> authenticate(
       {required BuildContext context,
       required String email,
       required String password,
@@ -67,6 +67,7 @@ class Auth with ChangeNotifier {
         email = userDataLogin['email'];
         imageUrl = userDataLogin['imageUrl'];
       }
+      return type!;
     } on FirebaseAuthException catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Padding(

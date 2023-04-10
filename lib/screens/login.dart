@@ -29,35 +29,36 @@ class LoginScreen extends StatelessWidget {
     });
 
     try {
-      await Provider.of<Auth>(context, listen: false).authenticate(
+      int type = await Provider.of<Auth>(context, listen: false).authenticate(
           context: context,
           email: _formData['email']!,
           password: _formData['password']!);
-      Navigator.of(context).pushReplacementNamed(
-          Provider.of<Auth>(context, listen: false).type == 1
-              ? DoctorScreen.routeName
-              : PatientScreen.routeName);
-    } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0),
-        child: Text('Internal Error'),
-      )));
-      setState(() {
-        _isLoading = false;
-      });
+        content: Padding(
+          padding: EdgeInsets.symmetric(vertical: 10.0),
+          child: Text('Welcome'),
+        ),
+      ));
+      print('TYPE: $type');
+      Navigator.of(context).pushReplacementNamed(
+          type == 1 ? DoctorScreen.routeName : PatientScreen.routeName);
+      return;
+    } catch (error) {
+      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      //     content: Padding(
+      //   padding: EdgeInsets.symmetric(vertical: 10.0),
+      //   child: Text('Internal Error'),
+      // )));
+      // setState(() {
+      //   _isLoading = false;
+      // });
+      print('ERROR: $error');
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0),
-        child: Text('Welcome'),
-      ),
-    ));
 
-    setState(() {
-      _isLoading = false;
-    });
+    // setState(() {
+    //   _isLoading = false;
+    // });
   }
 
   @override

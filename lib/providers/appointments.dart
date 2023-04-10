@@ -57,8 +57,12 @@ class Appointments with ChangeNotifier {
     }
   }
 
-  List<Appointment> getAppointmentsById(String id) {
+  List<Appointment> getAppointmentsByPatientId(String id) {
     return _appointments.where((element) => element.patientId == id).toList();
+  }
+
+  List<Appointment> getAppointmentsByDoctorId(String id) {
+    return _appointments.where((element) => element.doctorId == id).toList();
   }
 
   Appointment getByAppointmentId(id) {
