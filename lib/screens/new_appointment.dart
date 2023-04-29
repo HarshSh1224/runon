@@ -25,9 +25,9 @@ class NewAppointment extends StatelessWidget {
     'issueId': '',
     'slotId': '',
     'reportUrl': [],
-    'paymentId': '',
     'height': '',
     'weight': '',
+    'bookedOn': ''
   };
 
   void updateDoctorId(doctorId) => _formData['doctorId'] = doctorId;
@@ -146,63 +146,80 @@ class NewAppointment extends StatelessWidget {
                                 const SizedBox(
                                   height: 20,
                                 ),
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      flex: 1,
-                                      child: TextFormField(
-                                        keyboardType: TextInputType.number,
-                                        onSaved: (value) {
-                                          _formData['height'] = value!;
-                                        },
-                                        validator: (value) {
-                                          if (value!.isEmpty ||
-                                              double.tryParse(value) == null ||
-                                              double.parse(value) < 0) {
-                                            return 'Invalid Value';
-                                          }
-                                          return null;
-                                        },
-                                        decoration: const InputDecoration(
-                                            // icon: Icon(Icons.attribution_sharp),
-                                            label: Text('Height (cm)*'),
-                                            border: OutlineInputBorder()),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    Flexible(
-                                      flex: 1,
-                                      child: TextFormField(
-                                        keyboardType: TextInputType.number,
-                                        onSaved: (value) {
-                                          _formData['weight'] = value!;
-                                        },
-                                        validator: (value) {
-                                          if (value!.isEmpty ||
-                                              double.tryParse(value) == null ||
-                                              double.parse(value) < 0) {
-                                            return 'Invalid Value';
-                                          }
-                                          return null;
-                                        },
-                                        decoration: const InputDecoration(
-                                            label: Text('Weight (kg)*'),
-                                            border: OutlineInputBorder()),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
+
                                 Consumer<TempProvider>(
                                     builder: (context, temp, ch) {
                                   return _formData['issueId'] != 'I8'
                                       ? Container()
                                       : Column(
                                           children: [
+                                            Row(
+                                              children: [
+                                                Flexible(
+                                                  flex: 1,
+                                                  child: TextFormField(
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    onSaved: (value) {
+                                                      _formData['height'] =
+                                                          value!;
+                                                    },
+                                                    validator: (value) {
+                                                      if (value!.isEmpty ||
+                                                          double.tryParse(
+                                                                  value) ==
+                                                              null ||
+                                                          double.parse(value) <
+                                                              0) {
+                                                        return 'Invalid Value';
+                                                      }
+                                                      return null;
+                                                    },
+                                                    decoration:
+                                                        const InputDecoration(
+                                                            // icon: Icon(Icons.attribution_sharp),
+                                                            label: Text(
+                                                                'Height (cm)*'),
+                                                            border:
+                                                                OutlineInputBorder()),
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Flexible(
+                                                  flex: 1,
+                                                  child: TextFormField(
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    onSaved: (value) {
+                                                      _formData['weight'] =
+                                                          value!;
+                                                    },
+                                                    validator: (value) {
+                                                      if (value!.isEmpty ||
+                                                          double.tryParse(
+                                                                  value) ==
+                                                              null ||
+                                                          double.parse(value) <
+                                                              0) {
+                                                        return 'Invalid Value';
+                                                      }
+                                                      return null;
+                                                    },
+                                                    decoration:
+                                                        const InputDecoration(
+                                                            label: Text(
+                                                                'Weight (kg)*'),
+                                                            border:
+                                                                OutlineInputBorder()),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              height: 20,
+                                            ),
                                             Row(
                                               children: [
                                                 FlatFeetImageUploadBox(

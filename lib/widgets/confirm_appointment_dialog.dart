@@ -10,7 +10,7 @@ import '../widgets/method_slot_formatter.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class ConfirmAppointmentDialog extends StatefulWidget {
-  const ConfirmAppointmentDialog(
+  ConfirmAppointmentDialog(
       this._doctorId, this._slot, this._issue, this._formData, this._files,
       {super.key});
 
@@ -19,6 +19,12 @@ class ConfirmAppointmentDialog extends StatefulWidget {
   final String _issue;
   final _formData;
   final _files;
+  final timelineData = {
+    'createdOn': '',
+    'paymentId': '',
+    'prescriptionList': [],
+    'slotId': ''
+  };
 
   @override
   State<ConfirmAppointmentDialog> createState() =>
@@ -51,7 +57,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         );
       },
     );
-    widget._formData['paymentId'] = response.paymentId;
+    widget.timelineData['paymentId'] = response.paymentId as String;
     _sendDataToServer(context);
   }
 
@@ -128,6 +134,13 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         widget._formData['reportUrl'].add(url);
       }
 
+      widget.timelineData['createdOn'] = DateTime.now().toIso8601String();
+      widget.timelineData['slotId'] = widget._formData['slotId'];
+
+      await FirebaseFirestore.instance
+          .collection('appointments/${response.id}/timeline')
+          .add(widget.timelineData);
+
       await firebaseDatabase.doc(response.id).set(widget._formData);
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -201,28 +214,30 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
-          RichText(
-            text: TextSpan(
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
-                children: [
-                  const TextSpan(text: 'Height : '),
-                  TextSpan(
-                      text: widget._formData['height'],
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                ]),
-          ),
-          RichText(
-            text: TextSpan(
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
-                children: [
-                  const TextSpan(text: 'Weight : '),
-                  TextSpan(
-                      text: widget._formData['weight'],
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                ]),
-          ),
+          if (widget._formData['height'] != '')
+            RichText(
+              text: TextSpan(
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground),
+                  children: [
+                    const TextSpan(text: 'Height : '),
+                    TextSpan(
+                        text: widget._formData['height'],
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ]),
+            ),
+          if (widget._formData['weight'] != '')
+            RichText(
+              text: TextSpan(
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground),
+                  children: [
+                    const TextSpan(text: 'Weight : '),
+                    TextSpan(
+                        text: widget._formData['weight'],
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ]),
+            ),
           RichText(
             text: TextSpan(
                 style: TextStyle(

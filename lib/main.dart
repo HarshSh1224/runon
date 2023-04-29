@@ -29,6 +29,7 @@ import 'package:runon/screens/documents_screen.dart';
 import 'package:runon/screens/my_schedule_screen.dart';
 import 'package:runon/screens/flat_feet_screen.dart';
 import 'package:runon/screens/messages_screen.dart';
+import 'package:runon/video_call/call.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -132,6 +133,7 @@ class _MyAppState extends State<MyApp> {
             MyAppointmentsScreenDoctor.routeName: (ctx) =>
                 MyAppointmentsScreenDoctor(),
             ManageSlotsScreen.routeName: (ctx) => const ManageSlotsScreen(),
+            CallPage.routeName: (ctx) => CallPage(),
           },
         );
       }),

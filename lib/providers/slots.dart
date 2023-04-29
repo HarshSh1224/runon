@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 
 class Slots with ChangeNotifier {
   // Map < Date, List of available slot indexes >
@@ -21,6 +22,9 @@ class Slots with ChangeNotifier {
       Map<String, List<String>> temp = {};
 
       for (int i = 0; i < response.docs.length; i++) {
+        if (slotIdTodDateTime(response.docs[i].id).isBefore(DateTime.now())) {
+          continue;
+        }
         temp[response.docs[i].id] =
             List<String>.from(response.docs[i]['slots']);
       }
