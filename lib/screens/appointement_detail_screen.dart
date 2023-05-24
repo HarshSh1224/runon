@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/video_call/call.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
+import 'package:runon/widgets/attachment_card.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
   static const routeName = '/appointment-detail-screen';
@@ -199,45 +200,10 @@ class AppointmentDetailScreen extends StatelessWidget {
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      SizedBox(
-                                        height: 100,
-                                        width: 150,
-                                        child: Card(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondaryContainer,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          elevation: 10,
-                                          child: Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 70,
-                                                width: double.infinity,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(2.0),
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    child: Image.asset(
-                                                      'assets/images/doc.png',
-                                                      fit: BoxFit.cover,
-                                                      alignment:
-                                                          Alignment.topCenter,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                'View Attachments',
-                                                style: GoogleFonts.raleway(),
-                                              )
-                                            ],
-                                          ),
-                                        ),
+                                      AttachmentCard(
+                                        title: 'View Attachments',
+                                        color: Theme.of(context).colorScheme.secondaryContainer,
+                                        height: 70,
                                       ),
                                       const SizedBox(
                                         height: 25,
@@ -287,3 +253,4 @@ class AppointmentDetailScreen extends StatelessWidget {
     );
   }
 }
+

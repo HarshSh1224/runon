@@ -128,12 +128,12 @@ class _MyAppState extends State<MyApp> {
             ChatsScreen.routeName: (ctx) => const ChatsScreen(),
             FeedbackForm.routeName: (ctx) => const FeedbackForm(),
             AboutUsScreen.routeName: (ctx) => const AboutUsScreen(),
-            MessagesScreen.routeName: (ctx) => const MessagesScreen(),
+            MessagesScreen.routeName: (ctx) => MessagesScreen(),
             DoctorScreen.routeName: (ctx) => DoctorScreen(),
             MyAppointmentsScreenDoctor.routeName: (ctx) =>
                 MyAppointmentsScreenDoctor(),
             ManageSlotsScreen.routeName: (ctx) => const ManageSlotsScreen(),
-            CallPage.routeName: (ctx) => CallPage(),
+            CallPage.routeName: (ctx) => const CallPage(),
           },
         );
       }),

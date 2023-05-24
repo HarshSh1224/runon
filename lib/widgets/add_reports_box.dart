@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 
 class AddReportsBox extends StatefulWidget {
   final Function(List<PlatformFile>) _update;
-  AddReportsBox(
+  const AddReportsBox(
     this._update, {
     super.key,
   });
@@ -52,7 +52,7 @@ class _AddReportsBoxState extends State<AddReportsBox> {
       // print(file.extension);
       // print(file.path);
     } else {
-      // User canceled the picker
+      // User cancelled the picker
     }
   }
 
