@@ -1,10 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/screens/add_appointment.dart';
-import 'package:runon/screens/login.dart';
 import 'package:runon/screens/my_schedule_screen.dart';
 import '../widgets/category_item.dart';
 import '../widgets/clip_paths.dart';
@@ -24,12 +22,7 @@ class PatientScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = Provider.of<Auth>(context);
     var pageController = PageController(initialPage: 0, viewportFraction: 0.8);
-    return StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          return !snapshot.hasData
-              ? LoginScreen()
-              : Scaffold(
+    return Scaffold(
                   drawer: const Drawer(
                     backgroundColor: Colors.transparent,
                     child: SideDrawer(),
@@ -296,7 +289,6 @@ class PatientScreen extends StatelessWidget {
                           }),
                     ],
                   ),
-                );
-        });
+    );
   }
 }

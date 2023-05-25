@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
-import '../screens/patient_screen.dart';
+import 'package:runon/screens/patient_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/clip_paths.dart';
 import 'package:intl/intl.dart';

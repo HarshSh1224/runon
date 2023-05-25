@@ -10,6 +10,7 @@ import 'package:runon/providers/slots.dart';
 import 'package:runon/providers/temp_provider.dart';
 import 'package:runon/screens/about_us_screen.dart';
 import 'package:runon/screens/add_appointment.dart';
+import 'package:runon/screens/admin_screen.dart';
 import 'package:runon/screens/chats_screen.dart';
 import 'package:runon/screens/doctor/manage_slots.dart';
 import 'package:runon/screens/doctor/my_appointments.dart';
@@ -29,6 +30,7 @@ import 'package:runon/screens/documents_screen.dart';
 import 'package:runon/screens/my_schedule_screen.dart';
 import 'package:runon/screens/flat_feet_screen.dart';
 import 'package:runon/screens/messages_screen.dart';
+import 'package:runon/screens/admin/manage_medical_teams.dart';
 import 'package:runon/video_call/call.dart';
 
 void main() async {
@@ -59,9 +61,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   void toggleTheme() async {
     setState(() {
-      themeBrightness = themeBrightness == Brightness.dark
-          ? Brightness.light
-          : Brightness.dark;
+      themeBrightness = themeBrightness == Brightness.dark ? Brightness.light : Brightness.dark;
     });
   }
 
@@ -97,19 +97,24 @@ class _MyAppState extends State<MyApp> {
             useMaterial3: true,
             colorSchemeSeed: const Color(0xFF51B154),
           ),
-          home: FirebaseAuth.instance.currentUser == null
-              ? LoginScreen()
-              : FutureBuilder(
-                  future: auth.tryLogin(),
-                  builder: (context, snapshot) {
-                    return snapshot.connectionState == ConnectionState.waiting
-                        ? const Scaffold(
-                            body: Center(child: CircularProgressIndicator()),
-                          )
-                        : auth.type == 1
-                            ? DoctorScreen()
-                            : PatientScreen();
-                  }),
+          home: StreamBuilder<User?>(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                return !snapshot.hasData
+                    ? LoginScreen()
+                    : FutureBuilder(
+                        future: auth.tryLogin(),
+                        builder: (context, snapshot) {
+                          // print(FirebaseAuth.instance.currentUser!.uid);
+                          return snapshot.connectionState == ConnectionState.waiting
+                              ? const Scaffold(
+                                  body: Center(child: CircularProgressIndicator()),
+                                )
+                              : auth.type == 1
+                                  ? DoctorScreen()
+                                  : (auth.type == 2 ? AdminScreen() : PatientScreen());
+                        });
+              }),
           routes: {
             LoginScreen.routeName: (ctx) => LoginScreen(),
             MyAppointmentsScreen.routeName: (ctx) => MyAppointmentsScreen(),
@@ -117,8 +122,7 @@ class _MyAppState extends State<MyApp> {
             PatientScreen.routeName: (ctx) => PatientScreen(),
             AddAppointment.routeName: (ctx) => const AddAppointment(),
             NewAppointment.routeName: (ctx) => NewAppointment(),
-            AppointmentDetailScreen.routeName: (ctx) =>
-                AppointmentDetailScreen(),
+            AppointmentDetailScreen.routeName: (ctx) => AppointmentDetailScreen(),
             ForgotPasswordScreen.routeName: (ctx) => ForgotPasswordScreen(),
             ProfileScreen.routeName: (ctx) => ProfileScreen(toggleTheme),
             DocumentsScreen.routeName: (ctx) => const DocumentsScreen(),
@@ -130,10 +134,11 @@ class _MyAppState extends State<MyApp> {
             AboutUsScreen.routeName: (ctx) => const AboutUsScreen(),
             MessagesScreen.routeName: (ctx) => MessagesScreen(),
             DoctorScreen.routeName: (ctx) => DoctorScreen(),
-            MyAppointmentsScreenDoctor.routeName: (ctx) =>
-                MyAppointmentsScreenDoctor(),
+            MyAppointmentsScreenDoctor.routeName: (ctx) => MyAppointmentsScreenDoctor(),
             ManageSlotsScreen.routeName: (ctx) => const ManageSlotsScreen(),
             CallPage.routeName: (ctx) => const CallPage(),
+            AdminScreen.routeName: (ctx) => AdminScreen(),
+            ManageMedicalTeams.routeName: (ctx) => ManageMedicalTeams(),
           },
         );
       }),

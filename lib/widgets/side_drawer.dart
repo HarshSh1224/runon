@@ -4,6 +4,8 @@ import 'package:runon/screens/add_appointment.dart';
 import 'package:runon/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runon/screens/doctor_screen.dart';
+import 'package:runon/screens/patient_screen.dart';
 import 'package:runon/screens/profile_screen.dart';
 
 class SideDrawer extends StatelessWidget {
@@ -80,7 +82,12 @@ class SideDrawer extends StatelessWidget {
                       // Navigator.popUntil(context, ModalRoute.withName('/tabs-screen'));
                       Navigator.of(context).popUntil(
                           (route) => route != ModalRoute.withName('/'));
-                      Navigator.of(context).pushReplacementNamed('/');
+                      if (auth.type == 0) {
+                        Navigator.of(context).pushReplacementNamed(PatientScreen.routeName);
+                      }
+                      if (auth.type == 1) {
+                        Navigator.of(context).pushReplacementNamed(DoctorScreen.routeName);
+                      }
                     }),
                     _listTileBuilder(
                         context,

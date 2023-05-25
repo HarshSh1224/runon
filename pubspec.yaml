@@ -80,6 +80,12 @@ flutter:
     - assets/images/sample2.jpg
     - assets/images/messages.jpg
     - assets/images/doc.png
+    - assets/images/graph.jpg
+    - assets/images/appointments.jpg
+    - assets/images/graph2.png
+    - assets/images/linechart.gif
+    - assets/images/medicalteams.gif
+    - assets/images/generate.gif
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

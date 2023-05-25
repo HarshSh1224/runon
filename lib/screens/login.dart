@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
-import '../screens/patient_screen.dart';
+import 'package:runon/screens/patient_screen.dart';
 import '../screens/signup.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/clip_paths.dart';
 import 'package:runon/screens/forgot_password_screen.dart';
 import 'package:runon/screens/doctor_screen.dart';
+import 'package:runon/screens/admin_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/login';
@@ -41,7 +42,9 @@ class LoginScreen extends StatelessWidget {
       ));
       print('TYPE: $type');
       Navigator.of(context).pushReplacementNamed(
-          type == 1 ? DoctorScreen.routeName : PatientScreen.routeName);
+          type == 1
+          ? DoctorScreen.routeName
+          : (type == 2 ? AdminScreen.routeName : PatientScreen.routeName));
       setState(() {
         _isLoading = false;
       });
