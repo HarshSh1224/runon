@@ -30,7 +30,8 @@ import 'package:runon/screens/documents_screen.dart';
 import 'package:runon/screens/my_schedule_screen.dart';
 import 'package:runon/screens/flat_feet_screen.dart';
 import 'package:runon/screens/messages_screen.dart';
-import 'package:runon/screens/admin/manage_medical_teams.dart';
+import 'package:runon/screens/admin/medical_teams.dart';
+import 'package:runon/screens/admin/manage_med_team.dart';
 import 'package:runon/video_call/call.dart';
 
 void main() async {
@@ -138,7 +139,8 @@ class _MyAppState extends State<MyApp> {
             ManageSlotsScreen.routeName: (ctx) => const ManageSlotsScreen(),
             CallPage.routeName: (ctx) => const CallPage(),
             AdminScreen.routeName: (ctx) => AdminScreen(),
-            ManageMedicalTeams.routeName: (ctx) => ManageMedicalTeams(),
+            ManageMedicalTeam.routeName: (ctx) => ManageMedicalTeam(),
+            MedicalTeamsScreen.routeName: (ctx) => MedicalTeamsScreen(),
           },
         );
       }),

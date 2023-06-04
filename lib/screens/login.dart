@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/screens/patient_screen.dart';
 import '../screens/signup.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../widgets/clip_paths.dart';
 import 'package:runon/screens/forgot_password_screen.dart';
 import 'package:runon/screens/doctor_screen.dart';
@@ -97,17 +96,9 @@ class LoginScreen extends StatelessWidget {
                         height: 80,
                       ),
                       Center(
-                        child: Text(
-                          'RUN ON\nLOGO',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.bebasNeue(
-                            fontSize: 40,
-                            letterSpacing: 3,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 40,
+                        child: SizedBox(
+                          height: 200,
+                          child: Image.asset('assets/images/logo.png', fit: BoxFit.fitWidth,)),
                       ),
                       const Text('Login to your account'),
                       const SizedBox(

@@ -7,7 +7,7 @@ import '../widgets/clip_paths.dart';
 import '../screens/profile_screen.dart';
 import 'package:runon/widgets/side_drawer.dart';
 import 'package:runon/widgets/category_item.dart';
-import 'package:runon/screens/admin/manage_medical_teams.dart';
+import 'package:runon/screens/admin/medical_teams.dart';
 
 class AdminScreen extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -98,7 +98,7 @@ class AdminScreen extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                 child: GestureDetector(
                                   onTap: () {
-                                    Navigator.of(context).pushNamed(ManageMedicalTeams.routeName);
+                                    Navigator.of(context).pushNamed(MedicalTeamsScreen.routeName);
                                   },
                                   child: const CategoryItem('assets/images/medicalteams.gif',
                                       'Manage Medical Teams', Colors.purpleAccent),
