@@ -8,6 +8,7 @@ import '../screens/profile_screen.dart';
 import 'package:runon/widgets/side_drawer.dart';
 import 'package:runon/widgets/category_item.dart';
 import 'package:runon/screens/admin/medical_teams.dart';
+import 'package:runon/screens/admin/admin_appointments.dart';
 
 class AdminScreen extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -56,75 +57,98 @@ class AdminScreen extends StatelessWidget {
             child: Container(color: Theme.of(context).colorScheme.secondaryContainer),
           ),
           FutureBuilder(
-              future: user.tryLogin(),
-              builder: (context, snapshot) {
-                return snapshot.connectionState == ConnectionState.waiting
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 30),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              Container(
-                                constraints: const BoxConstraints(maxHeight: 170),
-                                padding: const EdgeInsets.only(left: 20),
-                                child: PageView(
-                                    padEnds: false,
-                                    pageSnapping: true,
-                                    controller: PageController(viewportFraction: 0.7),
-                                    children: [
-                                      _pageViewItemBuilder(
-                                          'No of Patients',
-                                          'assets/images/linechart.gif',
-                                          Colors.white,
-                                          0.8,
-                                          'users'),
-                                      _pageViewItemBuilder(
-                                          'Active Appointments',
-                                          'assets/images/graph2.png',
-                                          Colors.black,
-                                          0.5,
-                                          'appointments'),
-                                      _pageViewItemBuilder('Medical Teams:',
-                                          'assets/images/graph.jpg', Colors.white, 0.7, 'doctors'),
-                                      const SizedBox(
-                                        width: 1,
-                                      ),
-                                    ]),
+            future: user.tryLogin(),
+            builder: (context, snapshot) {
+              return snapshot.connectionState == ConnectionState.waiting
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 30),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Container(
+                              constraints: const BoxConstraints(maxHeight: 170),
+                              padding: const EdgeInsets.only(left: 20),
+                              child: PageView(
+                                  padEnds: false,
+                                  pageSnapping: true,
+                                  controller: PageController(viewportFraction: 0.7),
+                                  children: [
+                                    _pageViewItemBuilder(
+                                      'No of Patients',
+                                      'assets/images/linechart.gif',
+                                      Colors.white,
+                                      0.8,
+                                      'users',
+                                    ),
+                                    _pageViewItemBuilder(
+                                        'Active Appointments',
+                                        'assets/images/graph2.png',
+                                        Colors.black,
+                                        0.5,
+                                        'appointments'),
+                                    _pageViewItemBuilder('Medical Teams:',
+                                        'assets/images/graph.jpg', Colors.white, 0.7, 'doctors'),
+                                    const SizedBox(
+                                      width: 1,
+                                    ),
+                                  ]),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).pushNamed(MedicalTeamsScreen.routeName);
+                                },
+                                child: const CategoryItem('assets/images/medicalteams.gif',
+                                    'Manage Medical Teams', Colors.purpleAccent),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).pushNamed(MedicalTeamsScreen.routeName);
-                                  },
-                                  child: const CategoryItem('assets/images/medicalteams.gif',
-                                      'Manage Medical Teams', Colors.purpleAccent),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pushNamed(AdminAppointments.routeName);
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 18.0),
+                                child: CategoryItem(
+                                  'assets/images/appointments.gif',
+                                  'Active Appointments',
+                                  Colors.orange,
+                                  alignment: Alignment.center,
                                 ),
                               ),
-                              const SizedBox(
-                                height: 10,
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 18.0),
+                              child: CategoryItem(
+                                'assets/images/feedback.gif',
+                                'View User Feedbacks/Reports',
+                                Colors.lightBlueAccent,
+                                alignment: Alignment.center,
                               ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 18.0),
-                                child: CategoryItem('assets/images/generate.gif',
-                                    'Generate User Accounts', Colors.blueAccent),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 18.0),
-                                child: CategoryItem('assets/images/appointments.jpg',
-                                    'Active Appointments', Colors.pinkAccent),
-                              ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 18.0),
+                              child: CategoryItem('assets/images/generate.gif',
+                                  'Generate User Accounts', Colors.blueAccent),
+                            ),
+                          ],
                         ),
-                      );
-              }),
+                      ),
+                    );
+            },
+          ),
         ],
       ),
     );

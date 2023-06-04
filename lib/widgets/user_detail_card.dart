@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:runon/widgets/edit_profile_bottom_sheet.dart';
+import 'package:flutter/services.dart';
 
 class UserDetailCard extends StatelessWidget {
   UserDetailCard({
@@ -16,6 +17,8 @@ class UserDetailCard extends StatelessWidget {
   XFile? _xPickedImage;
   CroppedFile? _croppedImage;
 
+  bool _isCopied = false;
+
   Future<void> _cropImage(filePath) async {
     _croppedImage = await ImageCropper().cropImage(
         sourcePath: filePath,
@@ -25,8 +28,7 @@ class UserDetailCard extends StatelessWidget {
   }
 
   void _pickkImage(ImageSource source, setState, context) async {
-    _xPickedImage =
-        await ImagePicker().pickImage(source: source, imageQuality: 10);
+    _xPickedImage = await ImagePicker().pickImage(source: source, imageQuality: 10);
 
     if (_xPickedImage == null) {
       _pickedImage = null;
@@ -41,21 +43,17 @@ class UserDetailCard extends StatelessWidget {
     });
     // widget.getProfilePic(_pickedImage);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Padding(
-            padding: EdgeInsets.all(10.0), child: Text('Uploading image...'))));
+        content: Padding(padding: EdgeInsets.all(10.0), child: Text('Uploading image...'))));
     try {
       if (_pickedImage != null) {
         await user.updateProfileImage(_pickedImage!);
         ScaffoldMessenger.of(context).removeCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Padding(
-                padding: EdgeInsets.all(10.0), child: Text('Success'))));
+            content: Padding(padding: EdgeInsets.all(10.0), child: Text('Success'))));
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(error.toString()))));
+          content: Padding(padding: const EdgeInsets.all(10.0), child: Text(error.toString()))));
     }
   }
 
@@ -84,8 +82,7 @@ class UserDetailCard extends StatelessWidget {
                         await showModalBottomSheet(
                             shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20)),
+                                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                             ),
                             context: context,
                             builder: (_) {
@@ -93,14 +90,10 @@ class UserDetailCard extends StatelessWidget {
                                 height: 200,
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20)),
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceVariant,
+                                      topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                                  color: Theme.of(context).colorScheme.surfaceVariant,
                                 ),
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 30),
+                                padding: const EdgeInsets.symmetric(horizontal: 30),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -111,11 +104,8 @@ class UserDetailCard extends StatelessWidget {
                                       alignment: Alignment.center,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         ),
                                         width: 33,
                                         height: 4,
@@ -127,9 +117,7 @@ class UserDetailCard extends StatelessWidget {
                                     Text(
                                       'Pick image from:',
                                       style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSecondaryContainer,
+                                          color: Theme.of(context).colorScheme.onSecondaryContainer,
                                           fontSize: 17,
                                           fontFamily: 'Raleway',
                                           fontWeight: FontWeight.w800),
@@ -146,8 +134,7 @@ class UserDetailCard extends StatelessWidget {
                                                   sourceChoice = 0;
                                                   Navigator.of(context).pop();
                                                 },
-                                                child: imageSourceChoiceBuilder(
-                                                    context, 0))),
+                                                child: imageSourceChoiceBuilder(context, 0))),
                                         const SizedBox(
                                           width: 20,
                                         ),
@@ -171,12 +158,8 @@ class UserDetailCard extends StatelessWidget {
                               );
                             });
                         if (sourceChoice != -1) {
-                          _pickkImage(
-                              sourceChoice == 0
-                                  ? ImageSource.camera
-                                  : ImageSource.gallery,
-                              setState,
-                              context);
+                          _pickkImage(sourceChoice == 0 ? ImageSource.camera : ImageSource.gallery,
+                              setState, context);
                         }
                       },
                       child: CircleAvatar(
@@ -223,6 +206,43 @@ class UserDetailCard extends StatelessWidget {
                         ),
                   ),
                   const SizedBox(
+                    height: 3,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Id : ${user.userId!}',
+                        style: GoogleFonts.inconsolata(
+                          fontSize: 13,
+                          // fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 7,
+                      ),
+                      StatefulBuilder(builder: (context, setState) {
+                        return GestureDetector(
+                          onTap: () async {
+                            setState(() {
+                              _isCopied = true;
+                            });
+                            await Clipboard.setData(ClipboardData(text: user.userId));
+                            await Future.delayed(const Duration(seconds: 1));
+                            setState(() {
+                              _isCopied = false;
+                            });
+                          },
+                          child: Icon(
+                            _isCopied ? Icons.done : Icons.copy,
+                            size: 17,
+                            color: _isCopied ? Colors.green : null,
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                  const SizedBox(
                     height: 10,
                   ),
                 ],
@@ -237,8 +257,7 @@ class UserDetailCard extends StatelessWidget {
                               backgroundColor: Colors.transparent,
                               shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    topRight: Radius.circular(20)),
+                                    topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                               ),
                               isScrollControlled: true,
                               context: context,

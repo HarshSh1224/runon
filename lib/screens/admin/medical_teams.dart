@@ -50,38 +50,59 @@ class MedicalTeamsScreen extends StatelessWidget {
                                       margin: const EdgeInsets.only(
                                           left: 18, right: 18, top: 10, bottom: 40),
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 20, vertical: 20),
+                                        // padding: const EdgeInsets.symmetric(
+                                        //     horizontal: 20, vertical: 20),
                                         height: 170,
                                         width: MediaQuery.of(context).size.width * 0.76,
                                         decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                              fit: BoxFit.fill,
+                                              scale: 1.4,
+                                              opacity: 0.2,
+                                              image: Image.network(
+                                                'https://img.freepik.com/premium-vector/abstract-background-colorful-wavy-lines-blue-colors_444390-5163.jpg',
+                                                // fit: BoxFit.fitWidth,
+                                              ).image),
                                           color: Theme.of(context)
                                               .colorScheme
                                               .tertiaryContainer
                                               .withOpacity(0.85),
                                           borderRadius: BorderRadius.circular(13),
                                         ),
-                                        child: Center(
-                                            child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                        child: Stack(
                                           children: [
-                                            IconButton(
-                                                style: IconButton.styleFrom(
-                                                    backgroundColor: Theme.of(context)
-                                                        .colorScheme
-                                                        .tertiaryContainer),
-                                                onPressed: () {},
-                                                icon: const Icon(Icons.add, size: 60),
-                                                color: Theme.of(context).colorScheme.tertiary),
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                            Text(
-                                              'Add Medical Teams',
-                                              style: GoogleFonts.roboto(fontSize: 18),
+                                            Center(
+                                                child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                IconButton(
+                                                    style: IconButton.styleFrom(
+                                                        backgroundColor: Theme.of(context)
+                                                            .colorScheme
+                                                            .tertiaryContainer),
+                                                    onPressed: () {},
+                                                    icon: const Icon(Icons.add, size: 60),
+                                                    color: Theme.of(context).colorScheme.tertiary),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Text(
+                                                  'Add Medical Teams',
+                                                  style: GoogleFonts.roboto(fontSize: 18),
+                                                ),
+                                              ],
+                                            )),
+                                            Positioned.fill(
+                                              child: Material(
+                                                color: Colors.transparent,
+                                                child: InkWell(
+                                                  onTap: () {},
+                                                  splashColor: Colors.black12,
+                                                ),
+                                              ),
                                             ),
                                           ],
-                                        )),
+                                        ),
                                       ),
                                     )
                                   : Card(

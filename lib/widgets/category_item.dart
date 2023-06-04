@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CategoryItem extends StatelessWidget {
+  const CategoryItem(this._imageUrl, this._title, this._color, {this.alignment, super.key});
+
   final String _imageUrl;
   final String _title;
   final Color _color;
-  const CategoryItem(this._imageUrl, this._title, this._color);
+  final AlignmentGeometry? alignment;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +20,7 @@ class CategoryItem extends StatelessWidget {
         color: ColorScheme.fromSeed(seedColor: _color).secondaryContainer,
         elevation: 6,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
+          SizedBox(
             height: 150,
             width: double.infinity,
             child: Card(
@@ -28,8 +30,8 @@ class CategoryItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
                   _imageUrl,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
+                  fit: BoxFit.fitWidth,
+                  alignment: alignment ?? Alignment.topCenter,
                 ),
               ),
             ),

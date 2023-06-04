@@ -33,6 +33,7 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manage Team'),
+        actions: const [],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18.0),
