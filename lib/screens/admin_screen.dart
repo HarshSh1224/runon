@@ -9,6 +9,7 @@ import 'package:runon/widgets/side_drawer.dart';
 import 'package:runon/widgets/category_item.dart';
 import 'package:runon/screens/admin/medical_teams.dart';
 import 'package:runon/screens/admin/admin_appointments.dart';
+import 'package:runon/screens/admin/manage_issues.dart';
 
 class AdminScreen extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -19,12 +20,15 @@ class AdminScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = Provider.of<Auth>(context);
     return Scaffold(
+      extendBodyBehindAppBar: true,
       drawer: const Drawer(
         backgroundColor: Colors.transparent,
         child: SideDrawer(),
       ),
       key: _scaffoldKey,
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
         actions: [
           IconButton(
             icon: CircleAvatar(
@@ -44,7 +48,14 @@ class AdminScreen extends StatelessWidget {
           },
         ),
         centerTitle: true,
-        title: const Text('Administrator'),
+        title: Row(
+          children: [
+            Text(
+              'Administrator',
+              style: GoogleFonts.raleway(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
       body: Stack(
         children: [
@@ -69,7 +80,10 @@ class AdminScreen extends StatelessWidget {
                         child: Column(
                           children: [
                             const SizedBox(
-                              height: 20,
+                              height: 80,
+                            ),
+                            const SizedBox(
+                              height: 30,
                             ),
                             Container(
                               constraints: const BoxConstraints(maxHeight: 170),
@@ -123,6 +137,23 @@ class AdminScreen extends StatelessWidget {
                                   'Active Appointments',
                                   Colors.orange,
                                   alignment: Alignment.center,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pushNamed(ManageIssues.routeName);
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 18.0),
+                                child: CategoryItem(
+                                  'assets/images/categories.gif',
+                                  'Manage issues',
+                                  Colors.red,
+                                  alignment: Alignment.topCenter,
                                 ),
                               ),
                             ),

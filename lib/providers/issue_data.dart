@@ -15,10 +15,24 @@ class IssueData with ChangeNotifier {
     return [..._issueData];
   }
 
+  void notifyyListeners() {
+    notifyListeners();
+  }
+
+  Future<void> addIssue(String title) async {
+    String newId = 'I${issueData.length + 1}';
+    try {
+      await FirebaseFirestore.instance.collection('issues').doc(newId).set({'title': title});
+    } catch (error) {
+      debugPrint(error.toString());
+    }
+    issueData.add(Issue(newId, title));
+    notifyListeners();
+  }
+
   Future<void> fetchAndSetIssues() async {
     try {
-      final fetchedData =
-          await FirebaseFirestore.instance.collection('issues').get();
+      final fetchedData = await FirebaseFirestore.instance.collection('issues').get();
 
       final fetchedDocsList = fetchedData.docs;
 
