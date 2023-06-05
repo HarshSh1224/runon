@@ -117,6 +117,18 @@ class MedicalTeamsScreen extends StatelessWidget {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 20, vertical: 20),
                                         height: 170,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          image: DecorationImage(
+                                              fit: BoxFit.fill,
+                                              scale: 1.4,
+                                              opacity: 0.15,
+                                              image: Image.asset(
+                                                'assets/images/green_waves.png',
+                                                fit: BoxFit.fitHeight,
+                                                alignment: Alignment.topCenter,
+                                              ).image),
+                                        ),
                                         // color: Colors.black,
                                         child: Row(
                                           crossAxisAlignment: CrossAxisAlignment.start,

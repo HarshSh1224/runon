@@ -10,6 +10,7 @@ import 'package:runon/widgets/category_item.dart';
 import 'package:runon/screens/admin/medical_teams.dart';
 import 'package:runon/screens/admin/admin_appointments.dart';
 import 'package:runon/screens/admin/manage_issues.dart';
+import 'package:runon/screens/admin/user_feedbacks.dart';
 
 class AdminScreen extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -161,6 +162,9 @@ class AdminScreen extends StatelessWidget {
                               height: 10,
                             ),
                             GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pushNamed(UserFeedbackScreen.routeName);
+                              },
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 18.0),
                                 child: CategoryItem(
@@ -170,6 +174,9 @@ class AdminScreen extends StatelessWidget {
                                   alignment: Alignment.center,
                                 ),
                               ),
+                            ),
+                            const SizedBox(
+                              height: 20,
                             ),
                           ],
                         ),

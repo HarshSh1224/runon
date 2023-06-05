@@ -11,6 +11,7 @@ import 'package:runon/providers/temp_provider.dart';
 import 'package:runon/screens/about_us_screen.dart';
 import 'package:runon/screens/add_appointment.dart';
 import 'package:runon/screens/admin/admin_appointments.dart';
+import 'package:runon/screens/admin/user_feedbacks.dart';
 import 'package:runon/screens/admin_screen.dart';
 import 'package:runon/screens/chats_screen.dart';
 import 'package:runon/screens/doctor/manage_slots.dart';
@@ -147,6 +148,7 @@ class _MyAppState extends State<MyApp> {
             AdminAppointments.routeName: (ctx) => AdminAppointments(),
             AddMedicalTeam.routeName: (ctx) => AddMedicalTeam(),
             ManageIssues.routeName: (ctx) => const ManageIssues(),
+            UserFeedbackScreen.routeName: (ctx) => UserFeedbackScreen(),
           },
         );
       }),
