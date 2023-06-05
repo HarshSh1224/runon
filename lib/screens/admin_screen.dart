@@ -64,10 +64,13 @@ class AdminScreen extends StatelessWidget {
                       child: CircularProgressIndicator(),
                     )
                   : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 30),
+                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
+                            const SizedBox(
+                              height: 20,
+                            ),
                             Container(
                               constraints: const BoxConstraints(maxHeight: 170),
                               padding: const EdgeInsets.only(left: 20),
@@ -126,22 +129,16 @@ class AdminScreen extends StatelessWidget {
                             const SizedBox(
                               height: 10,
                             ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 18.0),
-                              child: CategoryItem(
-                                'assets/images/feedback.gif',
-                                'View User Feedbacks/Reports',
-                                Colors.lightBlueAccent,
-                                alignment: Alignment.center,
+                            GestureDetector(
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 18.0),
+                                child: CategoryItem(
+                                  'assets/images/feedback.gif',
+                                  'View User Feedbacks/Reports',
+                                  Colors.lightBlueAccent,
+                                  alignment: Alignment.center,
+                                ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 18.0),
-                              child: CategoryItem('assets/images/generate.gif',
-                                  'Generate User Accounts', Colors.blueAccent),
                             ),
                           ],
                         ),

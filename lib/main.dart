@@ -33,6 +33,7 @@ import 'package:runon/screens/flat_feet_screen.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/screens/admin/medical_teams.dart';
 import 'package:runon/screens/admin/manage_med_team.dart';
+import 'package:runon/screens/admin/add_medical_team.dart';
 import 'package:runon/video_call/call.dart';
 
 void main() async {
@@ -143,6 +144,7 @@ class _MyAppState extends State<MyApp> {
             ManageMedicalTeam.routeName: (ctx) => const ManageMedicalTeam(),
             MedicalTeamsScreen.routeName: (ctx) => MedicalTeamsScreen(),
             AdminAppointments.routeName: (ctx) => AdminAppointments(),
+            AddMedicalTeam.routeName: (ctx) => AddMedicalTeam(),
           },
         );
       }),

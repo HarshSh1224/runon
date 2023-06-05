@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/doctors.dart';
 import 'package:runon/screens/admin/manage_med_team.dart';
+import 'package:runon/screens/admin/add_medical_team.dart';
 
 class MedicalTeamsScreen extends StatelessWidget {
   static const routeName = '/manage-medical-teams';
@@ -29,7 +30,7 @@ class MedicalTeamsScreen extends StatelessWidget {
             return snapshot.connectionState == ConnectionState.waiting
                 ? const Center(child: CircularProgressIndicator())
                 : Padding(
-                    padding: const EdgeInsets.all(18.0),
+                    padding: const EdgeInsets.only(top: 18.0, left: 18, right: 18),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -96,7 +97,10 @@ class MedicalTeamsScreen extends StatelessWidget {
                                               child: Material(
                                                 color: Colors.transparent,
                                                 child: InkWell(
-                                                  onTap: () {},
+                                                  onTap: () {
+                                                    Navigator.of(context)
+                                                        .pushNamed(AddMedicalTeam.routeName);
+                                                  },
                                                   splashColor: Colors.black12,
                                                 ),
                                               ),

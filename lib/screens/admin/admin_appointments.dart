@@ -62,27 +62,26 @@ class AdminAppointments extends StatelessWidget {
                                   height: 30,
                                 ),
                                 SearchDialog(
-                                  initValue: initValue,
-                                  onSearch: (text) {
-                                    if (text.isEmpty) {
-                                      initValue = null;
+                                    initValue: initValue,
+                                    onSearch: (text) {
+                                      if (text.isEmpty) {
+                                        initValue = null;
+                                        setState(() {
+                                          appointments = appointmentsProvider.appointments;
+                                        });
+                                        return;
+                                      }
+                                      initValue = text;
                                       setState(() {
-                                        appointments = appointmentsProvider.appointments;
+                                        appointments = appointmentsProvider.appointments
+                                            .where((element) =>
+                                                element.patientId == text ||
+                                                element.doctorId == text ||
+                                                element.appointmentId == text)
+                                            .toList();
                                       });
-                                      return;
-                                    }
-                                    initValue = text;
-                                    setState(() {
-                                      appointments = appointmentsProvider.appointments
-                                          .where((element) =>
-                                              element.patientId == text ||
-                                              element.doctorId == text ||
-                                              element.appointmentId == text)
-                                          .toList();
-                                    });
-                                  },
-                                  hintText: 'Search by Patient Name',
-                                ),
+                                    },
+                                    hintText: 'Search by id'),
                                 const SizedBox(
                                   height: 20,
                                 ),
@@ -153,7 +152,7 @@ class AdminAppointments extends StatelessWidget {
                                                     .toList();
                                               });
                                             },
-                                            hintText: 'Search by Patient Name',
+                                            hintText: 'Search by id',
                                           ),
                                           const SizedBox(
                                             height: 20,
