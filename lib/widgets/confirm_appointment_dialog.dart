@@ -10,8 +10,7 @@ import '../widgets/method_slot_formatter.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class ConfirmAppointmentDialog extends StatefulWidget {
-  ConfirmAppointmentDialog(
-      this._doctorId, this._slot, this._issue, this._formData, this._files,
+  ConfirmAppointmentDialog(this._doctorId, this._slot, this._issue, this._formData, this._files,
       {super.key});
 
   final String _doctorId;
@@ -22,13 +21,13 @@ class ConfirmAppointmentDialog extends StatefulWidget {
   final timelineData = {
     'createdOn': '',
     'paymentId': '',
+    'paymentAmount': '',
     'prescriptionList': [],
-    'slotId': ''
+    'slotId': '',
   };
 
   @override
-  State<ConfirmAppointmentDialog> createState() =>
-      _ConfirmAppointmentDialogState();
+  State<ConfirmAppointmentDialog> createState() => _ConfirmAppointmentDialogState();
 }
 
 class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
@@ -49,11 +48,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         return AlertDialog(
           content: Text(
               '${response.paymentId!} ${response.signature ?? 'no sign'} ${response.orderId ?? 'no orderid'}'),
-          actions: [
-            TextButton(
-                onPressed: Navigator.of(context).pop,
-                child: const Text('Close'))
-          ],
+          actions: [TextButton(onPressed: Navigator.of(context).pop, child: const Text('Close'))],
         );
       },
     );
@@ -67,11 +62,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
       builder: (_) {
         return AlertDialog(
           content: Text('${response.code!} ${response.message!}'),
-          actions: [
-            TextButton(
-                onPressed: Navigator.of(context).pop,
-                child: const Text('Close'))
-          ],
+          actions: [TextButton(onPressed: Navigator.of(context).pop, child: const Text('Close'))],
         );
       },
     );
@@ -83,11 +74,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
       builder: (_) {
         return AlertDialog(
           content: Text(response.walletName!),
-          actions: [
-            TextButton(
-                onPressed: Navigator.of(context).pop,
-                child: const Text('Close'))
-          ],
+          actions: [TextButton(onPressed: Navigator.of(context).pop, child: const Text('Close'))],
         );
       },
     );
@@ -102,8 +89,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
   };
 
   void _sendDataToServer(context) async {
-    final firebaseDatabase =
-        FirebaseFirestore.instance.collection('appointments');
+    final firebaseDatabase = FirebaseFirestore.instance.collection('appointments');
     showDialog(
         context: context,
         builder: (context) {
@@ -125,10 +111,8 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
     try {
       final response = await firebaseDatabase.add(widget._formData);
       for (int i = 0; i < widget._files.length; i++) {
-        final ref = FirebaseStorage.instance
-            .ref()
-            .child('previousReports')
-            .child('${response.id}$i');
+        final ref =
+            FirebaseStorage.instance.ref().child('previousReports').child('${response.id}$i');
         await ref.putFile(File(widget._files[i].path));
         final url = await ref.getDownloadURL();
         widget._formData['reportUrl'].add(url);
@@ -168,8 +152,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final doctor = Provider.of<Doctors>(context, listen: false)
-        .doctorFromId(widget._doctorId);
+    final doctor = Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId);
     final auth = Provider.of<Auth>(context, listen: false);
 
     return AlertDialog(
@@ -183,8 +166,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         children: [
           RichText(
             text: TextSpan(
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                 children: [
                   const TextSpan(text: 'Patient Name : '),
                   TextSpan(
@@ -194,31 +176,24 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
           ),
           RichText(
             text: TextSpan(
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                 children: [
                   const TextSpan(text: 'Age : '),
-                  TextSpan(
-                      text: auth.age,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(text: auth.age, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
           RichText(
             text: TextSpan(
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                 children: [
                   const TextSpan(text: 'Gender : '),
-                  TextSpan(
-                      text: auth.gender,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(text: auth.gender, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
           if (widget._formData['height'] != '')
             RichText(
               text: TextSpan(
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                   children: [
                     const TextSpan(text: 'Height : '),
                     TextSpan(
@@ -229,8 +204,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
           if (widget._formData['weight'] != '')
             RichText(
               text: TextSpan(
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                   children: [
                     const TextSpan(text: 'Weight : '),
                     TextSpan(
@@ -240,30 +214,24 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
             ),
           RichText(
             text: TextSpan(
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                 children: [
                   const TextSpan(text: 'Issue : '),
                   TextSpan(
-                      text: widget._issue,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                      text: widget._issue, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
           RichText(
             text: TextSpan(
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                 children: [
                   const TextSpan(text: 'Doctor : '),
-                  TextSpan(
-                      text: doctor!.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(text: doctor!.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
           RichText(
             text: TextSpan(
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                 children: [
                   const TextSpan(text: 'Chosen Slot : '),
                   TextSpan(
@@ -273,8 +241,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
           ),
           RichText(
             text: TextSpan(
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
+                style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                 children: [
                   const TextSpan(text: 'Amount Payable : '),
                   TextSpan(
@@ -285,8 +252,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         ],
       ),
       actions: [
-        TextButton(
-            onPressed: Navigator.of(context).pop, child: const Text('Cancel')),
+        TextButton(onPressed: Navigator.of(context).pop, child: const Text('Cancel')),
         TextButton(
             // onPressed: () => _sendDataToServer(context),
             onPressed: () => _razorpay.open(options),
