@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/screens/chats_screen.dart';
-import 'package:runon/screens/my_appointments.dart';
+import 'package:runon/screens/patient/my_appointments.dart';
 import 'package:runon/widgets/user_detail_card.dart';
 import 'package:runon/screens/documents_screen.dart';
 import 'package:runon/screens/feedback_screen.dart';
@@ -29,12 +29,10 @@ class ProfileScreen extends StatelessWidget {
                       builder: (context) {
                         return AlertDialog(
                           title: const Text('Logout'),
-                          content:
-                              const Text('Are you sure you want to logout?'),
+                          content: const Text('Are you sure you want to logout?'),
                           actions: [
                             TextButton(
-                                onPressed: Navigator.of(context).pop,
-                                child: const Text('No')),
+                                onPressed: Navigator.of(context).pop, child: const Text('No')),
                             TextButton(
                                 onPressed: () {
                                   user.logout();
@@ -83,18 +81,14 @@ class ProfileScreen extends StatelessWidget {
                   width: double.infinity,
                   child: Card(
                       elevation: 0,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .secondaryContainer
-                          .withOpacity(0.6),
+                      color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.6),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(children: [
                           ListTile(
                             title: const Text('Messages'),
                             onTap: () {
-                              Navigator.of(context)
-                                  .pushNamed(ChatsScreen.routeName);
+                              Navigator.of(context).pushNamed(ChatsScreen.routeName);
                             },
                             leading: const Icon(Icons.chat),
                             trailing: const Icon(Icons.chevron_right_sharp),
@@ -102,8 +96,7 @@ class ProfileScreen extends StatelessWidget {
                           ListTile(
                             title: const Text('Documents'),
                             onTap: () {
-                              Navigator.of(context)
-                                  .pushNamed(DocumentsScreen.routeName);
+                              Navigator.of(context).pushNamed(DocumentsScreen.routeName);
                             },
                             leading: const Icon(Icons.file_present_rounded),
                             trailing: const Icon(Icons.chevron_right_sharp),
@@ -111,8 +104,7 @@ class ProfileScreen extends StatelessWidget {
                           ListTile(
                             title: const Text('Previous Appointments'),
                             onTap: () {
-                              Navigator.of(context)
-                                  .pushNamed(MyAppointmentsScreen.routeName);
+                              Navigator.of(context).pushNamed(MyAppointmentsScreen.routeName);
                             },
                             leading: const Icon(Icons.person_pin_outlined),
                             trailing: const Icon(Icons.chevron_right_sharp),
@@ -141,10 +133,7 @@ class ProfileScreen extends StatelessWidget {
                   width: double.infinity,
                   child: Card(
                       elevation: 0,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .secondaryContainer
-                          .withOpacity(0.6),
+                      color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.6),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(children: [
@@ -157,8 +146,7 @@ class ProfileScreen extends StatelessWidget {
                           ListTile(
                             title: const Text('Provide Feedback'),
                             onTap: () {
-                              Navigator.of(context)
-                                  .pushNamed(FeedbackForm.routeName);
+                              Navigator.of(context).pushNamed(FeedbackForm.routeName);
                             },
                             leading: const Icon(Icons.feedback),
                             trailing: const Icon(Icons.chevron_right_sharp),
@@ -166,8 +154,7 @@ class ProfileScreen extends StatelessWidget {
                           ListTile(
                             title: const Text('About'),
                             onTap: () {
-                              Navigator.of(context)
-                                  .pushNamed(AboutUsScreen.routeName);
+                              Navigator.of(context).pushNamed(AboutUsScreen.routeName);
                             },
                             leading: const Icon(Icons.info),
                             trailing: const Icon(Icons.chevron_right_sharp),

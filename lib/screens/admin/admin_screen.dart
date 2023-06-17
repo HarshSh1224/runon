@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
-import '../widgets/clip_paths.dart';
-import '../screens/profile_screen.dart';
+import '../../widgets/clip_paths.dart';
+import '../profile_screen.dart';
 import 'package:runon/widgets/side_drawer.dart';
 import 'package:runon/widgets/category_item.dart';
 import 'package:runon/screens/admin/medical_teams.dart';
@@ -120,8 +120,11 @@ class AdminScreen extends StatelessWidget {
                                 onTap: () {
                                   Navigator.of(context).pushNamed(MedicalTeamsScreen.routeName);
                                 },
-                                child: const CategoryItem('assets/images/medicalteams.gif',
-                                    'Manage Medical Teams', Colors.purpleAccent),
+                                child: const CategoryItem(
+                                    fit: BoxFit.fitWidth,
+                                    'assets/images/medicalteams.gif',
+                                    'Manage Medical Teams',
+                                    Colors.purpleAccent),
                               ),
                             ),
                             const SizedBox(
@@ -134,6 +137,7 @@ class AdminScreen extends StatelessWidget {
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 18.0),
                                 child: CategoryItem(
+                                  fit: BoxFit.fitWidth,
                                   'assets/images/appointments.gif',
                                   'Active Appointments',
                                   Colors.orange,
@@ -151,6 +155,7 @@ class AdminScreen extends StatelessWidget {
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 18.0),
                                 child: CategoryItem(
+                                  fit: BoxFit.fitWidth,
                                   'assets/images/categories.gif',
                                   'Manage issues',
                                   Colors.red,
@@ -168,6 +173,7 @@ class AdminScreen extends StatelessWidget {
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 18.0),
                                 child: CategoryItem(
+                                  fit: BoxFit.fitWidth,
                                   'assets/images/feedback.gif',
                                   'View User Feedbacks/Reports',
                                   Colors.lightBlueAccent,

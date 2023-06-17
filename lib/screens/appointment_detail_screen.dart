@@ -21,38 +21,27 @@ class AppointmentDetailScreen extends StatelessWidget {
     'issue': 'Loading...',
   };
 
-  var _timeLine = [];
+  List<Timeline> _timeLine = [];
 
   Future<void> _fetchAndSetData(Appointment appointment) async {
-    final patient = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(appointment.patientId)
-        .get();
+    final patient =
+        await FirebaseFirestore.instance.collection('users').doc(appointment.patientId).get();
 
-    _appointmentData['patient'] =
-        patient.data()!['fName'] + ' ' + patient.data()!['lName'];
+    _appointmentData['patient'] = patient.data()!['fName'] + ' ' + patient.data()!['lName'];
 
     _appointmentData['patientImage'] = patient.data()!['imageUrl'];
 
-    final doctor = await FirebaseFirestore.instance
-        .collection('doctors')
-        .doc(appointment.doctorId)
-        .get();
+    final doctor =
+        await FirebaseFirestore.instance.collection('doctors').doc(appointment.doctorId).get();
 
     _appointmentData['doctor'] = doctor.data()!['name'];
 
-    final issue = await FirebaseFirestore.instance
-        .collection('issues')
-        .doc(appointment.issueId)
-        .get();
+    final issue =
+        await FirebaseFirestore.instance.collection('issues').doc(appointment.issueId).get();
 
     _appointmentData['issue'] = issue.data()!['title'];
 
-    final timelineFetch = await FirebaseFirestore.instance
-        .collection('appointments/${appointment.appointmentId}/timeline')
-        .get();
-
-    _timeLine = timelineFetch.docs;
+    _timeLine = appointment.timelines;
 
     // debugPrint('HELLLLLLLL${timelineFetch.docs[0]['paymentId']}');
   }
@@ -81,8 +70,7 @@ class AppointmentDetailScreen extends StatelessWidget {
             Flexible(
               child: Text(name,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.raleway(
-                      fontWeight: FontWeight.w600, fontSize: 18)),
+                  style: GoogleFonts.raleway(fontWeight: FontWeight.w600, fontSize: 18)),
             ),
           ],
         ),
@@ -92,16 +80,15 @@ class AppointmentDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Appointment appointment =
-        ModalRoute.of(context)!.settings.arguments as Appointment;
+    final Appointment appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Appointment Details'),
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(MessagesScreen.routeName,
-                    arguments: appointment.appointmentId);
+                Navigator.of(context)
+                    .pushNamed(MessagesScreen.routeName, arguments: appointment.appointmentId);
               },
               icon: const Icon(Icons.chat))
         ],
@@ -113,24 +100,17 @@ class AppointmentDetailScreen extends StatelessWidget {
               ? const Center(child: CircularProgressIndicator())
               : SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _customWidgetBuilder(
-                            'PATIENT',
-                            _appointmentData['patient']!,
+                        _customWidgetBuilder('PATIENT', _appointmentData['patient']!,
                             _appointmentData['patientImage']!),
-                        _customWidgetBuilder(
-                            'DOCTOR',
-                            _appointmentData['doctor']!,
+                        _customWidgetBuilder('DOCTOR', _appointmentData['doctor']!,
                             _appointmentData['doctorImage']!),
                         SizedBox(
                           width: double.infinity,
-                          child: _customWidgetBuilder(
-                              'ISSUE',
-                              _appointmentData['issue']!,
+                          child: _customWidgetBuilder('ISSUE', _appointmentData['issue']!,
                               'https://static.vecteezy.com/system/resources/previews/000/553/397/original/foot-cartoon-vector-icon.jpg'),
                         ),
                         const SizedBox(
@@ -156,46 +136,36 @@ class AppointmentDetailScreen extends StatelessWidget {
                                     children: [
                                       CircleAvatar(
                                         radius: 6,
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary,
+                                        backgroundColor: Theme.of(context).colorScheme.tertiary,
                                       ),
                                       Container(
                                         height: 175,
                                         width: 3,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary,
+                                        color: Theme.of(context).colorScheme.tertiary,
                                       ),
                                     ],
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   // child: Text('Date'),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        DateFormat('dd MMM yyyy').format(
-                                            DateTime.parse(e['createdOn'])),
+                                        DateFormat('dd MMM yyyy').format(e.createdOn),
                                         style: GoogleFonts.roboto(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .tertiary,
+                                          color: Theme.of(context).colorScheme.tertiary,
                                         ),
                                       ),
                                       const SizedBox(
                                         height: 3,
                                       ),
-                                      const Text(
-                                        'Payment Scuccessful Rs 700',
-                                        style: TextStyle(
-                                            fontStyle: FontStyle.italic),
+                                      Text(
+                                        'Payment Scuccessful Rs ${e.paymentAmount}',
+                                        style: const TextStyle(fontStyle: FontStyle.italic),
                                       ),
                                       const SizedBox(
                                         height: 10,
@@ -230,8 +200,7 @@ class AppointmentDetailScreen extends StatelessWidget {
                         ),
                         OutlinedButton(
                             onPressed: () {
-                              Navigator.of(context).pushNamed(
-                                  CallPage.routeName,
+                              Navigator.of(context).pushNamed(CallPage.routeName,
                                   arguments: appointment.appointmentId);
                             },
                             child: const Padding(
@@ -253,4 +222,3 @@ class AppointmentDetailScreen extends StatelessWidget {
     );
   }
 }
-

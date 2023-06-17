@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Timeline {
-  String createdOn;
+  DateTime createdOn;
   String paymentId;
   double paymentAmount;
   List<String> prescriptionList;
@@ -26,7 +26,7 @@ class Appointment {
   String issueId;
   String slotId;
   String? prescriptionId;
-  List<Timeline>? timelines;
+  List<Timeline> timelines;
   List<String>? reports;
 
   Appointment({
@@ -51,25 +51,34 @@ class Appointments with ChangeNotifier {
   Future<List<Timeline>> fetchTimleines(String appointmentId) async {
     List<Timeline> timelinesList = [];
 
-    final response =
-        await FirebaseFirestore.instance.collection('appointments/$appointmentId/timeline').get();
+    try {
+      final response =
+          await FirebaseFirestore.instance.collection('appointments/$appointmentId/timeline').get();
 
-    for (int i = 0; i < response.docs.length; i++) {
-      final timeline = response.docs[i].data();
+      for (int i = 0; i < response.docs.length; i++) {
+        final timeline = response.docs[i].data();
 
-      List<String> tempList = [];
-      response.docs[i].data()['prescriptionList'].map((el) {
-        tempList.add('$el');
-      }).toList();
+        List<String> tempList = [];
+        if (response.docs[i].data().containsKey('prescriptionList')) {
+          response.docs[i].data()['prescriptionList'].map((el) {
+            tempList.add('$el');
+          }).toList();
+        }
 
-      timelinesList.add(Timeline(
-        createdOn: timeline['createdOn'],
-        paymentAmount: timeline['paymentAmount'],
-        paymentId: timeline['paymentId'],
-        prescriptionList: tempList,
-        slotId: timeline['slotId'],
-      ));
+        timelinesList.add(Timeline(
+          createdOn: DateTime.parse(timeline['createdOn']),
+          paymentAmount: timeline['paymentAmount'],
+          paymentId: timeline['paymentId'],
+          prescriptionList: tempList,
+          slotId: timeline['slotId'],
+        ));
+      }
+    } catch (error) {
+      print(error);
+      rethrow;
     }
+
+    timelinesList.sort((Timeline a, Timeline b) => a.createdOn.compareTo(b.createdOn));
 
     return timelinesList;
   }
@@ -82,9 +91,13 @@ class Appointments with ChangeNotifier {
       for (int i = 0; i < response.docs.length; i++) {
         List<String> tempList = [];
 
-        response.docs[i].data()['reportUrl'].map((el) {
-          tempList.add('$el');
-        }).toList();
+        if (response.docs[i].data().containsKey('reportUrl')) {
+          response.docs[i].data()['reportUrl'].map((el) {
+            tempList.add('$el');
+          }).toList();
+        }
+
+        final timelines = await fetchTimleines(response.docs[i].id);
 
         temp.add(
           Appointment(
@@ -92,8 +105,8 @@ class Appointments with ChangeNotifier {
             patientId: response.docs[i].data()['patientId'],
             doctorId: response.docs[i].data()['doctorId'],
             issueId: response.docs[i].data()['issueId'],
-            slotId: response.docs[i].data()['slotId'],
-            timelines: await fetchTimleines(response.docs[i].id),
+            timelines: timelines,
+            slotId: timelines[timelines.length - 1].slotId,
             reports: tempList,
           ),
         );
@@ -101,6 +114,7 @@ class Appointments with ChangeNotifier {
       _appointments = temp;
       // print('TEMP IS $temp');
     } catch (error) {
+      print(error);
       rethrow;
     }
   }

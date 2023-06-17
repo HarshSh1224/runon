@@ -6,6 +6,7 @@ import 'package:runon/providers/issue_data.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 import 'package:runon/screens/appointment_detail_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyAppointmentsScreen extends StatelessWidget {
   static const routeName = '/my-appointments-screen';
@@ -15,6 +16,7 @@ class MyAppointmentsScreen extends StatelessWidget {
   Future<void> _fetchAppointments(
       Appointments appointmentsProvider, Auth auth, IssueData issue) async {
     await appointmentsProvider.fetchAndSetAppointments();
+    print(_myAppointments);
     await issue.fetchAndSetIssues();
     _myAppointments = appointmentsProvider.getAppointmentsByPatientId(auth.userId!);
   }
@@ -25,7 +27,9 @@ class MyAppointmentsScreen extends StatelessWidget {
     final auth = Provider.of<Auth>(context, listen: false);
     final issue = Provider.of<IssueData>(context, listen: false);
     return Scaffold(
-      appBar: AppBar(title: const Text('My Appointments')),
+      appBar: AppBar(
+        title: const Text('My Appointments'),
+      ),
       body: FutureBuilder(
           future: _fetchAppointments(appointmentsProvider, auth, issue),
           builder: (context, snapshot) {
@@ -38,12 +42,12 @@ class MyAppointmentsScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'All Appointments',
-                          style: TextStyle(
-                              fontFamily: 'MoonBold',
-                              color: Theme.of(context).colorScheme.outline,
-                              letterSpacing: 2),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            'All Appointments',
+                            style: GoogleFonts.raleway(fontWeight: FontWeight.bold, fontSize: 30),
+                          ),
                         ),
                         const SizedBox(
                           height: 20,
@@ -131,19 +135,23 @@ class UpcomingDeleteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = slotIdTodDateTime(_appointment.slotId);
-    return Opacity(
-      opacity: 0.7,
-      child: OutlinedButton(
-        onPressed: () {},
-        style: OutlinedButton.styleFrom(
-          foregroundColor:
-              !date.isBefore(DateTime.now()) ? Theme.of(context).colorScheme.primary : Colors.amber,
-          side: BorderSide(
+    return IgnorePointer(
+      child: Opacity(
+        opacity: 0.7,
+        child: OutlinedButton(
+          onPressed: () {},
+          style: OutlinedButton.styleFrom(
+            foregroundColor: !date.isBefore(DateTime.now())
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.tertiary,
+            side: BorderSide(
               color: !date.isBefore(DateTime.now())
                   ? Theme.of(context).colorScheme.primary
-                  : Colors.amber),
+                  : Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          child: Text(date.isBefore(DateTime.now()) ? 'Passed' : 'Upcoming'),
         ),
-        child: Text(date.isBefore(DateTime.now()) ? '✔ Passed' : '• Upcoming'),
       ),
     );
   }

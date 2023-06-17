@@ -1,18 +1,17 @@
 import 'package:runon/providers/auth.dart';
 import 'package:runon/screens/about_us_screen.dart';
-import 'package:runon/screens/add_appointment.dart';
+import 'package:runon/screens/patient/add_appointment.dart';
 import 'package:runon/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:runon/screens/doctor_screen.dart';
-import 'package:runon/screens/patient_screen.dart';
+import 'package:runon/screens/doctor/doctor_screen.dart';
+import 'package:runon/screens/patient/patient_screen.dart';
 import 'package:runon/screens/profile_screen.dart';
 
 class SideDrawer extends StatelessWidget {
   const SideDrawer({super.key});
 
-  Widget _listTileBuilder(
-      BuildContext context, String title, Icon icon, Function() onTap) {
+  Widget _listTileBuilder(BuildContext context, String title, Icon icon, Function() onTap) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -80,8 +79,7 @@ class SideDrawer extends StatelessWidget {
                           size: 25,
                         ), () {
                       // Navigator.popUntil(context, ModalRoute.withName('/tabs-screen'));
-                      Navigator.of(context).popUntil(
-                          (route) => route != ModalRoute.withName('/'));
+                      Navigator.of(context).popUntil((route) => route != ModalRoute.withName('/'));
                       if (auth.type == 0) {
                         Navigator.of(context).pushReplacementNamed(PatientScreen.routeName);
                       }
@@ -191,9 +189,7 @@ class SideDrawer extends StatelessWidget {
                   ),
                   CircleAvatar(
                     backgroundColor: const Color(0XFFDADCE0),
-                    backgroundImage: auth.isAuth
-                        ? Image.network(auth.imageUrl!).image
-                        : null,
+                    backgroundImage: auth.isAuth ? Image.network(auth.imageUrl!).image : null,
                     radius: 56,
                     child: auth.isAuth
                         ? null
@@ -234,8 +230,7 @@ class CustomClipPath extends CustomClipper<Path> {
     Path path0 = Path();
     path0.moveTo(0, 0);
     path0.lineTo(0, size.height - 30);
-    path0.quadraticBezierTo(
-        size.width * 0.6, size.height - 10, size.width, size.height - 65);
+    path0.quadraticBezierTo(size.width * 0.6, size.height - 10, size.width, size.height - 65);
     // path0.lineTo(size.width, size.height);
     path0.lineTo(size.width, 0);
     path0.close();

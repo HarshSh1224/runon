@@ -38,12 +38,21 @@ class ConfirmAppointmentDialog extends StatefulWidget {
 
 class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
   final _razorpay = Razorpay();
+  Map<String, dynamic> options = {};
 
   @override
   void initState() {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    options = {
+      'key': rp.key,
+      'amount':
+          Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId)!.fees * 100,
+      'name': rp.name,
+      'description': rp.description,
+      'prefill': rp.prefill
+    };
     super.initState();
   }
 
@@ -118,6 +127,8 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
 
       widget.timelineData['createdOn'] = DateTime.now().toIso8601String();
       widget.timelineData['slotId'] = widget._formData['slotId'];
+      widget.timelineData['paymentAmount'] =
+          Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId)!.fees;
 
       await FirebaseFirestore.instance
           .collection('appointments/${response.id}/timeline')
@@ -256,7 +267,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         ),
         TextButton(
             // onPressed: () => _sendDataToServer(context),
-            onPressed: () => _razorpay.open(rp.options),
+            onPressed: () => _razorpay.open(options),
             child: const Text('Proceed to payment')),
       ],
     );

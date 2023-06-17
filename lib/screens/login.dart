@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
-import 'package:runon/screens/patient_screen.dart';
+import 'package:runon/screens/patient/patient_screen.dart';
 import '../screens/signup.dart';
 import '../widgets/clip_paths.dart';
 import 'package:runon/screens/forgot_password_screen.dart';
-import 'package:runon/screens/doctor_screen.dart';
-import 'package:runon/screens/admin_screen.dart';
+import 'package:runon/screens/doctor/doctor_screen.dart';
+import 'package:runon/screens/admin/admin_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/login';
@@ -30,9 +30,7 @@ class LoginScreen extends StatelessWidget {
 
     try {
       int type = await Provider.of<Auth>(context, listen: false).authenticate(
-          context: context,
-          email: _formData['email']!,
-          password: _formData['password']!);
+          context: context, email: _formData['email']!, password: _formData['password']!);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Padding(
           padding: EdgeInsets.symmetric(vertical: 10.0),
@@ -40,8 +38,7 @@ class LoginScreen extends StatelessWidget {
         ),
       ));
       print('TYPE: $type');
-      Navigator.of(context).pushReplacementNamed(
-          type == 1
+      Navigator.of(context).pushReplacementNamed(type == 1
           ? DoctorScreen.routeName
           : (type == 2 ? AdminScreen.routeName : PatientScreen.routeName));
       setState(() {
@@ -78,8 +75,7 @@ class LoginScreen extends StatelessWidget {
           ),
           ClipPath(
             clipper: LowerEllipse(),
-            child: Container(
-                color: Theme.of(context).colorScheme.primaryContainer),
+            child: Container(color: Theme.of(context).colorScheme.primaryContainer),
           ),
           SingleChildScrollView(
             child: Center(
@@ -97,8 +93,11 @@ class LoginScreen extends StatelessWidget {
                       ),
                       Center(
                         child: SizedBox(
-                          height: 200,
-                          child: Image.asset('assets/images/logo.png', fit: BoxFit.fitWidth,)),
+                            height: 200,
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.fitWidth,
+                            )),
                       ),
                       const Text('Login to your account'),
                       const SizedBox(
@@ -159,13 +158,11 @@ class LoginScreen extends StatelessWidget {
                         children: [
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context)
-                                  .pushNamed(ForgotPasswordScreen.routeName);
+                              Navigator.of(context).pushNamed(ForgotPasswordScreen.routeName);
                             },
                             child: Text(
                               'Forgot Password?',
-                              style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary),
+                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
                             ),
                           ),
                         ],
@@ -178,8 +175,7 @@ class LoginScreen extends StatelessWidget {
                           scale: 1.2,
                           child: StatefulBuilder(builder: (context, setState) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 35.0, vertical: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 35.0, vertical: 10),
                               child: FilledButton(
                                 onPressed: () {
                                   _submit(context, setState);
@@ -187,17 +183,15 @@ class LoginScreen extends StatelessWidget {
                                 child: SizedBox(
                                     width: double.infinity,
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 12),
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
                                       child: _isLoading
                                           ? Center(
                                               child: SizedBox(
                                               height: 20,
                                               width: 20,
                                               child: CircularProgressIndicator(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primaryContainer,
+                                                color:
+                                                    Theme.of(context).colorScheme.primaryContainer,
                                               ),
                                             ))
                                           : const Text(
@@ -216,23 +210,16 @@ class LoginScreen extends StatelessWidget {
                       Center(
                         child: RichText(
                             text: TextSpan(
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onBackground),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                                 children: [
                               const TextSpan(text: 'Dont have an account? '),
                               TextSpan(
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
-                                      Navigator.of(context)
-                                          .pushNamed(SignupScreen.routeName);
+                                      Navigator.of(context).pushNamed(SignupScreen.routeName);
                                     },
                                   text: 'Sign Up',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary))
+                                  style: TextStyle(color: Theme.of(context).colorScheme.primary))
                             ])),
                       ),
                       const SizedBox(

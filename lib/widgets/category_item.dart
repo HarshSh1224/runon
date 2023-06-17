@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CategoryItem extends StatelessWidget {
-  const CategoryItem(this._imageUrl, this._title, this._color, {this.alignment, super.key});
+  const CategoryItem(
+    this._imageUrl,
+    this._title,
+    this._color, {
+    this.fit,
+    this.alignment,
+    super.key,
+  });
 
   final String _imageUrl;
   final String _title;
   final Color _color;
   final AlignmentGeometry? alignment;
+  final BoxFit? fit;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +38,7 @@ class CategoryItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
                   _imageUrl,
-                  fit: BoxFit.fitWidth,
+                  fit: fit ?? BoxFit.cover,
                   alignment: alignment ?? Alignment.topCenter,
                 ),
               ),

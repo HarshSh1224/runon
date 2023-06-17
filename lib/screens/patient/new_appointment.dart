@@ -6,12 +6,12 @@ import 'package:runon/providers/issue_data.dart';
 import 'package:runon/providers/slots.dart';
 import 'package:runon/providers/temp_provider.dart';
 import 'package:runon/widgets/clip_paths.dart';
-import '../widgets/slot_picker.dart';
+import 'package:runon/widgets/slot_picker.dart';
 import 'package:runon/widgets/issue_dropdown.dart';
 import 'package:runon/widgets/doctors_dropdown.dart';
 import 'package:runon/widgets/flat_feet_image_upload.dart';
-import '../widgets/add_reports_box.dart';
-import '../widgets/confirm_appointment_dialog.dart';
+import 'package:runon/widgets/add_reports_box.dart';
+import 'package:runon/widgets/confirm_appointment_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 
 class NewAppointment extends StatelessWidget {
@@ -37,8 +37,7 @@ class NewAppointment extends StatelessWidget {
 
   final GlobalKey<FormState> _formKey = GlobalKey();
 
-  Future<void> _fetchIssueData(
-      IssueData issueProvider, Doctors doctorsProvider) async {
+  Future<void> _fetchIssueData(IssueData issueProvider, Doctors doctorsProvider) async {
     await issueProvider.fetchAndSetIssues();
     await doctorsProvider.fetchAndSetDoctors();
   }
@@ -115,8 +114,7 @@ class NewAppointment extends StatelessWidget {
                               child: ClipPath(
                                 clipper: OnlyBottomEllipse(0.87),
                                 child: Container(
-                                  color:
-                                      Theme.of(context).colorScheme.background,
+                                  color: Theme.of(context).colorScheme.background,
                                   // child: Expanded(child: Text('Hello World')),
                                 ),
                               ),
@@ -124,8 +122,7 @@ class NewAppointment extends StatelessWidget {
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
                           child: Form(
                             key: _formKey,
                             child: Column(
@@ -137,8 +134,7 @@ class NewAppointment extends StatelessWidget {
                                 const SizedBox(
                                   height: 30,
                                 ),
-                                DoctorsDropdown(
-                                    doctorsProvider, updateDoctorId),
+                                DoctorsDropdown(doctorsProvider, updateDoctorId),
                                 const SizedBox(
                                   height: 20,
                                 ),
@@ -147,8 +143,7 @@ class NewAppointment extends StatelessWidget {
                                   height: 20,
                                 ),
 
-                                Consumer<TempProvider>(
-                                    builder: (context, temp, ch) {
+                                Consumer<TempProvider>(builder: (context, temp, ch) {
                                   return _formData['issueId'] != 'I8'
                                       ? Container()
                                       : Column(
@@ -158,30 +153,22 @@ class NewAppointment extends StatelessWidget {
                                                 Flexible(
                                                   flex: 1,
                                                   child: TextFormField(
-                                                    keyboardType:
-                                                        TextInputType.number,
+                                                    keyboardType: TextInputType.number,
                                                     onSaved: (value) {
-                                                      _formData['height'] =
-                                                          value!;
+                                                      _formData['height'] = value!;
                                                     },
                                                     validator: (value) {
                                                       if (value!.isEmpty ||
-                                                          double.tryParse(
-                                                                  value) ==
-                                                              null ||
-                                                          double.parse(value) <
-                                                              0) {
+                                                          double.tryParse(value) == null ||
+                                                          double.parse(value) < 0) {
                                                         return 'Invalid Value';
                                                       }
                                                       return null;
                                                     },
-                                                    decoration:
-                                                        const InputDecoration(
-                                                            // icon: Icon(Icons.attribution_sharp),
-                                                            label: Text(
-                                                                'Height (cm)*'),
-                                                            border:
-                                                                OutlineInputBorder()),
+                                                    decoration: const InputDecoration(
+                                                        // icon: Icon(Icons.attribution_sharp),
+                                                        label: Text('Height (cm)*'),
+                                                        border: OutlineInputBorder()),
                                                   ),
                                                 ),
                                                 const SizedBox(
@@ -190,29 +177,21 @@ class NewAppointment extends StatelessWidget {
                                                 Flexible(
                                                   flex: 1,
                                                   child: TextFormField(
-                                                    keyboardType:
-                                                        TextInputType.number,
+                                                    keyboardType: TextInputType.number,
                                                     onSaved: (value) {
-                                                      _formData['weight'] =
-                                                          value!;
+                                                      _formData['weight'] = value!;
                                                     },
                                                     validator: (value) {
                                                       if (value!.isEmpty ||
-                                                          double.tryParse(
-                                                                  value) ==
-                                                              null ||
-                                                          double.parse(value) <
-                                                              0) {
+                                                          double.tryParse(value) == null ||
+                                                          double.parse(value) < 0) {
                                                         return 'Invalid Value';
                                                       }
                                                       return null;
                                                     },
-                                                    decoration:
-                                                        const InputDecoration(
-                                                            label: Text(
-                                                                'Weight (kg)*'),
-                                                            border:
-                                                                OutlineInputBorder()),
+                                                    decoration: const InputDecoration(
+                                                        label: Text('Weight (kg)*'),
+                                                        border: OutlineInputBorder()),
                                                   ),
                                                 ),
                                               ],
@@ -222,13 +201,11 @@ class NewAppointment extends StatelessWidget {
                                             ),
                                             Row(
                                               children: [
-                                                FlatFeetImageUploadBox(
-                                                    updateReportList),
+                                                FlatFeetImageUploadBox(updateReportList),
                                                 const SizedBox(
                                                   width: 15,
                                                 ),
-                                                FlatFeetImageUploadBox(
-                                                    updateReportList),
+                                                FlatFeetImageUploadBox(updateReportList),
                                               ],
                                             ),
                                             const SizedBox(
@@ -248,29 +225,21 @@ class NewAppointment extends StatelessWidget {
                                                           context: context,
                                                           builder: (ctx) {
                                                             return AlertDialog(
-                                                              title: const Text(
-                                                                  'Sample Images'),
+                                                              title: const Text('Sample Images'),
                                                               actions: [
                                                                 TextButton(
                                                                   onPressed:
-                                                                      Navigator.of(
-                                                                              context)
-                                                                          .pop,
-                                                                  child: const Text(
-                                                                      'Close'),
+                                                                      Navigator.of(context).pop,
+                                                                  child: const Text('Close'),
                                                                 )
                                                               ],
                                                               content: Column(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
+                                                                  mainAxisSize: MainAxisSize.min,
                                                                   children: [
                                                                     Image.asset(
                                                                       'assets/images/sample1.jpg',
                                                                     ),
-                                                                    const SizedBox(
-                                                                        height:
-                                                                            10),
+                                                                    const SizedBox(height: 10),
                                                                     Image.asset(
                                                                       'assets/images/sample2.jpg',
                                                                     ),
@@ -278,8 +247,7 @@ class NewAppointment extends StatelessWidget {
                                                             );
                                                           });
                                                     },
-                                                    child: const Icon(
-                                                        Icons.info_outline))
+                                                    child: const Icon(Icons.info_outline))
                                               ],
                                             ),
                                           ],

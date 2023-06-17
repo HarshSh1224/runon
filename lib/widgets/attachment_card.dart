@@ -41,9 +41,13 @@ class AttachmentCard extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              title,
-              style: GoogleFonts.raleway(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Text(
+                title,
+                style: GoogleFonts.raleway(),
+                overflow: TextOverflow.ellipsis,
+              ),
             )
           ],
         ),

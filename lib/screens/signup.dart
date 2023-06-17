@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
-import 'package:runon/screens/patient_screen.dart';
+import 'package:runon/screens/patient/patient_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/clip_paths.dart';
 import 'package:intl/intl.dart';
@@ -83,8 +83,7 @@ class SignupScreen extends StatelessWidget {
           ),
           ClipPath(
             clipper: LowerEllipse(),
-            child: Container(
-                color: Theme.of(context).colorScheme.primaryContainer),
+            child: Container(color: Theme.of(context).colorScheme.primaryContainer),
           ),
           SingleChildScrollView(
             child: Center(
@@ -103,8 +102,7 @@ class SignupScreen extends StatelessWidget {
                       Center(
                         child: CircleAvatar(
                           radius: 30,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primaryContainer,
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                           child: const Icon(
                             Icons.person,
                             size: 35,
@@ -211,8 +209,7 @@ class SignupScreen extends StatelessWidget {
                         children: [
                           Flexible(
                             flex: 1,
-                            child:
-                                StatefulBuilder(builder: (context, setState) {
+                            child: StatefulBuilder(builder: (context, setState) {
                               return Stack(
                                 children: [
                                   TextFormField(
@@ -234,8 +231,7 @@ class SignupScreen extends StatelessWidget {
                                       child: GestureDetector(
                                     onTap: () async {
                                       final temp = await showDatePicker(
-                                          initialEntryMode:
-                                              DatePickerEntryMode.calendarOnly,
+                                          initialEntryMode: DatePickerEntryMode.calendarOnly,
                                           context: context,
                                           initialDate: DateTime.now(),
                                           firstDate: DateTime(1950),
@@ -244,9 +240,7 @@ class SignupScreen extends StatelessWidget {
                                       if (temp == null) return;
                                       _pickedDate = temp;
                                       setState(() {
-                                        _dobController.text =
-                                            DateFormat('dd/MM/yyyy')
-                                                .format(temp);
+                                        _dobController.text = DateFormat('dd/MM/yyyy').format(temp);
                                       });
                                     },
                                     child: Container(
@@ -271,8 +265,7 @@ class SignupScreen extends StatelessWidget {
                                   _formData['gender'] = value!;
                                 },
                                 decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    label: Text('Gender*')),
+                                    border: OutlineInputBorder(), label: Text('Gender*')),
                                 onChanged: (value) {},
                                 items: const [
                                   DropdownMenuItem(
@@ -349,25 +342,16 @@ class SignupScreen extends StatelessWidget {
                       ),
                       RichText(
                         text: TextSpan(
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.onBackground),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                             children: [
-                              const TextSpan(
-                                  text: 'By continuing, you agree to the  '),
+                              const TextSpan(text: 'By continuing, you agree to the  '),
                               TextSpan(
                                   text: 'Terms of Service ',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary)),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                               const TextSpan(text: 'and '),
                               TextSpan(
                                   text: 'Privacy Policy',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary)),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                             ]),
                       ),
                       const SizedBox(
@@ -378,8 +362,7 @@ class SignupScreen extends StatelessWidget {
                           scale: 1.2,
                           child: StatefulBuilder(builder: (context, setState) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 35.0, vertical: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 35.0, vertical: 10),
                               child: FilledButton(
                                 onPressed: () {
                                   // auth.signInWithPhone(context, '+919711978966');
@@ -388,17 +371,15 @@ class SignupScreen extends StatelessWidget {
                                 child: SizedBox(
                                     width: double.infinity,
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 12),
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
                                       child: _isLoading
                                           ? Center(
                                               child: SizedBox(
                                               height: 20,
                                               width: 20,
                                               child: CircularProgressIndicator(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primaryContainer,
+                                                color:
+                                                    Theme.of(context).colorScheme.primaryContainer,
                                               ),
                                             ))
                                           : const Text(
@@ -418,8 +399,7 @@ class SignupScreen extends StatelessWidget {
                             },
                             child: Text(
                               'Login Instead',
-                              style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary),
+                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
                             )),
                       ),
                       const SizedBox(
