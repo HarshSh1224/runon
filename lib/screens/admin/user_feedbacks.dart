@@ -73,15 +73,15 @@ class UserFeedbackScreen extends StatelessWidget {
                                                 ),
                                               ),
                                               Expanded(
-                                                  flex: 3,
-                                                  child: Text(
-                                                    DateFormat('dd MMM yyy')
-                                                        .format(feedbacksList[index]['date']),
-                                                    textAlign: TextAlign.end,
-                                                    style: TextStyle(
-                                                        color:
-                                                            Theme.of(context).colorScheme.outline),
-                                                  ))
+                                                flex: 3,
+                                                child: Text(
+                                                  DateFormat('dd MMM yyy')
+                                                      .format(feedbacksList[index]['date']),
+                                                  textAlign: TextAlign.end,
+                                                  style: TextStyle(
+                                                      color: Theme.of(context).colorScheme.outline),
+                                                ),
+                                              )
                                             ],
                                           ),
                                           const SizedBox(

@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,7 @@ import 'package:runon/screens/patient_screen.dart';
 import 'package:runon/screens/signup.dart';
 import 'package:runon/screens/forgot_password_screen.dart';
 import 'package:runon/screens/my_appointments.dart';
-import 'package:runon/screens/appointement_detail_screen.dart';
+import 'package:runon/screens/appointment_detail_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:runon/screens/profile_screen.dart';
 import 'package:runon/screens/documents_screen.dart';
@@ -54,6 +55,10 @@ void main() async {
   runApp(const MyApp());
 }
 
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message");
+}
+
 var themeBrightness = Brightness.light;
 
 class MyApp extends StatefulWidget {
@@ -68,6 +73,20 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       themeBrightness = themeBrightness == Brightness.dark ? Brightness.light : Brightness.dark;
     });
+  }
+
+  @override
+  void initState() {
+    FirebaseMessaging.onMessage.listen((message) {
+      print(message);
+      return;
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      print(message);
+      return;
+    });
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    super.initState();
   }
 
   @override
@@ -103,23 +122,25 @@ class _MyAppState extends State<MyApp> {
             colorSchemeSeed: const Color(0xFF51B154),
           ),
           home: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                return !snapshot.hasData
-                    ? LoginScreen()
-                    : FutureBuilder(
-                        future: auth.tryLogin(),
-                        builder: (context, snapshot) {
-                          // print(FirebaseAuth.instance.currentUser!.uid);
-                          return snapshot.connectionState == ConnectionState.waiting
-                              ? const Scaffold(
-                                  body: Center(child: CircularProgressIndicator()),
-                                )
-                              : auth.type == 1
-                                  ? DoctorScreen()
-                                  : (auth.type == 2 ? AdminScreen() : PatientScreen());
-                        });
-              }),
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              return !snapshot.hasData
+                  ? LoginScreen()
+                  : FutureBuilder(
+                      future: auth.tryLogin(),
+                      builder: (context, snapshot) {
+                        // print(FirebaseAuth.instance.currentUser!.uid);
+                        return snapshot.connectionState == ConnectionState.waiting
+                            ? const Scaffold(
+                                body: Center(child: CircularProgressIndicator()),
+                              )
+                            : auth.type == 1
+                                ? DoctorScreen()
+                                : (auth.type == 2 ? AdminScreen() : PatientScreen());
+                      },
+                    );
+            },
+          ),
           routes: {
             LoginScreen.routeName: (ctx) => LoginScreen(),
             MyAppointmentsScreen.routeName: (ctx) => MyAppointmentsScreen(),

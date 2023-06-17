@@ -46,11 +46,13 @@ class _CallPageState extends State<CallPage> {
     await _client.initialize();
   }
 
-  // @override
-  // void dispose() async {
-  //   await _client.release();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() async {
+    super.dispose();
+    Future.delayed(Duration.zero, () async {
+      await _client.release();
+    });
+  }
 
   Future<void> getToken() async {
     String link =
@@ -63,39 +65,56 @@ class _CallPageState extends State<CallPage> {
     } catch (error) {
       debugPrint(error.toString());
     }
+    if (tempToken.contains('Error')) _client.release();
   }
 
   @override
   Widget build(BuildContext context) {
     // channel = ModalRoute.of(context)!.settings.arguments as String;
     return FutureBuilder(
-        future: getToken(),
-        builder: (context, snapshot) {
-          return snapshot.connectionState == ConnectionState.waiting
-              ? const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                )
-              : Scaffold(
-                  appBar: AppBar(
-                    title: const Text('Video Call'),
-                    centerTitle: true,
-                  ),
-                  backgroundColor: Colors.black,
-                  body: Stack(
-                    children: [
-                      AgoraVideoViewer(
-                        client: _client,
-                        showNumberOfUsers: true,
-                        layoutType: Layout.oneToOne,
-                      ),
-                      AgoraVideoButtons(client: _client),
-                      Text(
-                        tempToken.contains('Error') ? tempToken : '',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                );
-        });
+      future: getToken(),
+      builder: (context, snapshot) {
+        return snapshot.connectionState == ConnectionState.waiting
+            ? const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : Scaffold(
+                appBar: AppBar(
+                  title: const Text('Video Call'),
+                  centerTitle: true,
+                ),
+                backgroundColor: Colors.black,
+                body: Stack(
+                  children: [
+                    AgoraVideoViewer(
+                      client: _client,
+                      showNumberOfUsers: false,
+                      layoutType: Layout.oneToOne,
+                    ),
+                    AgoraVideoButtons(
+                      client: _client,
+                      onDisconnect: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('Call Ended'),
+                            ),
+                          ),
+                        );
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    Text(
+                      tempToken.contains('Error') ? tempToken : '',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              );
+      },
+    );
   }
 }

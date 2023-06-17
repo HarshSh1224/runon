@@ -5,7 +5,7 @@ import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/issue_data.dart';
 import 'package:runon/widgets/search.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
-import 'package:runon/screens/appointement_detail_screen.dart';
+import 'package:runon/screens/appointment_detail_screen.dart';
 
 class AdminAppointments extends StatelessWidget {
   static const routeName = '/admin-appointments';

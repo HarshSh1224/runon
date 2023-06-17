@@ -1,17 +1,23 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
+import 'package:runon/payment_gateway/razorpay_options.dart' as rp;
 import 'package:runon/providers/doctors.dart';
 import '../widgets/method_slot_formatter.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class ConfirmAppointmentDialog extends StatefulWidget {
-  ConfirmAppointmentDialog(this._doctorId, this._slot, this._issue, this._formData, this._files,
-      {super.key});
+  ConfirmAppointmentDialog(
+    this._doctorId,
+    this._slot,
+    this._issue,
+    this._formData,
+    this._files, {
+    super.key,
+  });
 
   final String _doctorId;
   final String _slot;
@@ -79,14 +85,6 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
       },
     );
   }
-
-  var options = {
-    'key': 'rzp_test_yWxLo2XrBxw3WX',
-    'amount': 70000,
-    'name': 'Healthy Aayu',
-    'description': 'Appointment',
-    'prefill': {'contact': '8888888888', 'email': 'test@razorpay.com'}
-  };
 
   void _sendDataToServer(context) async {
     final firebaseDatabase = FirebaseFirestore.instance.collection('appointments');
@@ -252,10 +250,13 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: Navigator.of(context).pop, child: const Text('Cancel')),
+        TextButton(
+          onPressed: Navigator.of(context).pop,
+          child: const Text('Cancel'),
+        ),
         TextButton(
             // onPressed: () => _sendDataToServer(context),
-            onPressed: () => _razorpay.open(options),
+            onPressed: () => _razorpay.open(rp.options),
             child: const Text('Proceed to payment')),
       ],
     );

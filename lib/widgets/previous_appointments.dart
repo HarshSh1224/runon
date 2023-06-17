@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/issue_data.dart';
-import 'package:runon/screens/appointement_detail_screen.dart';
+import 'package:runon/screens/appointment_detail_screen.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
 
 class PreviousAppointments extends StatelessWidget {
@@ -14,14 +14,12 @@ class PreviousAppointments extends StatelessWidget {
       Appointments appointmentsProvider, Auth auth, IssueData issue) async {
     await appointmentsProvider.fetchAndSetAppointments();
     await issue.fetchAndSetIssues();
-    _myAppointments =
-        appointmentsProvider.getAppointmentsByPatientId(auth.userId!);
+    _myAppointments = appointmentsProvider.getAppointmentsByPatientId(auth.userId!);
   }
 
   @override
   Widget build(BuildContext context) {
-    final appointmentsProvider =
-        Provider.of<Appointments>(context, listen: false);
+    final appointmentsProvider = Provider.of<Appointments>(context, listen: false);
     final auth = Provider.of<Auth>(context, listen: false);
     final issue = Provider.of<IssueData>(context, listen: false);
     return FutureBuilder(
@@ -87,8 +85,7 @@ class PreviousAppointments extends StatelessWidget {
                                     Icon(
                                       Icons.sailing_outlined,
                                       size: 50,
-                                      color:
-                                          Theme.of(context).colorScheme.outline,
+                                      color: Theme.of(context).colorScheme.outline,
                                     ),
                                     const SizedBox(
                                       height: 5,
@@ -96,9 +93,7 @@ class PreviousAppointments extends StatelessWidget {
                                     Text(
                                       'No Appointments Found!',
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .outline,
+                                        color: Theme.of(context).colorScheme.outline,
                                       ),
                                     ),
                                   ],
@@ -114,24 +109,21 @@ class PreviousAppointments extends StatelessWidget {
                                     elevation: 4,
                                     child: ListTile(
                                       onTap: () {
-                                        Navigator.of(context).pushNamed(
-                                            AppointmentDetailScreen.routeName);
+                                        Navigator.of(context)
+                                            .pushNamed(AppointmentDetailScreen.routeName);
                                       },
                                       leading: CircleAvatar(
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .tertiaryContainer,
-                                        child: Text(issue.issueFromId(
-                                            _myAppointments[index].issueId)[0]),
+                                        backgroundColor:
+                                            Theme.of(context).colorScheme.tertiaryContainer,
+                                        child: Text(
+                                            issue.issueFromId(_myAppointments[index].issueId)[0]),
                                       ),
                                       title: Text(
-                                        expandSlot(
-                                            _myAppointments[index].slotId),
+                                        expandSlot(_myAppointments[index].slotId),
                                       ),
-                                      subtitle: Text(issue.issueFromId(
-                                          _myAppointments[index].issueId)),
-                                      trailing: const Icon(
-                                          Icons.chevron_right_rounded),
+                                      subtitle:
+                                          Text(issue.issueFromId(_myAppointments[index].issueId)),
+                                      trailing: const Icon(Icons.chevron_right_rounded),
                                     ),
                                   );
                                 }),
