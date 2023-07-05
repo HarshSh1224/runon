@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:runon/providers/appointments.dart';
@@ -10,7 +11,7 @@ import 'package:runon/widgets/attachment_card.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
   static const routeName = '/appointment-detail-screen';
-  AppointmentDetailScreen({super.key});
+  AppointmentDetailScreen({this.isDoctor = false, super.key});
 
   final _appointmentData = {
     'patient': 'Loading...',
@@ -22,6 +23,7 @@ class AppointmentDetailScreen extends StatelessWidget {
   };
 
   List<Timeline> _timeLine = [];
+  bool isDoctor;
 
   Future<void> _fetchAndSetData(Appointment appointment) async {
     final patient =
@@ -81,6 +83,7 @@ class AppointmentDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Appointment appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
+    isDoctor = appointment.doctorId == FirebaseAuth.instance.currentUser!.uid;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Appointment Details'),
@@ -164,7 +167,9 @@ class AppointmentDetailScreen extends StatelessWidget {
                                         height: 3,
                                       ),
                                       Text(
-                                        'Payment Scuccessful Rs ${e.paymentAmount}',
+                                        e.byDoctor
+                                            ? 'Successfully Consulted'
+                                            : 'Payment Scuccessful Rs ${e.paymentAmount}',
                                         style: const TextStyle(fontStyle: FontStyle.italic),
                                       ),
                                       const SizedBox(
@@ -188,31 +193,9 @@ class AppointmentDetailScreen extends StatelessWidget {
                         const SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          'Upcoming Appointment on: ${expandSlot(appointment.slotId)}',
-                          style: GoogleFonts.roboto(
-                              color: Theme.of(context).colorScheme.outline,
-                              fontStyle: FontStyle.italic,
-                              fontSize: 18),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        OutlinedButton(
-                            onPressed: () {
-                              Navigator.of(context).pushNamed(CallPage.routeName,
-                                  arguments: appointment.appointmentId);
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(10.0),
-                              child: Text(
-                                'Join Video Call',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                            )),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        if (!appointment.hasPassed) _upcomingAppointment(appointment, context),
+                        if (appointment.hasPassed && !isDoctor)
+                          _passedAppointment(appointment, context),
                       ],
                     ),
                   ),
@@ -220,5 +203,82 @@ class AppointmentDetailScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Column _upcomingAppointment(Appointment appointment, BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          'Upcoming Appointment on: ${expandSlot(appointment.slotId)}',
+          style: GoogleFonts.roboto(
+              color: Theme.of(context).colorScheme.outline,
+              fontStyle: FontStyle.italic,
+              fontSize: 18),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        OutlinedButton(
+            onPressed: () async {
+              if (isDoctor) {
+                await _generateTimeline(appointment.appointmentId, appointment.slotId);
+              }
+              Navigator.of(context)
+                  .pushNamed(CallPage.routeName, arguments: appointment.appointmentId);
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Text(
+                'Join Video Call',
+                style: TextStyle(fontSize: 18),
+              ),
+            )),
+        const SizedBox(
+          height: 20,
+        ),
+      ],
+    );
+  }
+
+  Center _passedAppointment(Appointment appointment, BuildContext context) {
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          OutlinedButton(
+              onPressed: () async {},
+              child: const Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Text(
+                  'Book Follow Up',
+                  style: TextStyle(fontSize: 18),
+                ),
+              )),
+          const SizedBox(
+            height: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _generateTimeline(String appointmentId, String slotId) async {
+    final ref = FirebaseFirestore.instance
+        .collection('appointments/$appointmentId/timeline')
+        .doc(appointmentId + slotId);
+
+    try {
+      await ref.set({
+        'createdOn': DateTime.now().toIso8601String(),
+        'byDoctor': true,
+        'prescriptionList': [],
+        'slotId': slotId,
+      });
+      print('Added DOc cdoc');
+    } catch (error) {
+      print('Not adedd DOc cdoc');
+
+      print(error);
+    }
   }
 }

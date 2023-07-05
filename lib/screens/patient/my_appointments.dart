@@ -141,16 +141,16 @@ class UpcomingDeleteButton extends StatelessWidget {
         child: OutlinedButton(
           onPressed: () {},
           style: OutlinedButton.styleFrom(
-            foregroundColor: !date.isBefore(DateTime.now())
+            foregroundColor: _appointment.hasPassed
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.tertiary,
             side: BorderSide(
-              color: !date.isBefore(DateTime.now())
+              color: _appointment.hasPassed
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.tertiary,
             ),
           ),
-          child: Text(date.isBefore(DateTime.now()) ? 'Passed' : 'Upcoming'),
+          child: Text(!_appointment.hasPassed ? 'Passed' : 'Upcoming'),
         ),
       ),
     );

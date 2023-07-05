@@ -1,21 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 
 class Timeline {
   DateTime createdOn;
-  String paymentId;
-  double paymentAmount;
+  String? paymentId;
+  double? paymentAmount;
   List<String> prescriptionList;
   String slotId;
   bool? isMissed;
+  bool byDoctor;
 
   Timeline({
     required this.createdOn,
-    required this.paymentAmount,
-    required this.paymentId,
+    this.byDoctor = false,
+    this.paymentAmount,
+    this.paymentId,
     required this.prescriptionList,
     required this.slotId,
-    this.isMissed,
+    this.isMissed = false,
   });
 }
 
@@ -39,6 +42,10 @@ class Appointment {
     this.prescriptionId,
     this.reports,
   });
+
+  bool get hasPassed {
+    return slotIdTodDateTime(slotId).isBefore(DateTime.now());
+  }
 }
 
 class Appointments with ChangeNotifier {
@@ -65,13 +72,21 @@ class Appointments with ChangeNotifier {
           }).toList();
         }
 
-        timelinesList.add(Timeline(
-          createdOn: DateTime.parse(timeline['createdOn']),
-          paymentAmount: timeline['paymentAmount'],
-          paymentId: timeline['paymentId'],
-          prescriptionList: tempList,
-          slotId: timeline['slotId'],
-        ));
+        if (timeline.containsKey('byDoctor')) {
+          timelinesList.add(Timeline(
+              createdOn: DateTime.parse(timeline['createdOn']),
+              prescriptionList: tempList,
+              byDoctor: true,
+              slotId: timeline['slotId']));
+        } else {
+          timelinesList.add(Timeline(
+            createdOn: DateTime.parse(timeline['createdOn']),
+            paymentAmount: timeline['paymentAmount'],
+            paymentId: timeline['paymentId'],
+            prescriptionList: tempList,
+            slotId: timeline['slotId'],
+          ));
+        }
       }
     } catch (error) {
       print(error);

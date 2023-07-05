@@ -58,15 +58,7 @@ class AddAppointment extends StatelessWidget {
                     height: 10,
                   ),
                   FilledButton(
-                    onPressed: () {
-                      try {
-                        // FirebaseFirestore.instance
-                        //     .collection('users')
-                        //     .add({'data': 'Testing success'});
-                      } catch (error) {
-                        print('Error');
-                      }
-                    },
+                    onPressed: () {},
                     child: const Padding(
                       padding: EdgeInsets.all(15.0),
                       child: SizedBox(
