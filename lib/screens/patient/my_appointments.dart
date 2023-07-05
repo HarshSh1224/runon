@@ -18,7 +18,7 @@ class MyAppointmentsScreen extends StatelessWidget {
     await appointmentsProvider.fetchAndSetAppointments();
     print(_myAppointments);
     await issue.fetchAndSetIssues();
-    _myAppointments = appointmentsProvider.getAppointmentsByPatientId(auth.userId!);
+    _myAppointments = appointmentsProvider.getAppointmentsByPatientId(id: auth.userId!);
   }
 
   @override
@@ -141,16 +141,16 @@ class UpcomingDeleteButton extends StatelessWidget {
         child: OutlinedButton(
           onPressed: () {},
           style: OutlinedButton.styleFrom(
-            foregroundColor: _appointment.hasPassed
+            foregroundColor: !_appointment.hasPassed
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.tertiary,
             side: BorderSide(
-              color: _appointment.hasPassed
+              color: !_appointment.hasPassed
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.tertiary,
             ),
           ),
-          child: Text(!_appointment.hasPassed ? 'Passed' : 'Upcoming'),
+          child: Text(_appointment.hasPassed ? 'Passed' : 'Upcoming'),
         ),
       ),
     );

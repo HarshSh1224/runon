@@ -5,6 +5,7 @@ import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/issue_data.dart';
 import 'package:runon/screens/appointment_detail_screen.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class PreviousAppointments extends StatelessWidget {
   PreviousAppointments({super.key});
@@ -14,7 +15,8 @@ class PreviousAppointments extends StatelessWidget {
       Appointments appointmentsProvider, Auth auth, IssueData issue) async {
     await appointmentsProvider.fetchAndSetAppointments();
     await issue.fetchAndSetIssues();
-    _myAppointments = appointmentsProvider.getAppointmentsByPatientId(auth.userId!);
+    _myAppointments =
+        appointmentsProvider.getAppointmentsByPatientId(id: auth.userId!, onlyPassed: true);
   }
 
   @override
@@ -32,49 +34,11 @@ class PreviousAppointments extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Previous Appointments',
-                        style: TextStyle(
-                            fontFamily: 'MoonBold',
-                            color: Theme.of(context).colorScheme.outline,
-                            letterSpacing: 2),
-                      ),
+                      Text('\nPassed Appointments',
+                          style: GoogleFonts.raleway(fontSize: 25, fontWeight: FontWeight.bold)),
                       const SizedBox(
                         height: 20,
                       ),
-                      // Text('Heoo')
-                      // Expanded(
-                      //   child: ListView(
-                      //     children: [
-                      //       Text('Hello'),
-                      //       Text('Hello'),
-                      //       Text('Hello'),
-                      //       Card(
-                      //         margin: EdgeInsets.only(bottom: 20),
-                      //         elevation: 4,
-                      //         child: ListTile(
-                      //           onTap: () {
-                      //             Navigator.of(context).pushNamed(
-                      //                 AppointmentDetailScreen.routeName);
-                      //           },
-                      //           leading: CircleAvatar(
-                      //             backgroundColor: Theme.of(context)
-                      //                 .colorScheme
-                      //                 .tertiaryContainer,
-                      //             child: Text(issue.issueFromId(
-                      //                 _myAppointments[0].issueId)[0]),
-                      //           ),
-                      //           title: Text(
-                      //             expandSlot(_myAppointments[0].slotId),
-                      //           ),
-                      //           subtitle: Text(issue
-                      //               .issueFromId(_myAppointments[0].issueId)),
-                      //           trailing: Icon(Icons.chevron_right_rounded),
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // )
                       _myAppointments.isEmpty
                           ? Expanded(
                               child: Center(
@@ -109,8 +73,9 @@ class PreviousAppointments extends StatelessWidget {
                                     elevation: 4,
                                     child: ListTile(
                                       onTap: () {
-                                        Navigator.of(context)
-                                            .pushNamed(AppointmentDetailScreen.routeName);
+                                        Navigator.of(context).pushNamed(
+                                            AppointmentDetailScreen.routeName,
+                                            arguments: _myAppointments[index]);
                                       },
                                       leading: CircleAvatar(
                                         backgroundColor:

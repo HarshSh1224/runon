@@ -39,10 +39,9 @@ class _MyScheduleScreenState extends State<MyScheduleScreen> {
   Future<void> generateEventsList() async {
     if (ensureOnce) return;
     await Provider.of<IssueData>(context, listen: false).fetchAndSetIssues();
-    await Provider.of<Appointments>(context, listen: false)
-        .fetchAndSetAppointments();
+    await Provider.of<Appointments>(context, listen: false).fetchAndSetAppointments();
     appointments = Provider.of<Appointments>(context, listen: false)
-        .getAppointmentsByPatientId(FirebaseAuth.instance.currentUser!.uid);
+        .getAppointmentsByPatientId(id: FirebaseAuth.instance.currentUser!.uid);
     // print(events);
 
     for (int i = 0; i < appointments.length; i++) {
@@ -79,8 +78,8 @@ class _MyScheduleScreenState extends State<MyScheduleScreen> {
                       selectedDayPredicate: (day) => isSameDay(day, _today),
                       onDaySelected: _onDaySelected,
                       eventLoader: _getEventsForDay,
-                      headerStyle: const HeaderStyle(
-                          formatButtonVisible: false, titleCentered: true),
+                      headerStyle:
+                          const HeaderStyle(formatButtonVisible: false, titleCentered: true),
                       // eventLoader: ,
                     ),
                     const SizedBox(
@@ -93,13 +92,10 @@ class _MyScheduleScreenState extends State<MyScheduleScreen> {
                           children: [
                             ...appointments.map((el) {
                               // debugPrint('${slotIdTodDateTime(el.slotId)}  $_today');
-                              return isSameDay(
-                                      slotIdTodDateTime(el.slotId), _today)
+                              return isSameDay(slotIdTodDateTime(el.slotId), _today)
                                   ? Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 18.0),
-                                      child:
-                                          AppointmentListTile(el.appointmentId),
+                                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                      child: AppointmentListTile(el.appointmentId),
                                     )
                                   : Container();
                             }).toList()
