@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/payment_gateway/razorpay_options.dart' as rp;
 import 'package:runon/providers/doctors.dart';
+import 'package:runon/providers/slots.dart';
 import '../widgets/method_slot_formatter.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -125,8 +126,10 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         widget._formData['reportUrl'].add(url);
       }
 
+      final String slot = widget._formData['slotId'];
+
       widget.timelineData['createdOn'] = DateTime.now().toIso8601String();
-      widget.timelineData['slotId'] = widget._formData['slotId'];
+      widget.timelineData['slotId'] = slot;
       widget.timelineData['paymentAmount'] =
           Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId)!.fees;
 
@@ -135,6 +138,15 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
           .add(widget.timelineData);
 
       await firebaseDatabase.doc(response.id).set(widget._formData);
+      Provider.of<Slots>(context, listen: false)
+          .removeSlot(slot.substring(0, 8), slot.substring(8, 10), widget._formData['doctorId']);
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Padding(
+          padding: EdgeInsets.symmetric(vertical: 10.0),
+          child: Text('Success'),
+        ),
+      ));
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -145,13 +157,6 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         ),
       );
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0),
-        child: Text('Success'),
-      ),
-    ));
 
     Navigator.of(context).pop();
     Navigator.of(context).pop();

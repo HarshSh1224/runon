@@ -16,19 +16,18 @@ class Slots with ChangeNotifier {
 
   Future<void> fetchSlots(String doctorId) async {
     try {
-      final response = await FirebaseFirestore.instance
-          .collection('doctors/$doctorId/slots')
-          .get();
+      final response = await FirebaseFirestore.instance.collection('doctors/$doctorId/slots').get();
       Map<String, List<String>> temp = {};
 
       for (int i = 0; i < response.docs.length; i++) {
-        if (slotIdTodDateTime(response.docs[i].id).isBefore(DateTime.now())) {
+        if (slotIdTodDateTime(response.docs[i].id).isBefore(DateTime.now()
+            .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0))) {
           continue;
         }
-        temp[response.docs[i].id] =
-            List<String>.from(response.docs[i]['slots']);
+        temp[response.docs[i].id] = List<String>.from(response.docs[i]['slots']);
       }
       _slots = temp;
+      print(_slots);
     } catch (error) {
       print(error.toString());
     }
@@ -56,9 +55,7 @@ class Slots with ChangeNotifier {
     }
     temp2.sort();
     // print(int.parse(temp2[0].substring(6, 8)));
-    final date = DateTime(
-        int.parse(temp2[0].substring(0, 4)),
-        int.parse(temp2[0].substring(4, 6)),
+    final date = DateTime(int.parse(temp2[0].substring(0, 4)), int.parse(temp2[0].substring(4, 6)),
         int.parse(temp2[0].substring(6, 8)));
     return date;
   }
@@ -68,7 +65,11 @@ class Slots with ChangeNotifier {
   }
 
   Future<void> addSlot(String date, String slot, String doctorId) async {
+    // await fetchSlots(doctorId);
     List<String> slotsList = _slots[date] == null ? [] : [..._slots[date]!];
+
+    print('Current Slots List : ');
+    print(date);
 
     if (slotsList.indexWhere((element) => element == slot) != -1) {
       return;
@@ -76,26 +77,35 @@ class Slots with ChangeNotifier {
       slotsList.add(slot);
     }
 
-    await FirebaseFirestore.instance
-        .collection('doctors/$doctorId/slots')
-        .doc(date)
-        .set({'slots': slotsList});
-  }
-
-  removeSlot(String date, String slot, String doctorId) async {
-    List<String> slotsList = _slots[date] == null ? [] : [..._slots[date]!];
-    slotsList.removeWhere((element) => element == slot);
-
-    if (slotsList.isEmpty) {
-      await FirebaseFirestore.instance
-          .collection('doctors/$doctorId/slots')
-          .doc(date)
-          .delete();
-    } else {
+    try {
       await FirebaseFirestore.instance
           .collection('doctors/$doctorId/slots')
           .doc(date)
           .set({'slots': slotsList});
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  removeSlot(String date, String slot, String doctorId) async {
+    print('REMOVING SLOT');
+    print(date);
+    print(slot);
+    List<String> slotsList = _slots[date] == null ? [] : [..._slots[date]!];
+    slotsList.removeWhere((element) => element == slot);
+
+    try {
+      if (slotsList.isEmpty) {
+        await FirebaseFirestore.instance.collection('doctors/$doctorId/slots').doc(date).delete();
+      } else {
+        await FirebaseFirestore.instance
+            .collection('doctors/$doctorId/slots')
+            .doc(date)
+            .set({'slots': slotsList});
+      }
+      print('REMOVED');
+    } catch (e) {
+      print(e);
     }
   }
 }

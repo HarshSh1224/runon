@@ -226,11 +226,11 @@ class AppointmentDetailScreen extends StatelessWidget {
               Navigator.of(context)
                   .pushNamed(CallPage.routeName, arguments: appointment.appointmentId);
             },
-            child: const Padding(
-              padding: EdgeInsets.all(10.0),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
               child: Text(
-                'Join Video Call',
-                style: TextStyle(fontSize: 18),
+                isDoctor ? 'Start Video Call' : 'Join Video Call',
+                style: const TextStyle(fontSize: 18),
               ),
             )),
         const SizedBox(
@@ -246,7 +246,7 @@ class AppointmentDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           OutlinedButton(
-              onPressed: () async {},
+              onPressed: _onTapBookFollowUp,
               child: const Padding(
                 padding: EdgeInsets.all(10.0),
                 child: Text(
@@ -261,6 +261,8 @@ class AppointmentDetailScreen extends StatelessWidget {
       ),
     );
   }
+
+  void _onTapBookFollowUp() async {}
 
   Future<void> _generateTimeline(String appointmentId, String slotId) async {
     final ref = FirebaseFirestore.instance
