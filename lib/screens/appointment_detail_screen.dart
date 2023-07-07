@@ -1,18 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/video_call/call.dart';
+import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
 import 'package:runon/widgets/attachment_card.dart';
+import 'package:runon/widgets/countdown_timer.dart';
 
-class AppointmentDetailScreen extends StatelessWidget {
+class AppointmentDetailScreen extends StatefulWidget {
   static const routeName = '/appointment-detail-screen';
   AppointmentDetailScreen({this.isDoctor = false, super.key});
 
+  bool isDoctor;
+
+  @override
+  State<AppointmentDetailScreen> createState() => _AppointmentDetailScreenState();
+}
+
+class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   final _appointmentData = {
     'patient': 'Loading...',
     'patientImage': '',
@@ -23,7 +33,6 @@ class AppointmentDetailScreen extends StatelessWidget {
   };
 
   List<Timeline> _timeLine = [];
-  bool isDoctor;
 
   Future<void> _fetchAndSetData(Appointment appointment) async {
     final patient =
@@ -81,9 +90,14 @@ class AppointmentDetailScreen extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final Appointment appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
-    isDoctor = appointment.doctorId == FirebaseAuth.instance.currentUser!.uid;
+    widget.isDoctor = appointment.doctorId == FirebaseAuth.instance.currentUser!.uid;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Appointment Details'),
@@ -194,7 +208,7 @@ class AppointmentDetailScreen extends StatelessWidget {
                           height: 20,
                         ),
                         if (!appointment.hasPassed) _upcomingAppointment(appointment, context),
-                        if (appointment.hasPassed && !isDoctor)
+                        if (appointment.hasPassed && !widget.isDoctor)
                           _passedAppointment(appointment, context),
                       ],
                     ),
@@ -219,25 +233,44 @@ class AppointmentDetailScreen extends StatelessWidget {
           height: 20,
         ),
         OutlinedButton(
-            onPressed: () async {
-              if (isDoctor) {
-                await _generateTimeline(appointment.appointmentId, appointment.slotId);
-              }
-              Navigator.of(context)
-                  .pushNamed(CallPage.routeName, arguments: appointment.appointmentId);
-            },
+            onPressed: !canStartAppointment(appointment)
+                ? null
+                : () async {
+                    if (widget.isDoctor) {
+                      await _generateTimeline(appointment.appointmentId, appointment.slotId);
+                    }
+                    Navigator.of(context)
+                        .pushNamed(CallPage.routeName, arguments: appointment.appointmentId);
+                  },
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Text(
-                isDoctor ? 'Start Video Call' : 'Join Video Call',
+                widget.isDoctor ? 'Start Video Call' : 'Join Video Call',
                 style: const TextStyle(fontSize: 18),
               ),
             )),
+        const SizedBox(
+          height: 5,
+        ),
+        if (!canStartAppointment(appointment))
+          CountdownTimer(
+            countTo: slotIdTodDateTime(appointment.slotId, withTime: true),
+          ),
         const SizedBox(
           height: 20,
         ),
       ],
     );
+  }
+
+  bool canStartAppointment(Appointment appointment) {
+    DateTime slot = slotIdTodDateTime(appointment.slotId, withTime: true);
+
+    DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
+    if (nowTime.isAfter(slot) && nowTime.isBefore(slot.add(const Duration(minutes: 30)))) {
+      return true;
+    }
+    return false;
   }
 
   Center _passedAppointment(Appointment appointment, BuildContext context) {
@@ -276,7 +309,7 @@ class AppointmentDetailScreen extends StatelessWidget {
         'prescriptionList': [],
         'slotId': slotId,
       });
-      print('Added DOc cdoc');
+      print('Added Doc cdoc');
     } catch (error) {
       print('Not adedd DOc cdoc');
 

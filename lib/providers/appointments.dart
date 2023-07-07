@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:runon/providers/slot_timings.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 
 class Timeline {
@@ -44,7 +45,17 @@ class Appointment {
   });
 
   bool get hasPassed {
-    return slotIdTodDateTime(slotId).isBefore(DateTime.now());
+    DateTime slot = slotIdTodDateTime(slotId);
+    String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
+    slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
+    slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
+    if (time[6] == 'P') slot = slot.add(const Duration(hours: 12));
+
+    DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
+    if (nowTime.isAfter(slot.add(const Duration(minutes: 30)))) {
+      return true;
+    }
+    return false;
   }
 }
 

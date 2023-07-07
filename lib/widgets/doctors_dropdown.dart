@@ -4,9 +4,11 @@ import 'package:runon/providers/doctors.dart';
 import 'package:runon/providers/slots.dart';
 
 class DoctorsDropdown extends StatefulWidget {
-  final Doctors _doctors;
-  final Function(String) _update;
-  DoctorsDropdown(this._doctors, this._update, {super.key});
+  final Doctors doctors;
+  final Function(String) update;
+  final String? followUpDoctorId;
+  const DoctorsDropdown(
+      {required this.doctors, required this.update, this.followUpDoctorId, super.key});
 
   @override
   State<DoctorsDropdown> createState() => _DoctorsDropdownState();
@@ -17,6 +19,12 @@ class _DoctorsDropdownState extends State<DoctorsDropdown> {
     slotsProvider.fetchSlots(doctorId).then((_) {
       Navigator.of(context).pop();
     });
+  }
+
+  @override
+  void initState() {
+    _selectedValue = widget.followUpDoctorId;
+    super.initState();
   }
 
   String? _selectedValue;
@@ -36,7 +44,7 @@ class _DoctorsDropdownState extends State<DoctorsDropdown> {
       ),
       value: _selectedValue,
       items: [
-        ...widget._doctors.doctors.map((e) {
+        ...widget.doctors.doctors.map((e) {
           return DropdownMenuItem(
             value: e.id,
             child: Row(
@@ -48,8 +56,7 @@ class _DoctorsDropdownState extends State<DoctorsDropdown> {
                 Text(
                   '(${e.qualifications})',
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.outline,
-                      fontStyle: FontStyle.italic),
+                      color: Theme.of(context).colorScheme.outline, fontStyle: FontStyle.italic),
                 ),
               ],
             ),
@@ -84,7 +91,7 @@ class _DoctorsDropdownState extends State<DoctorsDropdown> {
       },
       isExpanded: true,
       onSaved: (value) {
-        widget._update(value!);
+        widget.update(value!);
       },
     );
   }

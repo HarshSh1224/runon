@@ -6,7 +6,7 @@ import '../widgets/slots_dialog.dart';
 import '../providers/slot_timings.dart';
 
 class SlotPicker extends StatefulWidget {
-  Function(String) _update;
+  final Function(String) _update;
   SlotPicker(
     this._update, {
     super.key,
@@ -18,7 +18,7 @@ class SlotPicker extends StatefulWidget {
 
 class _SlotPickerState extends State<SlotPicker> {
   final TextEditingController _pickedDate = TextEditingController();
-  String? _chosenSlot = null;
+  String? _chosenSlot;
 
   void _chooseSlot(String slotValue) {
     _chosenSlot = slotValue;
@@ -41,8 +41,7 @@ class _SlotPickerState extends State<SlotPicker> {
         firstDate: firstAvailDate,
         lastDate: DateTime(2030),
         selectableDayPredicate: (DateTime val) {
-          return availDates.contains(DateFormat('ddMMyyyy').format(val)) ||
-              val == firstAvailDate;
+          return availDates.contains(DateFormat('ddMMyyyy').format(val)) || val == firstAvailDate;
         });
 
     if (temp == null) return;
@@ -89,8 +88,9 @@ class _SlotPickerState extends State<SlotPicker> {
             children: [
               TextFormField(
                 validator: (value) {
-                  if (_pickedDate.text == 'No Slot Chosen')
+                  if (_pickedDate.text == 'No Slot Chosen') {
                     return 'Please choose a slot';
+                  }
                   return null;
                 },
                 enabled: slots.isEmpty ? false : true,
@@ -101,8 +101,7 @@ class _SlotPickerState extends State<SlotPicker> {
                         ? Theme.of(context).colorScheme.outline.withOpacity(0.7)
                         : null),
                 decoration: InputDecoration(
-                  constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width - 130),
+                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 130),
                   label: const Text('Pick a slot*'),
                   border: const OutlineInputBorder(),
                 ),

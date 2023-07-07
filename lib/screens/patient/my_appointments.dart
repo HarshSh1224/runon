@@ -4,7 +4,6 @@ import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/issue_data.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
-import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 import 'package:runon/screens/appointment_detail_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -134,7 +133,6 @@ class UpcomingDeleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final date = slotIdTodDateTime(_appointment.slotId);
     return IgnorePointer(
       child: Opacity(
         opacity: 0.7,
