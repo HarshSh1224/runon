@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:runon/providers/slot_timings.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 
 class Slots with ChangeNotifier {
@@ -26,8 +27,22 @@ class Slots with ChangeNotifier {
         }
         temp[response.docs[i].id] = List<String>.from(response.docs[i]['slots']);
       }
+      temp.removeWhere((key, value) {
+        for (int i = 0; i < value.length; i++) {
+          DateTime slot = slotIdTodDateTime(key);
+          String time = slotTimings[int.parse(value[i]).toString()]!;
+          slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
+          slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
+          if (time[6] == 'P') slot = slot.add(const Duration(hours: 12));
+
+          DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
+          if (nowTime.isAfter(slot)) {
+            return true;
+          }
+        }
+        return false;
+      });
       _slots = temp;
-      print(_slots);
     } catch (error) {
       print(error.toString());
     }
@@ -68,9 +83,6 @@ class Slots with ChangeNotifier {
     // await fetchSlots(doctorId);
     List<String> slotsList = _slots[date] == null ? [] : [..._slots[date]!];
 
-    print('Current Slots List : ');
-    print(date);
-
     if (slotsList.indexWhere((element) => element == slot) != -1) {
       return;
     } else {
@@ -88,9 +100,6 @@ class Slots with ChangeNotifier {
   }
 
   removeSlot(String date, String slot, String doctorId) async {
-    print('REMOVING SLOT');
-    print(date);
-    print(slot);
     List<String> slotsList = _slots[date] == null ? [] : [..._slots[date]!];
     slotsList.removeWhere((element) => element == slot);
 
@@ -103,7 +112,6 @@ class Slots with ChangeNotifier {
             .doc(date)
             .set({'slots': slotsList});
       }
-      print('REMOVED');
     } catch (e) {
       print(e);
     }

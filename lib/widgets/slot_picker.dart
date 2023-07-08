@@ -6,9 +6,11 @@ import '../widgets/slots_dialog.dart';
 import '../providers/slot_timings.dart';
 
 class SlotPicker extends StatefulWidget {
-  final Function(String) _update;
-  SlotPicker(
-    this._update, {
+  final Function(String) onUpdate;
+  Slots? slotsReceived;
+  SlotPicker({
+    required this.onUpdate,
+    this.slotsReceived,
     super.key,
   });
 
@@ -62,9 +64,7 @@ class _SlotPickerState extends State<SlotPicker> {
 
     setState(
       () {
-        // print(
-        //     '${DateFormat('ddMMyyyy').format(temp)}${_chosenSlot!.length == 1 ? '0' : ''}$_chosenSlot');
-        widget._update(
+        widget.onUpdate(
             '${DateFormat('ddMMyyyy').format(temp)}${_chosenSlot!.length == 1 ? '0' : ''}$_chosenSlot');
         _pickedDate.text =
             '${DateFormat('dd MMM').format(temp)} ${slotTimings[_chosenSlot]} - ${slotTimings[(int.parse(_chosenSlot!) + 1).toString()]}';
@@ -80,68 +80,76 @@ class _SlotPickerState extends State<SlotPicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Slots>(builder: (context, slots, ch) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Stack(
-            children: [
-              TextFormField(
-                validator: (value) {
-                  if (_pickedDate.text == 'No Slot Chosen') {
-                    return 'Please choose a slot';
-                  }
-                  return null;
-                },
-                enabled: slots.isEmpty ? false : true,
-                readOnly: true,
-                controller: _pickedDate,
-                style: TextStyle(
-                    color: slots.isEmpty
-                        ? Theme.of(context).colorScheme.outline.withOpacity(0.7)
-                        : null),
-                decoration: InputDecoration(
-                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 130),
-                  label: const Text('Pick a slot*'),
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              Positioned.fill(
-                  child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: slots.isEmpty
-                      ? null
-                      : () {
-                          datePickerFunction(slots);
-                        },
-                  child: Container(
-                    color: Colors.transparent,
-                  ),
-                ),
-              )),
-            ],
-          ),
-          Transform.translate(
-            offset: const Offset(-6, 0),
-            child: IconButton(
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      Theme.of(context).colorScheme.secondaryContainer)),
-              onPressed: slots.isEmpty
-                  ? null
-                  : () {
-                      datePickerFunction(slots);
-                    },
-              padding: const EdgeInsets.all(20),
-              icon: const Icon(
-                Icons.calendar_month_rounded,
-                size: 30,
+    // print(widget.slotsReceived!.slots);
+
+    return widget.slotsReceived == null
+        ? Consumer<Slots>(builder: (context, slots, ch) {
+            return _slotCalenderRow(slots, context);
+          })
+        : _slotCalenderRow(widget.slotsReceived!, context);
+  }
+
+  Row _slotCalenderRow(Slots slots, BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Stack(
+          children: [
+            TextFormField(
+              validator: (value) {
+                if (_pickedDate.text == 'No Slot Chosen') {
+                  return 'Please choose a slot';
+                }
+                return null;
+              },
+              enabled: slots.isEmpty ? false : true,
+              readOnly: true,
+              controller: _pickedDate,
+              style: TextStyle(
+                  color: slots.isEmpty
+                      ? Theme.of(context).colorScheme.outline.withOpacity(0.7)
+                      : null),
+              decoration: InputDecoration(
+                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 130),
+                label: const Text('Pick a slot*'),
+                border: const OutlineInputBorder(),
               ),
             ),
-          )
-        ],
-      );
-    });
+            Positioned.fill(
+                child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: slots.isEmpty
+                    ? null
+                    : () {
+                        datePickerFunction(slots);
+                      },
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              ),
+            )),
+          ],
+        ),
+        Transform.translate(
+          offset: const Offset(-6, 0),
+          child: IconButton(
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                    Theme.of(context).colorScheme.secondaryContainer)),
+            onPressed: slots.isEmpty
+                ? null
+                : () {
+                    datePickerFunction(slots);
+                  },
+            padding: const EdgeInsets.all(20),
+            icon: const Icon(
+              Icons.calendar_month_rounded,
+              size: 30,
+            ),
+          ),
+        )
+      ],
+    );
   }
 }

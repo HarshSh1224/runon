@@ -4,7 +4,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'dart:io';
 
 class FlatFeetImageUploadBox extends StatefulWidget {
-  final Function(List<PlatformFile>) _update;
+  final Function(PlatformFile) _update;
   const FlatFeetImageUploadBox(this._update, {super.key});
 
   @override
@@ -12,7 +12,7 @@ class FlatFeetImageUploadBox extends StatefulWidget {
 }
 
 class _FlatFeetImageUploadBoxState extends State<FlatFeetImageUploadBox> {
-  final List<PlatformFile> _files = [];
+  PlatformFile? _file;
 
   void _filePicker() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -29,10 +29,9 @@ class _FlatFeetImageUploadBoxState extends State<FlatFeetImageUploadBox> {
 
     if (result != null) {
       PlatformFile file = result.files.first;
-      // print(file.path);
       setState(() {
-        _files.add(file);
-        widget._update(_files);
+        _file = file;
+        widget._update(_file!);
       });
     }
   }
@@ -53,11 +52,10 @@ class _FlatFeetImageUploadBoxState extends State<FlatFeetImageUploadBox> {
           child: Container(
             height: 100,
             width: 100,
-            color:
-                Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
-            child: _files.isNotEmpty
+            color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
+            child: _file != null
                 ? Image.file(
-                    File(_files[0].path!),
+                    File(_file!.path!),
                     fit: BoxFit.cover,
                   )
                 : const Icon(

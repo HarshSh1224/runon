@@ -7,12 +7,12 @@ import 'package:runon/providers/issue_data.dart';
 import 'package:runon/providers/slots.dart';
 import 'package:runon/providers/temp_provider.dart';
 import 'package:runon/widgets/clip_paths.dart';
+import 'package:runon/widgets/confirm_appointment_dialog.dart';
 import 'package:runon/widgets/slot_picker.dart';
 import 'package:runon/widgets/issue_dropdown.dart';
 import 'package:runon/widgets/doctors_dropdown.dart';
 import 'package:runon/widgets/flat_feet_image_upload.dart';
 import 'package:runon/widgets/add_reports_box.dart';
-import 'package:runon/widgets/confirm_appointment_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 
 class NewAppointment extends StatelessWidget {
@@ -22,6 +22,8 @@ class NewAppointment extends StatelessWidget {
   final Appointment? appointment;
   final bool isFollowUp;
   List<PlatformFile> _filesList = [];
+  PlatformFile? _flatFeetImage1;
+  PlatformFile? _flatFeetImage2;
 
   final _formData = {
     'patientId': '',
@@ -31,36 +33,37 @@ class NewAppointment extends StatelessWidget {
     'reportUrl': [],
     'height': '',
     'weight': '',
-    'bookedOn': ''
+    'bookedOn': DateTime.now().toIso8601String()
   };
 
   void updateDoctorId(doctorId) => _formData['doctorId'] = doctorId;
   void updateIssueId(issueId) => _formData['issueId'] = issueId;
   void updateSlotId(slotId) => _formData['slotId'] = slotId;
   void updateReportList(List<PlatformFile> file) => _filesList = file;
+  void updateFlatFeetImage1(PlatformFile file) => _flatFeetImage1 = file;
+  void updateFlatFeetImage2(PlatformFile file) => _flatFeetImage2 = file;
 
   final GlobalKey<FormState> _formKey = GlobalKey();
 
-  Future<void> _fetchSlots(Slots slotsProvider, String doctorId, BuildContext context) async {
-    slotsProvider.fetchSlots(doctorId).then((_) {
-      Navigator.of(context).pop();
-    });
+  Future<void> _fetchSlots(Slots slotsProvider, String doctorId) async {
+    await slotsProvider.fetchSlots(doctorId);
   }
 
   Future<void> _fetchIssueData({
     required IssueData issueProvider,
     required Doctors doctorsProvider,
-    BuildContext? context,
     Slots? slotsProvider,
     String? doctorId,
   }) async {
     await issueProvider.fetchAndSetIssues();
     await doctorsProvider.fetchAndSetDoctors();
-    if (doctorId != null) await _fetchSlots(slotsProvider!, doctorId, context!);
+    if (doctorId != null) {
+      await _fetchSlots(slotsProvider!, doctorId);
+    }
   }
 
   void _submit(BuildContext context) async {
-    FocusScope.of(context).unfocus();
+    FocusManager.instance.primaryFocus!.unfocus();
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -77,9 +80,27 @@ class NewAppointment extends StatelessWidget {
     _formData['patientId'] = Provider.of<Auth>(context, listen: false).userId!;
     _formKey.currentState!.save();
 
+    if (_formData['issueId'] == 'I8' && (_flatFeetImage1 == null || _flatFeetImage2 == null)) {
+      print(_flatFeetImage1);
+      print(_flatFeetImage2);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        child: Text('Two images for flat feet are required'),
+      )));
+      return;
+    }
+
+    if (_flatFeetImage1 != null) _filesList.add(_flatFeetImage1!);
+    if (_flatFeetImage2 != null) _filesList.add(_flatFeetImage2!);
+
     await showDialog(
         context: context,
         builder: (context) {
+          print('SUBMITTING DATA:');
+          print(_formData);
+          print(_filesList);
+
           return ConfirmAppointmentDialog(
             _formData['doctorId'] as String,
             _formData['slotId'] as String,
@@ -92,9 +113,9 @@ class NewAppointment extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final issueProvider = Provider.of<IssueData>(context, listen: false);
-    final doctorsProvider = Provider.of<Doctors>(context, listen: false);
+  Widget build(BuildContext contextt) {
+    final issueProvider = Provider.of<IssueData>(contextt, listen: false);
+    final doctorsProvider = Provider.of<Doctors>(contextt, listen: false);
 
     return MultiProvider(
       providers: [
@@ -110,9 +131,8 @@ class NewAppointment extends StatelessWidget {
           future: _fetchIssueData(
             issueProvider: issueProvider,
             doctorsProvider: doctorsProvider,
-            slotsProvider: isFollowUp ? Provider.of<Slots>(context, listen: false) : null,
+            slotsProvider: isFollowUp ? Provider.of<Slots>(contextt, listen: false) : null,
             doctorId: isFollowUp ? appointment!.doctorId : null,
-            context: context,
           ),
           builder: (context, snapshot) {
             return snapshot.connectionState == ConnectionState.waiting
@@ -154,7 +174,13 @@ class NewAppointment extends StatelessWidget {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                IssueDropdown(issueProvider, updateIssueId),
+                                IgnorePointer(
+                                    ignoring: isFollowUp,
+                                    child: IssueDropdown(
+                                      issueProvider,
+                                      updateIssueId,
+                                      initIssueId: isFollowUp ? appointment!.issueId : null,
+                                    )),
                                 const SizedBox(
                                   height: 30,
                                 ),
@@ -174,7 +200,11 @@ class NewAppointment extends StatelessWidget {
                                 const SizedBox(
                                   height: 20,
                                 ),
-                                SlotPicker(updateSlotId),
+                                SlotPicker(
+                                    onUpdate: updateSlotId,
+                                    slotsReceived: isFollowUp
+                                        ? Provider.of<Slots>(contextt, listen: false)
+                                        : null),
                                 const SizedBox(
                                   height: 20,
                                 ),
@@ -193,7 +223,7 @@ class NewAppointment extends StatelessWidget {
                                 ),
                                 FilledButton(
                                   onPressed: () {
-                                    _submit(context);
+                                    _submit(contextt);
                                   },
                                   child: const Padding(
                                     padding: EdgeInsets.symmetric(
@@ -282,11 +312,11 @@ class NewAppointment extends StatelessWidget {
         ),
         Row(
           children: [
-            FlatFeetImageUploadBox(updateReportList),
+            FlatFeetImageUploadBox(updateFlatFeetImage1),
             const SizedBox(
               width: 15,
             ),
-            FlatFeetImageUploadBox(updateReportList),
+            FlatFeetImageUploadBox(updateFlatFeetImage2),
           ],
         ),
         const SizedBox(

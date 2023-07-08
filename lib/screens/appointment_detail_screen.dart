@@ -3,9 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:runon/providers/slots.dart';
 import 'package:runon/screens/messages_screen.dart';
+import 'package:runon/screens/patient/new_appointment.dart';
 import 'package:runon/video_call/call.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
@@ -33,6 +36,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   };
 
   List<Timeline> _timeLine = [];
+  bool isCheckingDoctorAvailability = false;
 
   Future<void> _fetchAndSetData(Appointment appointment) async {
     final patient =
@@ -209,7 +213,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                         ),
                         if (!appointment.hasPassed) _upcomingAppointment(appointment, context),
                         if (appointment.hasPassed && !widget.isDoctor)
-                          _passedAppointment(appointment, context),
+                          FollowUpButton(
+                              appointment: appointment, doctorName: _appointmentData['doctor']!)
                       ],
                     ),
                   ),
@@ -273,30 +278,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     return false;
   }
 
-  Center _passedAppointment(Appointment appointment, BuildContext context) {
-    return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          OutlinedButton(
-              onPressed: _onTapBookFollowUp,
-              child: const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text(
-                  'Book Follow Up',
-                  style: TextStyle(fontSize: 18),
-                ),
-              )),
-          const SizedBox(
-            height: 20,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _onTapBookFollowUp() async {}
-
   Future<void> _generateTimeline(String appointmentId, String slotId) async {
     final ref = FirebaseFirestore.instance
         .collection('appointments/$appointmentId/timeline')
@@ -309,11 +290,93 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         'prescriptionList': [],
         'slotId': slotId,
       });
-      print('Added Doc cdoc');
     } catch (error) {
-      print('Not adedd DOc cdoc');
-
       print(error);
+    }
+  }
+}
+
+class FollowUpButton extends StatefulWidget {
+  const FollowUpButton({
+    required this.appointment,
+    required this.doctorName,
+    super.key,
+  });
+  final Appointment appointment;
+  final String doctorName;
+
+  @override
+  State<FollowUpButton> createState() => _FollowUpButtonState();
+}
+
+class _FollowUpButtonState extends State<FollowUpButton> {
+  bool isCheckingDoctorAvailability = false;
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              OutlinedButton(
+                  onPressed: isCheckingDoctorAvailability
+                      ? null
+                      : () {
+                          _onTapBookFollowUp(widget.appointment);
+                        },
+                  child: const Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(
+                      'Book Follow Up',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  )),
+              const SizedBox(
+                width: 10,
+              ),
+              SizedBox(
+                height: 20,
+                width: 20,
+                child: isCheckingDoctorAvailability
+                    ? const CircularProgressIndicator(strokeWidth: 3)
+                    : null,
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onTapBookFollowUp(Appointment appointment) async {
+    final slotsProvider = Provider.of<Slots>(context, listen: false);
+    setState(() {
+      isCheckingDoctorAvailability = true;
+    });
+    await slotsProvider.fetchSlots(appointment.doctorId);
+
+    setState(() {
+      isCheckingDoctorAvailability = false;
+    });
+
+    if (!slotsProvider.isEmpty) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => NewAppointment(
+          isFollowUp: true,
+          appointment: appointment,
+        ),
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Text('No slots are available for Dr. ${widget.doctorName}'),
+      )));
     }
   }
 }

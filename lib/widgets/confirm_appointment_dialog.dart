@@ -138,6 +138,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
           .add(widget.timelineData);
 
       await firebaseDatabase.doc(response.id).set(widget._formData);
+
       Provider.of<Slots>(context, listen: false)
           .removeSlot(slot.substring(0, 8), slot.substring(8, 10), widget._formData['doctorId']);
 

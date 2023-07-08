@@ -83,8 +83,8 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
                       selectedDayPredicate: (day) => isSameDay(day, _today),
                       onDaySelected: _onDaySelected,
                       eventLoader: _getEventsForDay,
-                      headerStyle: const HeaderStyle(
-                          formatButtonVisible: false, titleCentered: true),
+                      headerStyle:
+                          const HeaderStyle(formatButtonVisible: false, titleCentered: true),
                       // eventLoader: ,
                     ),
                     const SizedBox(
@@ -99,18 +99,15 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
                             ...slots.map((el) {
                               return isSameDay(slotIdTodDateTime(el), _today)
                                   ? Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 18.0),
+                                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                       child:
                                           // AppointmentListTile(el.appointmentId),
                                           Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             'Available Slots : ',
-                                            style: TextStyle(
-                                                fontFamily: 'MoonBold'),
+                                            style: TextStyle(fontFamily: 'MoonBold'),
                                           ),
                                           const SizedBox(
                                             height: 10,
@@ -118,36 +115,27 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
                                           Wrap(
                                             spacing: 0,
                                             children: [
-                                              ...Provider.of<Slots>(context,
-                                                      listen: false)
+                                              ...Provider.of<Slots>(context, listen: false)
                                                   .slotTimes(el)
                                                   .map((e) {
                                                 return Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(6.0),
+                                                  padding: const EdgeInsets.all(6.0),
                                                   child: Chip(
-                                                    backgroundColor:
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .errorContainer,
-                                                    label:
-                                                        Text(slotTimings[e]!),
+                                                    backgroundColor: Theme.of(context)
+                                                        .colorScheme
+                                                        .errorContainer,
+                                                    label: Text(slotTimings[e]!),
                                                     deleteIcon: const Icon(
                                                       Icons.close,
                                                       size: 20,
                                                     ),
                                                     onDeleted: () {
-                                                      Provider.of<Slots>(
-                                                              context,
-                                                              listen: false)
+                                                      Provider.of<Slots>(context, listen: false)
                                                           .removeSlot(
-                                                              dateTimeToSlotId(
-                                                                  _today),
+                                                              dateTimeToSlotId(_today),
                                                               e,
                                                               FirebaseAuth
-                                                                  .instance
-                                                                  .currentUser!
-                                                                  .uid);
+                                                                  .instance.currentUser!.uid);
                                                       setState(() {
                                                         ensureOnce = false;
                                                       });
@@ -220,12 +208,11 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
                       ...slotTimings.values.map((e) {
                         return InkWell(
                           onTap: () {
-                            print(slotTimings.keys.firstWhere(
-                                (element) => slotTimings[element] == e));
+                            // print(slotTimings.keys.firstWhere(
+                            //     (element) => slotTimings[element] == e));
                             Provider.of<Slots>(context, listen: false).addSlot(
                                 dateTimeToSlotId(_today),
-                                slotTimings.keys.firstWhere(
-                                    (element) => slotTimings[element] == e),
+                                slotTimings.keys.firstWhere((element) => slotTimings[element] == e),
                                 FirebaseAuth.instance.currentUser!.uid);
                             setState(() {
                               ensureOnce = false;

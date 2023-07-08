@@ -16,7 +16,7 @@ DateTime slotIdTodDateTime(String slotId, {bool withTime = false}) {
   DateTime slot = DateTime.utc(
       int.parse(y.substring(0, 4)), int.parse(y.substring(4, 6)), int.parse(y.substring(6, 8)));
 
-  print(slotId);
+  // print(slotId);
 
   if (withTime) {
     String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;

@@ -6,7 +6,8 @@ import 'package:runon/providers/temp_provider.dart';
 class IssueDropdown extends StatefulWidget {
   final IssueData _issueData;
   final Function(String) _update;
-  const IssueDropdown(this._issueData, this._update, {super.key});
+  final String? initIssueId;
+  const IssueDropdown(this._issueData, this._update, {this.initIssueId, super.key});
 
   @override
   State<IssueDropdown> createState() => _IssueDropdownState();
@@ -14,6 +15,13 @@ class IssueDropdown extends StatefulWidget {
 
 class _IssueDropdownState extends State<IssueDropdown> {
   String? _selectedValue;
+
+  @override
+  void initState() {
+    _selectedValue = widget.initIssueId;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField(
