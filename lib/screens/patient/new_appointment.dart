@@ -30,7 +30,6 @@ class NewAppointment extends StatelessWidget {
     'doctorId': '',
     'issueId': '',
     'slotId': '',
-    'reportUrl': [],
     'height': '',
     'weight': '',
     'bookedOn': DateTime.now().toIso8601String()
@@ -62,13 +61,13 @@ class NewAppointment extends StatelessWidget {
     }
   }
 
-  void _submit(BuildContext context) async {
+  void _submit(BuildContext context, Slots slotsProvider) async {
     FocusManager.instance.primaryFocus!.unfocus();
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    if (Provider.of<Slots>(context, listen: false).isEmpty) {
+    if (slotsProvider.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Padding(
         padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -94,6 +93,9 @@ class NewAppointment extends StatelessWidget {
     if (_flatFeetImage1 != null) _filesList.add(_flatFeetImage1!);
     if (_flatFeetImage2 != null) _filesList.add(_flatFeetImage2!);
 
+    print('SENDING: ');
+    print(_formData);
+
     await showDialog(
         context: context,
         builder: (context) {
@@ -101,14 +103,23 @@ class NewAppointment extends StatelessWidget {
           print(_formData);
           print(_filesList);
 
-          return ConfirmAppointmentDialog(
-            _formData['doctorId'] as String,
-            _formData['slotId'] as String,
-            Provider.of<IssueData>(context, listen: false)
-                .issueFromId(_formData['issueId']! as String),
-            _formData,
-            _filesList,
-          );
+          return !isFollowUp
+              ? ConfirmAppointmentDialog(
+                  _formData['doctorId'] as String,
+                  _formData['slotId'] as String,
+                  Provider.of<IssueData>(context, listen: false).issueFromId(_formData['issueId']!),
+                  _formData,
+                  _filesList,
+                )
+              : ConfirmAppointmentDialog(
+                  _formData['doctorId'] as String,
+                  _formData['slotId'] as String,
+                  Provider.of<IssueData>(context, listen: false).issueFromId(_formData['issueId']!),
+                  _formData,
+                  _filesList,
+                  isFollowUp: true,
+                  appointmentId: appointment!.appointmentId,
+                );
         });
   }
 
@@ -116,147 +127,129 @@ class NewAppointment extends StatelessWidget {
   Widget build(BuildContext contextt) {
     final issueProvider = Provider.of<IssueData>(contextt, listen: false);
     final doctorsProvider = Provider.of<Doctors>(contextt, listen: false);
+    final slotsProvider = Provider.of<Slots>(contextt, listen: false);
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => Slots(),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('New Appointment'),
+      ),
+      body: FutureBuilder(
+        future: _fetchIssueData(
+          issueProvider: issueProvider,
+          doctorsProvider: doctorsProvider,
+          slotsProvider: isFollowUp ? slotsProvider : null,
+          doctorId: isFollowUp ? appointment!.doctorId : null,
         ),
-      ],
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('New Appointment'),
-        ),
-        body: FutureBuilder(
-          future: _fetchIssueData(
-            issueProvider: issueProvider,
-            doctorsProvider: doctorsProvider,
-            slotsProvider: isFollowUp ? Provider.of<Slots>(contextt, listen: false) : null,
-            doctorId: isFollowUp ? appointment!.doctorId : null,
-          ),
-          builder: (context, snapshot) {
-            return snapshot.connectionState == ConnectionState.waiting
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Stack(
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.3,
-                              width: double.infinity,
-                              child: Image.asset(
-                                'assets/images/newApntmnt.jpg',
-                                fit: BoxFit.cover,
-                                alignment: Alignment.topCenter,
-                              ),
-                            ),
-                            Positioned.fill(
-                              child: ClipPath(
-                                clipper: OnlyBottomEllipse(0.87),
-                                child: Container(
-                                  color: Theme.of(context).colorScheme.background,
-                                  // child: Expanded(child: Text('Hello World')),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                IgnorePointer(
-                                    ignoring: isFollowUp,
-                                    child: IssueDropdown(
-                                      issueProvider,
-                                      updateIssueId,
-                                      initIssueId: isFollowUp ? appointment!.issueId : null,
-                                    )),
-                                const SizedBox(
-                                  height: 30,
-                                ),
-                                if (isFollowUp)
-                                  IgnorePointer(
-                                    child: DoctorsDropdown(
-                                      doctors: doctorsProvider,
-                                      update: updateDoctorId,
-                                      followUpDoctorId: appointment!.doctorId,
-                                    ),
-                                  ),
-                                if (!isFollowUp)
-                                  DoctorsDropdown(
-                                    doctors: doctorsProvider,
-                                    update: updateDoctorId,
-                                  ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                SlotPicker(
-                                    onUpdate: updateSlotId,
-                                    slotsReceived: isFollowUp
-                                        ? Provider.of<Slots>(contextt, listen: false)
-                                        : null),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                Consumer<TempProvider>(builder: (context, temp, ch) {
-                                  return _formData['issueId'] != 'I8'
-                                      ? Container()
-                                      : _extraFieldsForFlatFeet(context);
-                                }),
-
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                AddReportsBox(updateReportList),
-                                const SizedBox(
-                                  height: 40,
-                                ),
-                                FilledButton(
-                                  onPressed: () {
-                                    _submit(contextt);
-                                  },
-                                  child: const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 15.0,
-                                      horizontal: 80,
-                                    ),
-                                    child: Text(
-                                      'Submit',
-                                      style: TextStyle(fontSize: 18),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                // Container(
-                                //   height: 160,
-                                //   width: double.infinity,
-                                //   decoration: BoxDecoration(
-                                //       borderRadius: BorderRadius.circular(30),
-                                //       border: Border.all(
-                                //           color:
-                                //               Theme.of(context).colorScheme.onBackground)),
-                                // )
-                              ],
+        builder: (context, snapshot) {
+          return snapshot.connectionState == ConnectionState.waiting
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Stack(
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.3,
+                            width: double.infinity,
+                            child: Image.asset(
+                              'assets/images/newApntmnt.jpg',
+                              fit: BoxFit.cover,
+                              alignment: Alignment.topCenter,
                             ),
                           ),
+                          Positioned.fill(
+                            child: ClipPath(
+                              clipper: OnlyBottomEllipse(0.87),
+                              child: Container(
+                                color: Theme.of(context).colorScheme.background,
+                                // child: Expanded(child: Text('Hello World')),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              IgnorePointer(
+                                  ignoring: isFollowUp,
+                                  child: IssueDropdown(
+                                    issueProvider,
+                                    updateIssueId,
+                                    initIssueId: isFollowUp ? appointment!.issueId : null,
+                                  )),
+                              const SizedBox(
+                                height: 30,
+                              ),
+                              if (isFollowUp)
+                                IgnorePointer(
+                                  child: DoctorsDropdown(
+                                    doctors: doctorsProvider,
+                                    update: updateDoctorId,
+                                    followUpDoctorId: appointment!.doctorId,
+                                  ),
+                                ),
+                              if (!isFollowUp)
+                                DoctorsDropdown(
+                                  doctors: doctorsProvider,
+                                  update: updateDoctorId,
+                                ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              SlotPicker(
+                                  onUpdate: updateSlotId,
+                                  slotsReceived: isFollowUp ? slotsProvider : null),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Consumer<TempProvider>(builder: (context, temp, ch) {
+                                return _formData['issueId'] != 'I8'
+                                    ? Container()
+                                    : _extraFieldsForFlatFeet(context);
+                              }),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              AddReportsBox(updateReportList),
+                              const SizedBox(
+                                height: 40,
+                              ),
+                              FilledButton(
+                                onPressed: () {
+                                  _submit(contextt, slotsProvider);
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 15.0,
+                                    horizontal: 80,
+                                  ),
+                                  child: Text(
+                                    'Submit',
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  );
-          },
-        ),
+                      ),
+                    ],
+                  ),
+                );
+        },
       ),
     );
   }

@@ -17,9 +17,13 @@ class ConfirmAppointmentDialog extends StatefulWidget {
     this._issue,
     this._formData,
     this._files, {
+    this.isFollowUp = false,
+    this.appointmentId,
     super.key,
   });
 
+  final bool isFollowUp;
+  final String? appointmentId;
   final String _doctorId;
   final String _slot;
   final String _issue;
@@ -117,37 +121,70 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
                   ))));
         });
     try {
-      final response = await firebaseDatabase.add(widget._formData);
-      for (int i = 0; i < widget._files.length; i++) {
-        final ref =
-            FirebaseStorage.instance.ref().child('previousReports').child('${response.id}$i');
-        await ref.putFile(File(widget._files[i].path));
-        final url = await ref.getDownloadURL();
-        widget._formData['reportUrl'].add(url);
+      if (!widget.isFollowUp) {
+        final response = await firebaseDatabase.add(widget._formData);
+        for (int i = 0; i < widget._files.length; i++) {
+          final ref =
+              FirebaseStorage.instance.ref().child('previousReports').child('${response.id}$i');
+          await ref.putFile(File(widget._files[i].path));
+          final url = await ref.getDownloadURL();
+          (widget.timelineData['prescriptionList']! as List).add(url);
+        }
+
+        final String slot = widget._formData['slotId'];
+
+        widget.timelineData['createdOn'] = DateTime.now().toIso8601String();
+        widget.timelineData['slotId'] = slot;
+        widget.timelineData['paymentAmount'] =
+            Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId)!.fees;
+
+        await FirebaseFirestore.instance
+            .collection('appointments/${response.id}/timeline')
+            .add(widget.timelineData);
+
+        await firebaseDatabase.doc(response.id).set(widget._formData);
+
+        Provider.of<Slots>(context, listen: false)
+            .removeSlot(slot.substring(0, 8), slot.substring(8, 10), widget._formData['doctorId']);
+
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Padding(
+            padding: EdgeInsets.symmetric(vertical: 10.0),
+            child: Text('Success'),
+          ),
+        ));
+      } else {
+        for (int i = 0; i < widget._files.length; i++) {
+          final ref = FirebaseStorage.instance
+              .ref()
+              .child('previousReports')
+              .child('${widget.appointmentId}$i');
+          await ref.putFile(File(widget._files[i].path));
+          final url = await ref.getDownloadURL();
+          (widget.timelineData['prescriptionList']! as List).add(url);
+        }
+
+        final String slot = widget._formData['slotId'];
+
+        widget.timelineData['createdOn'] = DateTime.now().toIso8601String();
+        widget.timelineData['slotId'] = slot;
+        widget.timelineData['paymentAmount'] =
+            Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId)!.fees;
+
+        await FirebaseFirestore.instance
+            .collection('appointments/${widget.appointmentId}/timeline')
+            .add(widget.timelineData);
+
+        Provider.of<Slots>(context, listen: false)
+            .removeSlot(slot.substring(0, 8), slot.substring(8, 10), widget._formData['doctorId']);
+
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Padding(
+            padding: EdgeInsets.symmetric(vertical: 10.0),
+            child: Text('Success'),
+          ),
+        ));
       }
-
-      final String slot = widget._formData['slotId'];
-
-      widget.timelineData['createdOn'] = DateTime.now().toIso8601String();
-      widget.timelineData['slotId'] = slot;
-      widget.timelineData['paymentAmount'] =
-          Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId)!.fees;
-
-      await FirebaseFirestore.instance
-          .collection('appointments/${response.id}/timeline')
-          .add(widget.timelineData);
-
-      await firebaseDatabase.doc(response.id).set(widget._formData);
-
-      Provider.of<Slots>(context, listen: false)
-          .removeSlot(slot.substring(0, 8), slot.substring(8, 10), widget._formData['doctorId']);
-
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Padding(
-          padding: EdgeInsets.symmetric(vertical: 10.0),
-          child: Text('Success'),
-        ),
-      ));
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
