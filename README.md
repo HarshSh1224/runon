@@ -1,4 +1,4 @@
-# Healthy Aayu (previously Runon)
+# Healthy Aayu (previously runon)
 
 A new Flutter project.
 
