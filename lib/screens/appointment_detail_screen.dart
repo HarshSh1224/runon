@@ -279,7 +279,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     DateTime slot = slotIdTodDateTime(appointment.slotId, withTime: true);
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
-    if (nowTime.isAfter(slot) && nowTime.isBefore(slot.add(const Duration(minutes: 30)))) {
+    if (nowTime.isAfter(slot.subtract(const Duration(minutes: 10))) &&
+        nowTime.isBefore(slot.add(const Duration(minutes: 30)))) {
       return true;
     }
     return false;
