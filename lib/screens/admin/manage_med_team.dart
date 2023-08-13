@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:runon/providers/doctors.dart';
+import 'package:runon/screens/doctor/manage_slots.dart';
 
 class ManageMedicalTeam extends StatefulWidget {
   static const routeName = '/manageMedicalTeam';
@@ -79,7 +80,10 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
               Align(
                 alignment: Alignment.centerRight,
                 child: FilledButton.tonal(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamed(ManageSlotsScreen.routeName, arguments: doctor.id);
+                  },
                   child: Padding(
                     padding: const EdgeInsets.all(13.0),
                     child: Row(

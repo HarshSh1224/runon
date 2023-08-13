@@ -103,23 +103,28 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
   void _sendDataToServer(context) async {
     final firebaseDatabase = FirebaseFirestore.instance.collection('appointments');
     showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-              content: SizedBox(
-                  height: 100,
-                  child: Center(
-                      child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      CircularProgressIndicator(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text('Please wait')
-                    ],
-                  ))));
-        });
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: SizedBox(
+            height: 100,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  CircularProgressIndicator(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text('Please wait')
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
     try {
       if (!widget.isFollowUp) {
         final response = await firebaseDatabase.add(widget._formData);

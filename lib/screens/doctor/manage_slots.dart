@@ -37,12 +37,11 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
   var slots = [];
   bool ensureOnce = false;
 
-  Future<void> generateEventsList() async {
+  Future<void> generateEventsList({String? doctorId}) async {
     events = {};
     if (ensureOnce) return;
-    print('ENTER');
     await Provider.of<Slots>(context, listen: false)
-        .fetchSlots(FirebaseAuth.instance.currentUser!.uid);
+        .fetchSlots(doctorId ?? FirebaseAuth.instance.currentUser!.uid);
     List<String> dates = Provider.of<Slots>(context, listen: false).onlyDates;
 
     slots = Provider.of<Slots>(context, listen: false).onlyDates;
@@ -64,12 +63,16 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String? doctorId;
+    if (ModalRoute.of(context) != null) {
+      doctorId = ModalRoute.of(context)!.settings.arguments as String?;
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manage Slots'),
       ),
       body: FutureBuilder(
-        future: ensureOnce ? null : generateEventsList(),
+        future: ensureOnce ? null : generateEventsList(doctorId: doctorId),
         builder: (context, snapshot) {
           return snapshot.connectionState == ConnectionState.waiting
               ? const Center(child: CircularProgressIndicator())
@@ -134,8 +137,9 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
                                                           .removeSlot(
                                                               dateTimeToSlotId(_today),
                                                               e,
-                                                              FirebaseAuth
-                                                                  .instance.currentUser!.uid);
+                                                              doctorId ??
+                                                                  FirebaseAuth
+                                                                      .instance.currentUser!.uid);
                                                       setState(() {
                                                         ensureOnce = false;
                                                       });
@@ -213,7 +217,7 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
                             Provider.of<Slots>(context, listen: false).addSlot(
                                 dateTimeToSlotId(_today),
                                 slotTimings.keys.firstWhere((element) => slotTimings[element] == e),
-                                FirebaseAuth.instance.currentUser!.uid);
+                                doctorId ?? FirebaseAuth.instance.currentUser!.uid);
                             setState(() {
                               ensureOnce = false;
                             });

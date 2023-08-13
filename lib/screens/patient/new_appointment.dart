@@ -80,8 +80,6 @@ class NewAppointment extends StatelessWidget {
     _formKey.currentState!.save();
 
     if (_formData['issueId'] == 'I8' && (_flatFeetImage1 == null || _flatFeetImage2 == null)) {
-      print(_flatFeetImage1);
-      print(_flatFeetImage2);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Padding(
         padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -93,16 +91,9 @@ class NewAppointment extends StatelessWidget {
     if (_flatFeetImage1 != null) _filesList.add(_flatFeetImage1!);
     if (_flatFeetImage2 != null) _filesList.add(_flatFeetImage2!);
 
-    print('SENDING: ');
-    print(_formData);
-
     await showDialog(
         context: context,
         builder: (context) {
-          print('SUBMITTING DATA:');
-          print(_formData);
-          print(_filesList);
-
           return !isFollowUp
               ? ConfirmAppointmentDialog(
                   _formData['doctorId'] as String,

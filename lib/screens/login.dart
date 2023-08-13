@@ -9,58 +9,34 @@ import 'package:runon/screens/forgot_password_screen.dart';
 import 'package:runon/screens/doctor/doctor_screen.dart';
 import 'package:runon/screens/admin/admin_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   static const routeName = '/login';
-  LoginScreen({super.key});
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
+  final TextEditingController _emailController = TextEditingController();
+
+  final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final FocusNode _emailFocusNode = FocusNode();
+
   final Map<String, String> _formData = {'email': '', 'password': ''};
+
   bool _isLoading = false;
 
-  void _submit(context, setState) async {
-    FocusScope.of(context).unfocus();
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-    _formKey.currentState!.save();
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      int type = await Provider.of<Auth>(context, listen: false).authenticate(
-          context: context, email: _formData['email']!, password: _formData['password']!);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Padding(
-          padding: EdgeInsets.symmetric(vertical: 10.0),
-          child: Text('Welcome'),
-        ),
-      ));
-      print('TYPE: $type');
-      Navigator.of(context).pushReplacementNamed(type == 1
-          ? DoctorScreen.routeName
-          : (type == 2 ? AdminScreen.routeName : PatientScreen.routeName));
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0),
-        child: Text('Internal Error'),
-      )));
-      debugPrint('ERROR: $error');
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    // setState(() {
-    //   _isLoading = false;
-    // });
+  @override
+  dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _passwordFocusNode.dispose();
+    _emailFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -104,6 +80,8 @@ class LoginScreen extends StatelessWidget {
                         height: 20,
                       ),
                       TextFormField(
+                        controller: _emailController,
+                        focusNode: _emailFocusNode,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
@@ -117,16 +95,22 @@ class LoginScreen extends StatelessWidget {
                         decoration: InputDecoration(
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.clear),
-                            onPressed: () {},
+                            onPressed: () {
+                              _emailController.clear();
+                              _emailFocusNode.requestFocus();
+                            },
                           ),
                           label: const Text('Email'),
                           border: const OutlineInputBorder(),
                         ),
+                        onTapOutside: (_) => FocusScope.of(context).unfocus(),
                       ),
                       const SizedBox(
                         height: 10,
                       ),
                       TextFormField(
+                        controller: _passwordController,
+                        focusNode: _passwordFocusNode,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a password';
@@ -144,11 +128,15 @@ class LoginScreen extends StatelessWidget {
                         decoration: InputDecoration(
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.clear),
-                            onPressed: () {},
+                            onPressed: () {
+                              _passwordController.clear();
+                              _passwordFocusNode.requestFocus();
+                            },
                           ),
                           label: const Text('Password'),
                           border: const OutlineInputBorder(),
                         ),
+                        onTapOutside: (_) => FocusScope.of(context).unfocus(),
                       ),
                       const SizedBox(
                         height: 20,
@@ -234,5 +222,51 @@ class LoginScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _submit(context, setState) async {
+    FocusScope.of(context).unfocus();
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    _formKey.currentState!.save();
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      int type = await Provider.of<Auth>(context, listen: false).authenticate(
+          context: context, email: _formData['email']!, password: _formData['password']!);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Padding(
+          padding: EdgeInsets.symmetric(vertical: 10.0),
+          child: Text('Welcome'),
+        ),
+      ));
+      print('TYPE: $type');
+      Navigator.of(context).pushReplacementNamed(type == 1
+          ? DoctorScreen.routeName
+          : (type == 2 ? AdminScreen.routeName : PatientScreen.routeName));
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10.0),
+        child: Text('Internal Error'),
+      )));
+      debugPrint('ERROR: $error');
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    // setState(() {
+    //   _isLoading = false;
+    // });
   }
 }
