@@ -125,7 +125,7 @@ class _MyAppState extends State<MyApp> {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               return !snapshot.hasData
-                  ? LoginScreen()
+                  ? const LoginScreen()
                   : FutureBuilder(
                       future: auth.tryLogin(),
                       builder: (context, snapshot) {
@@ -142,7 +142,7 @@ class _MyAppState extends State<MyApp> {
             },
           ),
           routes: {
-            LoginScreen.routeName: (ctx) => LoginScreen(),
+            LoginScreen.routeName: (ctx) => const LoginScreen(),
             MyAppointmentsScreen.routeName: (ctx) => MyAppointmentsScreen(),
             SignupScreen.routeName: (ctx) => SignupScreen(),
             PatientScreen.routeName: (ctx) => PatientScreen(),

@@ -15,6 +15,18 @@ class Auth with ChangeNotifier {
   String? address;
   String? email;
 
+  Auth({
+    this.imageUrl,
+    this.userId,
+    this.fName,
+    this.lName,
+    this.type,
+    this.address,
+    this.dateOfBirth,
+    this.email,
+    this.gender,
+  });
+
   bool get isAuth {
     return userId != null;
   }
@@ -32,14 +44,11 @@ class Auth with ChangeNotifier {
     final auth = FirebaseAuth.instance;
     try {
       if (isSignUp) {
-        final authResponse = await auth.createUserWithEmailAndPassword(
-            email: email, password: password);
+        final authResponse =
+            await auth.createUserWithEmailAndPassword(email: email, password: password);
         userId = authResponse.user!.uid;
 
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .set(userData!);
+        await FirebaseFirestore.instance.collection('users').doc(userId).set(userData!);
         fName = userData['fName'];
         lName = userData['lName'];
         type = int.parse('${userData['type']}');
@@ -49,14 +58,12 @@ class Auth with ChangeNotifier {
         email = userData['email'];
         imageUrl = userData['imageUrl'];
       } else {
-        final authResponse = await auth.signInWithEmailAndPassword(
-            email: email, password: password);
+        final authResponse =
+            await auth.signInWithEmailAndPassword(email: email, password: password);
         userId = authResponse.user!.uid;
 
-        final fetchedUserData = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .get();
+        final fetchedUserData =
+            await FirebaseFirestore.instance.collection('users').doc(userId).get();
         final userDataLogin = fetchedUserData.data();
         fName = userDataLogin!['fName'];
         lName = userDataLogin['lName'];
@@ -83,10 +90,7 @@ class Auth with ChangeNotifier {
     if (currUser != null) {
       final DocumentSnapshot<Map<String, dynamic>> userData;
       try {
-        userData = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currUser.uid)
-            .get();
+        userData = await FirebaseFirestore.instance.collection('users').doc(currUser.uid).get();
 
         userId = currUser.uid;
         final userDataLogin = userData.data();
@@ -140,8 +144,7 @@ class Auth with ChangeNotifier {
 
   Future<void> updateProfileImage(File image) async {
     try {
-      final ref =
-          FirebaseStorage.instance.ref().child('profilePics').child(userId!);
+      final ref = FirebaseStorage.instance.ref().child('profilePics').child(userId!);
       await ref.putFile(image);
       final url = await ref.getDownloadURL();
 
@@ -156,12 +159,23 @@ class Auth with ChangeNotifier {
         'imageUrl': url,
       };
 
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .set(formData);
+      await FirebaseFirestore.instance.collection('users').doc(userId).set(formData);
     } catch (error) {
       rethrow;
     }
+  }
+
+  factory Auth.fromMap(Map<String, dynamic> json, String userId) {
+    return Auth(
+      userId: userId,
+      fName: json['fName'],
+      lName: json['lName'],
+      imageUrl: json['imageUrl'],
+      address: json['address'],
+      email: json['email'],
+      gender: json['gender'],
+      type: int.parse('${json['type']}'),
+      dateOfBirth: DateTime.parse('${json['dateOfBirth']}'),
+    );
   }
 }

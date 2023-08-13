@@ -17,13 +17,14 @@ import 'package:file_picker/file_picker.dart';
 
 class NewAppointment extends StatelessWidget {
   static const routeName = '/new-appointment';
-  NewAppointment({this.isFollowUp = false, this.appointment, super.key});
+  NewAppointment({this.isFollowUp = false, this.appointment, this.patient, super.key});
 
   final Appointment? appointment;
   final bool isFollowUp;
   List<PlatformFile> _filesList = [];
   PlatformFile? _flatFeetImage1;
   PlatformFile? _flatFeetImage2;
+  Auth? patient;
 
   final _formData = {
     'patientId': '',
@@ -61,7 +62,7 @@ class NewAppointment extends StatelessWidget {
     }
   }
 
-  void _submit(BuildContext context, Slots slotsProvider) async {
+  void _submit(BuildContext context, Slots slotsProvider, String? patientId) async {
     FocusManager.instance.primaryFocus!.unfocus();
     if (!_formKey.currentState!.validate()) {
       return;
@@ -76,7 +77,7 @@ class NewAppointment extends StatelessWidget {
       return;
     }
 
-    _formData['patientId'] = Provider.of<Auth>(context, listen: false).userId!;
+    _formData['patientId'] = patientId ?? Provider.of<Auth>(context, listen: false).userId!;
     _formKey.currentState!.save();
 
     if (_formData['issueId'] == 'I8' && (_flatFeetImage1 == null || _flatFeetImage2 == null)) {
@@ -96,6 +97,7 @@ class NewAppointment extends StatelessWidget {
         builder: (context) {
           return !isFollowUp
               ? ConfirmAppointmentDialog(
+                  patient: patient,
                   _formData['doctorId'] as String,
                   _formData['slotId'] as String,
                   Provider.of<IssueData>(context, listen: false).issueFromId(_formData['issueId']!),
@@ -103,6 +105,7 @@ class NewAppointment extends StatelessWidget {
                   _filesList,
                 )
               : ConfirmAppointmentDialog(
+                  patient: patient,
                   _formData['doctorId'] as String,
                   _formData['slotId'] as String,
                   Provider.of<IssueData>(context, listen: false).issueFromId(_formData['issueId']!),
@@ -217,7 +220,11 @@ class NewAppointment extends StatelessWidget {
                               ),
                               FilledButton(
                                 onPressed: () {
-                                  _submit(contextt, slotsProvider);
+                                  _submit(
+                                    contextt,
+                                    slotsProvider,
+                                    patient?.userId,
+                                  );
                                 },
                                 child: const Padding(
                                   padding: EdgeInsets.symmetric(

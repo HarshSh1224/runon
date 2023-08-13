@@ -4,8 +4,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:runon/controllers/database.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/slots.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
@@ -26,6 +28,8 @@ class AppointmentDetailScreen extends StatefulWidget {
 }
 
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
+  bool isAdmin = false;
+
   final _appointmentData = {
     'patient': 'Loading...',
     'patientImage': '',
@@ -102,6 +106,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Widget build(BuildContext context) {
     final Appointment appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
     widget.isDoctor = appointment.doctorId == FirebaseAuth.instance.currentUser!.uid;
+    isAdmin = Provider.of<Auth>(context).type == 2;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Appointment Details'),
@@ -214,7 +219,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                         if (!appointment.hasPassed) _upcomingAppointment(appointment, context),
                         if (appointment.hasPassed && !widget.isDoctor)
                           FollowUpButton(
-                              appointment: appointment, doctorName: _appointmentData['doctor']!)
+                            appointment: appointment,
+                            doctorName: _appointmentData['doctor']!,
+                            isAdmin: isAdmin,
+                          )
                       ],
                     ),
                   ),
@@ -300,10 +308,12 @@ class FollowUpButton extends StatefulWidget {
   const FollowUpButton({
     required this.appointment,
     required this.doctorName,
+    required this.isAdmin,
     super.key,
   });
   final Appointment appointment;
   final String doctorName;
+  final isAdmin;
 
   @override
   State<FollowUpButton> createState() => _FollowUpButtonState();
@@ -365,8 +375,14 @@ class _FollowUpButtonState extends State<FollowUpButton> {
     });
 
     if (!slotsProvider.isEmpty) {
+      Auth? patient;
+      if (widget.isAdmin) {
+        final user = await Database.downloadDoc(collection: 'users', docId: appointment.patientId);
+        patient = Auth.fromMap(user, appointment.patientId);
+      }
       Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => NewAppointment(
+          patient: patient,
           isFollowUp: true,
           appointment: appointment,
         ),

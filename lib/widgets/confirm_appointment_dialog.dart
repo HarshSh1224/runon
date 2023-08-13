@@ -19,6 +19,7 @@ class ConfirmAppointmentDialog extends StatefulWidget {
     this._files, {
     this.isFollowUp = false,
     this.appointmentId,
+    this.patient,
     super.key,
   });
 
@@ -27,6 +28,7 @@ class ConfirmAppointmentDialog extends StatefulWidget {
   final String _doctorId;
   final String _slot;
   final String _issue;
+  final Auth? patient;
   final _formData;
   final _files;
   final timelineData = {
@@ -210,7 +212,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
   @override
   Widget build(BuildContext context) {
     final doctor = Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId);
-    final auth = Provider.of<Auth>(context, listen: false);
+    final Auth auth = widget.patient ?? Provider.of<Auth>(context, listen: false);
 
     return AlertDialog(
       title: const Text(

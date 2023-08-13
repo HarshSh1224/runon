@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/appointments.dart';
+import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/issue_data.dart';
+import 'package:runon/screens/patient/new_appointment.dart';
 import 'package:runon/widgets/search.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
 import 'package:runon/screens/appointment_detail_screen.dart';
@@ -187,6 +190,75 @@ class AdminAppointments extends StatelessWidget {
                     );
                   });
           }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _onFloatingActionButtonPressed(context),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        child: const Icon(Icons.add),
+      ),
     );
+  }
+
+  void _onFloatingActionButtonPressed(context) {
+    showDialog(
+        context: context,
+        builder: ((context) {
+          return AlertDialog(
+            title: const Text('Select Patient'),
+            content: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: FutureBuilder(
+                  future: _getAllPatients(),
+                  builder: (context, snapshot) {
+                    List<Auth>? allUsers = snapshot.data;
+                    return snapshot.connectionState == ConnectionState.waiting
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ...allUsers!.map((e) {
+                                  return ListTile(
+                                    onTap: () {
+                                      Navigator.of(context).push(MaterialPageRoute(
+                                        builder: (context) => NewAppointment(
+                                          patient: e,
+                                        ),
+                                      ));
+                                    },
+                                    leading: CircleAvatar(
+                                      backgroundImage: e.imageUrl == null
+                                          ? null
+                                          : Image.network(e.imageUrl!).image,
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.tertiaryContainer,
+                                      child: e.imageUrl == null
+                                          ? Text(e.fName![0].toUpperCase())
+                                          : null,
+                                    ),
+                                    title: Text('${e.fName!} ${e.lName!}'),
+                                    subtitle: Text(e.email!),
+                                  );
+                                }).toList()
+                              ],
+                            ),
+                          );
+                  }),
+            ),
+          );
+        }));
+  }
+
+  Future<List<Auth>> _getAllPatients() async {
+    final users = await FirebaseFirestore.instance.collection('users').get();
+    List<Auth> allUsers = [];
+    for (var doc in users.docs) {
+      if (doc.data()['type'] == 0) {
+        allUsers.add(Auth.fromMap(doc.data(), doc.id));
+      }
+    }
+    return allUsers;
   }
 }
