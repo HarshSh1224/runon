@@ -113,8 +113,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pushNamed(MessagesScreen.routeName, arguments: appointment.appointmentId);
+                Navigator.of(context).pushNamed(MessagesScreen.routeName, arguments: appointment);
               },
               icon: const Icon(Icons.chat))
         ],

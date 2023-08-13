@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:runon/providers/appointments.dart';
 import 'package:runon/widgets/send_message_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:runon/widgets/report_dialog.dart';
@@ -42,7 +43,7 @@ class MessagesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appointmentId = ModalRoute.of(context)!.settings.arguments;
+    final Appointment appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat with Doctor'),
@@ -56,7 +57,7 @@ class MessagesScreen extends StatelessWidget {
                     context: context,
                     builder: (context) {
                       return ReportDialog(
-                          appointmentId as String, FirebaseAuth.instance.currentUser!.uid);
+                          appointment.appointmentId, FirebaseAuth.instance.currentUser!.uid);
                     },
                   );
                 }
@@ -81,7 +82,7 @@ class MessagesScreen extends StatelessWidget {
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
-            .collection('appointments/$appointmentId/messages')
+            .collection('appointments/${appointment.appointmentId}/messages')
             .orderBy('createdAt', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
@@ -95,9 +96,15 @@ class MessagesScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
+                  itemCount: snapshot.data!.docs.length + 1,
                   reverse: true,
                   itemBuilder: (ctx, index) {
+                    index--;
+                    if (index == -1) {
+                      return const SizedBox(
+                        height: 10,
+                      );
+                    }
                     return Row(
                       mainAxisAlignment: snapshot.data!.docs[index]['createdBy'] ==
                               FirebaseAuth.instance.currentUser!.uid
@@ -171,7 +178,7 @@ class MessagesScreen extends StatelessWidget {
                   },
                 ),
               ),
-              SendMessageField(appointmentId as String),
+              SendMessageField(appointment.appointmentId, hasPassed: appointment.hasPassed48Hours),
             ],
           );
         },

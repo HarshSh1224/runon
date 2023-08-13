@@ -7,10 +7,10 @@ import 'dart:io';
 
 class SendMessageField extends StatefulWidget {
   final String appointmentId;
+  final bool hasPassed;
   const SendMessageField(
-    this.appointmentId,
-    // this.currId,
-    {
+    this.appointmentId, {
+    this.hasPassed = false,
     Key? key,
   }) : super(key: key);
 
@@ -138,51 +138,64 @@ class _SendMessageFieldState extends State<SendMessageField> {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-      title: TextField(
-        onChanged: (value) {
-          setState(() {
-            _enteredMessage = value;
-          });
-        },
-        controller: _controller,
-        keyboardType: TextInputType.text,
-        decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-            hintText: 'Type a message',
-            // labelText: 'Type a message',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-      ),
-      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-        _isLoadingFile
-            ? const SizedBox(height: 25, width: 25, child: CircularProgressIndicator())
-            : IconButton(
-                color: Theme.of(context).colorScheme.primary,
-                padding: const EdgeInsets.all(10),
-                constraints: const BoxConstraints(),
-                onPressed: _sendFile,
-                icon: const Icon(
-                  Icons.attach_file_rounded,
-                  size: 25,
-                ),
+    return widget.hasPassed
+        ? Container(
+            height: 45,
+            padding: const EdgeInsets.all(10),
+            color: Theme.of(context).colorScheme.secondary,
+            child: FittedBox(
+              child: Text(
+                'You can only chat within 48 hours of your last appointment',
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary, fontStyle: FontStyle.italic),
               ),
-        const SizedBox(
-          width: 5,
-        ),
-        _isLoading
-            ? const SizedBox(height: 25, width: 25, child: CircularProgressIndicator())
-            : IconButton(
-                color: Theme.of(context).colorScheme.primary,
-                padding: const EdgeInsets.all(10),
-                constraints: const BoxConstraints(),
-                onPressed: _controller.text.trim().isEmpty ? () {} : _submit,
-                icon: const Icon(
-                  Icons.send,
-                  size: 29,
-                ),
+            ),
+          )
+        : ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+            title: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _enteredMessage = value;
+                });
+              },
+              controller: _controller,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                  hintText: 'Type a message',
+                  // labelText: 'Type a message',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+            ),
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+              _isLoadingFile
+                  ? const SizedBox(height: 25, width: 25, child: CircularProgressIndicator())
+                  : IconButton(
+                      color: Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.all(10),
+                      constraints: const BoxConstraints(),
+                      onPressed: _sendFile,
+                      icon: const Icon(
+                        Icons.attach_file_rounded,
+                        size: 25,
+                      ),
+                    ),
+              const SizedBox(
+                width: 5,
               ),
-      ]),
-    );
+              _isLoading
+                  ? const SizedBox(height: 25, width: 25, child: CircularProgressIndicator())
+                  : IconButton(
+                      color: Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.all(10),
+                      constraints: const BoxConstraints(),
+                      onPressed: _controller.text.trim().isEmpty ? () {} : _submit,
+                      icon: const Icon(
+                        Icons.send,
+                        size: 29,
+                      ),
+                    ),
+            ]),
+          );
   }
 }
