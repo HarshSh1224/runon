@@ -238,7 +238,7 @@ class AdminScreen extends StatelessWidget {
                                 color: color,
                               ))
                             : Text(
-                                snapshot.data!.toString(),
+                                snapshot.data?.toString() ?? '-',
                                 style: GoogleFonts.notoSans(
                                     fontSize: 60, fontWeight: FontWeight.bold, color: color),
                               );

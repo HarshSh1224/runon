@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
+import 'package:runon/screens/about_us_screen.dart';
 import 'package:runon/screens/patient/my_schedule_screen.dart';
 import '../../widgets/category_item.dart';
 import '../../widgets/clip_paths.dart';
@@ -10,7 +11,6 @@ import 'manage_slots.dart';
 import '../profile_screen.dart';
 import '../flat_feet_screen.dart';
 import '../knock_knee_screen.dart';
-import '../about_us_screen.dart';
 import 'package:runon/widgets/side_drawer.dart';
 
 class DoctorScreen extends StatelessWidget {
@@ -204,7 +204,7 @@ class DoctorScreen extends StatelessWidget {
                                   constraints: const BoxConstraints(maxWidth: 300),
                                   margin: const EdgeInsets.symmetric(vertical: 5),
                                   child: OutlinedButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       Navigator.of(context).pushNamed(AboutUsScreen.routeName);
                                     },
                                     child: Padding(
