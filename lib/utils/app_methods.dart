@@ -77,14 +77,18 @@ class AppMethods {
 
   static Future<String?> fileExtensionFromDownloadUrl(
       {required String downloadUrl, bool isPrescription = false}) async {
-    final List<String> splitted1 = downloadUrl.split("%2F");
-    final List<String> splitted2 = splitted1[1].split("?");
-    final childId = splitted2[0];
-    final List<String> splitted3 = splitted1[0].split("/o/");
-    final path = splitted3[1];
-    final ref = FirebaseStorage.instance.ref(path).child(childId);
-    final metaData = await ref.getMetadata();
-    final contentType = metaData.contentType;
-    return contentType?.split('/')[1];
+    try {
+      final List<String> splitted1 = downloadUrl.split("%2F");
+      final List<String> splitted2 = splitted1[1].split("?");
+      final childId = splitted2[0];
+      final List<String> splitted3 = splitted1[0].split("/o/");
+      final path = splitted3[1];
+      final ref = FirebaseStorage.instance.ref(path).child(childId);
+      final metaData = await ref.getMetadata();
+      final contentType = metaData.contentType;
+      return contentType?.split('/')[1];
+    } catch (e) {
+      return null;
+    }
   }
 }

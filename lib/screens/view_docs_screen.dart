@@ -50,7 +50,7 @@ class DocumentsScreen extends StatelessWidget {
   }
 
   Card _docCard(String title, context) {
-    final fileExtension = title.split('.')[1];
+    final fileExtension = title.contains('.') ? title.split('.')[1] : '';
     return Card(
       elevation: 0,
       color: Colors.red.withOpacity(0.1),
@@ -104,12 +104,13 @@ class DocumentsScreen extends StatelessWidget {
   _getFileNames() async {
     for (int i = 0; i < docsUrl.length; i++) {
       final url = docsUrl[i];
-      final extensionn = await AppMethods.fileExtensionFromDownloadUrl(downloadUrl: url);
-      _fileNames.add('attachment${i + 1}.$extensionn');
-      // print(_fileNames);
+      String? extensionn = await AppMethods.fileExtensionFromDownloadUrl(downloadUrl: url);
+      if (extensionn == null) {
+        extensionn = '';
+      } else {
+        extensionn = '.$extensionn';
+      }
+      _fileNames.add('attachment${i + 1}$extensionn');
     }
-    // print(docsUrl);
-    // print(_fileNames);
-    // print('object');
   }
 }

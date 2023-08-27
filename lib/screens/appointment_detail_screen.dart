@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,6 +12,7 @@ import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/slots.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
+import 'package:runon/utils/app_methods.dart';
 import 'package:runon/video_call/call.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
@@ -291,7 +290,19 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     return false;
   }
 
-  _uploadPrescription(File prescription, Appointment appointment) async {
+  _uploadPrescription(String text, Appointment appointment) async {
+    if (text.isEmpty) return;
+    final prescription = await AppMethods.gneratePrescriptionPdf(
+      appointmentId: appointment.appointmentId,
+      patientName: _appointmentData['patient']!,
+      patientId: appointment.patientId,
+      doctorName: _appointmentData['doctor']!,
+      doctorId: appointment.doctorId,
+      issue: _appointmentData['issue']!,
+      date: expandSlot(appointment.slotId),
+      prescription: text,
+    );
+
     final ref = FirebaseStorage.instance
         .ref()
         .child('prescriptions')

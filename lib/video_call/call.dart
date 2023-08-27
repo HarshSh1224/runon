@@ -1,15 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:agora_uikit/agora_uikit.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
-import 'package:runon/utils/app_methods.dart';
 import 'package:runon/video_call/settings.dart';
 import 'package:http/http.dart' as http;
-import 'package:runon/widgets/method_slot_formatter.dart';
 
 class CallPage extends StatefulWidget {
   static const routeName = '/call-page';
@@ -30,7 +27,7 @@ class _CallPageState extends State<CallPage> {
   );
 
   late Appointment appointment;
-  late Function(File, Appointment) uploadPrescription;
+  late Function(String, Appointment) uploadPrescription;
 
   @override
   void didChangeDependencies() {
@@ -39,7 +36,7 @@ class _CallPageState extends State<CallPage> {
 
       // Send Map<String, dynamic> as arguments
       // Map['appointment'] is in instance of Appointment
-      // Map['callback'] is a Function(File) uploadPrescription
+      // Map['callback'] is a Function(String, Appointment) uploadPrescription
 
       appointment =
           (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['appointment'];
@@ -166,7 +163,7 @@ class _CallPageState extends State<CallPage> {
           TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _generatePrescriptionAndSend(_prescriptionDialogController.text);
+                prescription = _prescriptionDialogController.text;
                 _prescriptionDialogController.clear();
               },
               child: const Text('Submit')),
@@ -176,19 +173,5 @@ class _CallPageState extends State<CallPage> {
     );
   }
 
-  File? prescription;
-
-  _generatePrescriptionAndSend(String text) async {
-    if (text.isEmpty) return;
-    prescription = await AppMethods.gneratePrescriptionPdf(
-      appointmentId: appointment.appointmentId,
-      patientName: 'appointment.patientName',
-      patientId: appointment.patientId,
-      doctorName: 'appointment.doctorName',
-      doctorId: appointment.doctorId,
-      issue: 'appointment.issue',
-      date: expandSlot(appointment.slotId),
-      prescription: text,
-    );
-  }
+  String? prescription;
 }
