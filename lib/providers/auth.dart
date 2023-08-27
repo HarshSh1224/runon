@@ -35,6 +35,8 @@ class Auth with ChangeNotifier {
     return (DateTime.now().year - dateOfBirth!.year).toString();
   }
 
+  bool get isDoctor => type == 1;
+
   Future<int> authenticate(
       {required BuildContext context,
       required String email,

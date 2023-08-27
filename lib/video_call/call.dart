@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:agora_uikit/agora_uikit.dart';
+import 'package:provider/provider.dart';
+import 'package:runon/providers/auth.dart';
 import 'package:runon/video_call/settings.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,7 +29,7 @@ class _CallPageState extends State<CallPage> {
   void didChangeDependencies() {
     if (!isInit) {
       isInit = true;
-      // initAgora();
+      initAgora();
     }
     super.didChangeDependencies();
   }
@@ -49,8 +51,10 @@ class _CallPageState extends State<CallPage> {
   @override
   void dispose() async {
     super.dispose();
+    _prescriptionDialogController.dispose();
+    _prescriptionDialogFocusNode.dispose();
     Future.delayed(Duration.zero, () async {
-      await _client.release();
+      // await _client.release();
     });
   }
 
@@ -84,6 +88,13 @@ class _CallPageState extends State<CallPage> {
                 appBar: AppBar(
                   title: const Text('Video Call'),
                   centerTitle: true,
+                  actions: [
+                    if (Provider.of<Auth>(context, listen: false).isDoctor)
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: _onTapEdit,
+                      )
+                  ],
                 ),
                 backgroundColor: Colors.black,
                 body: Stack(
@@ -108,6 +119,7 @@ class _CallPageState extends State<CallPage> {
                       },
                     ),
                     Text(
+                      // '',
                       tempToken.contains('Error') ? tempToken : '',
                       style: const TextStyle(color: Colors.white),
                     ),
@@ -116,5 +128,40 @@ class _CallPageState extends State<CallPage> {
               );
       },
     );
+  }
+
+  final FocusNode _prescriptionDialogFocusNode = FocusNode();
+  final TextEditingController _prescriptionDialogController = TextEditingController();
+
+  _onTapEdit() {
+    _prescriptionDialogFocusNode.requestFocus();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: TextFormField(
+          controller: _prescriptionDialogController,
+          focusNode: _prescriptionDialogFocusNode,
+          minLines: 3,
+          maxLines: 10,
+          keyboardType: TextInputType.multiline,
+          decoration: const InputDecoration(hintText: 'Write your prescriptions here'),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _generatePrescriptionAndSend(_prescriptionDialogController.text);
+                _prescriptionDialogController.clear();
+              },
+              child: const Text('Submit')),
+          TextButton(onPressed: Navigator.of(context).pop, child: const Text('Save & close')),
+        ],
+      ),
+    );
+  }
+
+  _generatePrescriptionAndSend(String text) {
+    // AppMethods.gneratePrescriptionPdf(appointmentId: appointmentId, patientName: patientName, patientId: patientId, doctorName: doctorName, doctorId: doctorId, issue: issue, date: date, prescription: prescription)
+    print(text);
   }
 }

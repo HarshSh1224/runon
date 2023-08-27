@@ -277,6 +277,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   bool canStartAppointment(Appointment appointment) {
+    return true;
     DateTime slot = slotIdTodDateTime(appointment.slotId, withTime: true);
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
