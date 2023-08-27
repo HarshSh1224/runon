@@ -1,11 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:agora_uikit/agora_uikit.dart';
 import 'package:provider/provider.dart';
+import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
+import 'package:runon/utils/app_methods.dart';
 import 'package:runon/video_call/settings.dart';
 import 'package:http/http.dart' as http;
+import 'package:runon/widgets/method_slot_formatter.dart';
 
 class CallPage extends StatefulWidget {
   static const routeName = '/call-page';
@@ -25,10 +29,22 @@ class _CallPageState extends State<CallPage> {
     ),
   );
 
+  late Appointment appointment;
+  late Function(File, Appointment) uploadPrescription;
+
   @override
   void didChangeDependencies() {
     if (!isInit) {
       isInit = true;
+
+      // Send Map<String, dynamic> as arguments
+      // Map['appointment'] is in instance of Appointment
+      // Map['callback'] is a Function(File) uploadPrescription
+
+      appointment =
+          (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['appointment'];
+      uploadPrescription =
+          (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['callback'];
       initAgora();
     }
     super.didChangeDependencies();
@@ -39,7 +55,7 @@ class _CallPageState extends State<CallPage> {
         agoraConnectionData: AgoraConnectionData(
             // username: ,
             appId: appId,
-            channelName: ModalRoute.of(context)!.settings.arguments as String,
+            channelName: appointment.appointmentId,
             tempToken: tempToken
             // tokenUrl:
             //     "https://agora-node-tokenserver.run-onon1.repl.co/access_token?channelName=6pPJq7Tx2MJYX25pDjpN",
@@ -50,17 +66,18 @@ class _CallPageState extends State<CallPage> {
 
   @override
   void dispose() async {
-    super.dispose();
+    Future.delayed(Duration.zero, () async {
+      await _client.release();
+    });
+    if (prescription != null) uploadPrescription(prescription!, appointment);
     _prescriptionDialogController.dispose();
     _prescriptionDialogFocusNode.dispose();
-    Future.delayed(Duration.zero, () async {
-      // await _client.release();
-    });
+    super.dispose();
   }
 
   Future<void> getToken() async {
     String link =
-        'https://agora-node-tokenserver.run-onon1.repl.co/access_token?channelName=${ModalRoute.of(context)!.settings.arguments}';
+        'https://agora-node-tokenserver.run-onon1.repl.co/access_token?channelName=${appointment.appointmentId}';
     try {
       final response = await http.get(Uri.parse(link));
       Map data = jsonDecode(response.body);
@@ -74,7 +91,6 @@ class _CallPageState extends State<CallPage> {
 
   @override
   Widget build(BuildContext context) {
-    // channel = ModalRoute.of(context)!.settings.arguments as String;
     return FutureBuilder(
       future: getToken(),
       builder: (context, snapshot) {
@@ -160,8 +176,19 @@ class _CallPageState extends State<CallPage> {
     );
   }
 
-  _generatePrescriptionAndSend(String text) {
-    // AppMethods.gneratePrescriptionPdf(appointmentId: appointmentId, patientName: patientName, patientId: patientId, doctorName: doctorName, doctorId: doctorId, issue: issue, date: date, prescription: prescription)
-    print(text);
+  File? prescription;
+
+  _generatePrescriptionAndSend(String text) async {
+    if (text.isEmpty) return;
+    prescription = await AppMethods.gneratePrescriptionPdf(
+      appointmentId: appointment.appointmentId,
+      patientName: 'appointment.patientName',
+      patientId: appointment.patientId,
+      doctorName: 'appointment.doctorName',
+      doctorId: appointment.doctorId,
+      issue: 'appointment.issue',
+      date: expandSlot(appointment.slotId),
+      prescription: text,
+    );
   }
 }

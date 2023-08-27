@@ -83,40 +83,40 @@ class Appointments with ChangeNotifier {
   Future<List<Timeline>> fetchTimleines(String appointmentId) async {
     List<Timeline> timelinesList = [];
 
-    try {
-      final response =
-          await FirebaseFirestore.instance.collection('appointments/$appointmentId/timeline').get();
+    // try {
+    final response =
+        await FirebaseFirestore.instance.collection('appointments/$appointmentId/timeline').get();
 
-      for (int i = 0; i < response.docs.length; i++) {
-        final timeline = response.docs[i].data();
+    for (int i = 0; i < response.docs.length; i++) {
+      final timeline = response.docs[i].data();
 
-        List<String> tempList = [];
-        if (response.docs[i].data().containsKey('prescriptionList')) {
-          response.docs[i].data()['prescriptionList'].map((el) {
-            tempList.add('$el');
-          }).toList();
-        }
-
-        if (timeline.containsKey('byDoctor')) {
-          timelinesList.add(Timeline(
-              createdOn: DateTime.parse(timeline['createdOn']),
-              prescriptionList: tempList,
-              byDoctor: true,
-              slotId: timeline['slotId']));
-        } else {
-          timelinesList.add(Timeline(
-            createdOn: DateTime.parse(timeline['createdOn']),
-            paymentAmount: timeline['paymentAmount'],
-            paymentId: timeline['paymentId'],
-            prescriptionList: tempList,
-            slotId: timeline['slotId'],
-          ));
-        }
+      List<String> tempList = [];
+      if (response.docs[i].data().containsKey('prescriptionList')) {
+        response.docs[i].data()['prescriptionList'].map((el) {
+          tempList.add('$el');
+        }).toList();
       }
-    } catch (error) {
-      print(error);
-      rethrow;
+
+      if (timeline.containsKey('byDoctor')) {
+        timelinesList.add(Timeline(
+            createdOn: DateTime.parse(timeline['createdOn']),
+            prescriptionList: tempList,
+            byDoctor: true,
+            slotId: timeline['slotId']));
+      } else {
+        timelinesList.add(Timeline(
+          createdOn: DateTime.parse(timeline['createdOn']),
+          paymentAmount: timeline['paymentAmount'],
+          paymentId: timeline['paymentId'],
+          prescriptionList: tempList,
+          slotId: timeline['slotId'],
+        ));
+      }
     }
+    // } catch (error) {
+    //   print(error);
+    //   rethrow;
+    // }
 
     timelinesList.sort((Timeline a, Timeline b) => a.createdOn.compareTo(b.createdOn));
 

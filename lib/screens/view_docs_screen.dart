@@ -106,6 +106,10 @@ class DocumentsScreen extends StatelessWidget {
       final url = docsUrl[i];
       final extensionn = await AppMethods.fileExtensionFromDownloadUrl(downloadUrl: url);
       _fileNames.add('attachment${i + 1}.$extensionn');
+      // print(_fileNames);
     }
+    // print(docsUrl);
+    // print(_fileNames);
+    // print('object');
   }
 }

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -252,8 +255,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                     if (widget.isDoctor) {
                       await _generateTimeline(appointment.appointmentId, appointment.slotId);
                     }
-                    Navigator.of(context)
-                        .pushNamed(CallPage.routeName, arguments: appointment.appointmentId);
+                    Navigator.of(context).pushNamed(CallPage.routeName,
+                        arguments: {'appointment': appointment, 'callback': _uploadPrescription});
                   },
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -288,8 +291,18 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     return false;
   }
 
-  Future<void> _generateTimeline(String appointmentId, String slotId) async {
-    print('Generating timeline');
+  _uploadPrescription(File prescription, Appointment appointment) async {
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('prescriptions')
+        .child(appointment.appointmentId + appointment.slotId);
+    await ref.putFile(prescription);
+    final url = await ref.getDownloadURL();
+    _generateTimeline(appointment.appointmentId, appointment.slotId, url);
+  }
+
+  Future<void> _generateTimeline(String appointmentId, String slotId,
+      [String? prescriptionUrl]) async {
     final ref = FirebaseFirestore.instance
         .collection('appointments/$appointmentId/timeline')
         .doc(appointmentId + slotId);
@@ -298,7 +311,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       await ref.set({
         'createdOn': DateTime.now().toIso8601String(),
         'byDoctor': true,
-        'prescriptionList': [],
+        'prescriptionList': [prescriptionUrl],
         'slotId': slotId,
       });
     } catch (error) {
