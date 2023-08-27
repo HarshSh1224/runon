@@ -198,6 +198,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                                         height: 10,
                                       ),
                                       AttachmentCard(
+                                        docsUrl: e.prescriptionList,
                                         title: 'View Attachments',
                                         color: Theme.of(context).colorScheme.secondaryContainer,
                                         height: 70,
@@ -287,6 +288,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   Future<void> _generateTimeline(String appointmentId, String slotId) async {
+    print('Generating timeline');
     final ref = FirebaseFirestore.instance
         .collection('appointments/$appointmentId/timeline')
         .doc(appointmentId + slotId);

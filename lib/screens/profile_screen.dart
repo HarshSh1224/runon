@@ -96,7 +96,7 @@ class ProfileScreen extends StatelessWidget {
                           ListTile(
                             title: const Text('Documents'),
                             onTap: () {
-                              Navigator.of(context).pushNamed(DocumentsScreen.routeName);
+                              Navigator.of(context).pushNamed(AllDocumentsScreen.routeName);
                             },
                             leading: const Icon(Icons.file_present_rounded),
                             trailing: const Icon(Icons.chevron_right_sharp),

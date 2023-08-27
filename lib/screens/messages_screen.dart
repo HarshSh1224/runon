@@ -1,45 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:runon/providers/appointments.dart';
+import 'package:runon/utils/app_methods.dart';
 import 'package:runon/widgets/send_message_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:runon/widgets/report_dialog.dart';
 import 'package:runon/widgets/attachment_card.dart';
-import 'dart:io';
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:open_file_plus/open_file_plus.dart';
 
 class MessagesScreen extends StatelessWidget {
   static const routeName = '/messages-screen';
   MessagesScreen({super.key});
 
   bool _isLoadingFile = false;
-
-  Future _openFile(String url, String name, setState) async {
-    setState(() {
-      _isLoadingFile = true;
-    });
-    final appStorage = await getTemporaryDirectory();
-    final file = File('${appStorage.path}/$name');
-    try {
-      final response = await Dio().get(url,
-          options: Options(
-            responseType: ResponseType.bytes,
-            followRedirects: false,
-            // receiveTimeout: const Duration(seconds: 0),
-          ));
-      final raf = file.openSync(mode: FileMode.write);
-      raf.writeFromSync(response.data);
-      await raf.close();
-    } catch (er) {
-      debugPrint(er.toString());
-    }
-    setState(() {
-      _isLoadingFile = false;
-    });
-    OpenFile.open(file.path);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,9 +99,16 @@ class MessagesScreen extends StatelessWidget {
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
                                       child: InkWell(
-                                        onTap: () {
-                                          _openFile(snapshot.data!.docs[index]['text'],
-                                              snapshot.data!.docs[index]['title'], setState);
+                                        onTap: () async {
+                                          setState(() {
+                                            _isLoadingFile = true;
+                                          });
+                                          await AppMethods.openFile(
+                                              snapshot.data!.docs[index]['text'],
+                                              snapshot.data!.docs[index]['title']);
+                                          setState(() {
+                                            _isLoadingFile = false;
+                                          });
                                         },
                                         child: AttachmentCard(
                                             title: snapshot.data!.docs[index]['title'],

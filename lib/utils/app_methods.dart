@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart';
-import 'package:runon/misc/constants/app_constants.dart';
+import 'package:runon/utils/prescription_pdf_methods.dart';
 
 class AppMethods {
   static Future<File> gneratePrescriptionPdf({
@@ -24,8 +27,8 @@ class AppMethods {
     pdf.addPage(MultiPage(
       build: ((context) {
         return [
-          _buildTitle(image, appointmentId),
-          _buildTable(
+          GeneratePdfMethods.buildTitle(image, appointmentId),
+          GeneratePdfMethods.buildTable(
             appointmentId: appointmentId,
             patientName: patientName,
             patientId: patientId,
@@ -35,106 +38,13 @@ class AppMethods {
             date: date,
             prescription: prescription,
           ),
-          _buildContent(prescription),
+          GeneratePdfMethods.buildContent(prescription),
         ];
       }),
-      footer: (context) => _buildFooter(),
+      footer: (context) => GeneratePdfMethods.buildFooter(),
     ));
 
     return _savePdfDocument(name: 'prescription.pdf', pdf: pdf);
-  }
-
-  static Widget _buildTitle(image, appointmentId) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Image(image, height: 40),
-        SizedBox(height: 20),
-        Row(children: [
-          Text(
-            'Appointment Id: ',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(
-            appointmentId,
-          ),
-        ]),
-        SizedBox(height: 10),
-      ],
-    );
-  }
-
-  static Widget _buildTable({
-    required String appointmentId,
-    required String patientName,
-    required String patientId,
-    required String doctorName,
-    required String doctorId,
-    required String issue,
-    required String date,
-    required String prescription,
-  }) {
-    const tablePadding = EdgeInsets.symmetric(horizontal: 5, vertical: 2);
-    return Table(
-        border: TableBorder.all(
-          width: 0.5,
-        ),
-        children: [
-          TableRow(children: [
-            Padding(
-                padding: tablePadding,
-                child: Text('Patient Name: ', style: TextStyle(fontWeight: FontWeight.bold))),
-            Padding(padding: tablePadding, child: Text(patientName)),
-            Padding(
-                padding: tablePadding,
-                child: Text('Doctor Name: ', style: TextStyle(fontWeight: FontWeight.bold))),
-            Padding(padding: tablePadding, child: Text(doctorName)),
-          ]),
-          TableRow(children: [
-            Padding(
-                padding: tablePadding,
-                child: Text('Patient Id: ', style: TextStyle(fontWeight: FontWeight.bold))),
-            Padding(padding: tablePadding, child: Text(patientId)),
-            Padding(
-                padding: tablePadding,
-                child: Text('Doctor Id: ', style: TextStyle(fontWeight: FontWeight.bold))),
-            Padding(padding: tablePadding, child: Text(doctorId)),
-          ]),
-          TableRow(children: [
-            Padding(
-                padding: tablePadding,
-                child: Text('Issue: ', style: TextStyle(fontWeight: FontWeight.bold))),
-            Padding(padding: tablePadding, child: Text(issue)),
-            Padding(
-                padding: tablePadding,
-                child: Text('Date: ', style: TextStyle(fontWeight: FontWeight.bold))),
-            Padding(padding: tablePadding, child: Text(date)),
-          ]),
-        ]);
-  }
-
-  static Widget _buildContent(prescription) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      SizedBox(height: 40),
-      Text('Prescription', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-      SizedBox(height: 20),
-      Text(prescription),
-    ]);
-  }
-
-  static Widget _buildFooter() {
-    return Column(children: [
-      Divider(),
-      Text(AppConstants.appWebsite),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('Contact us: '),
-          Text(AppConstants.appHelpEmail, style: TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
-      Text('Phone: ${AppConstants.appPhoneNumber}'),
-    ]);
   }
 
   static Future<File> _savePdfDocument({
@@ -144,5 +54,34 @@ class AppMethods {
     final bytes = await pdf.save();
     final dir = await getApplicationDocumentsDirectory();
     return File('${dir.path}/$name').writeAsBytes(bytes);
+  }
+
+  static Future openFile(String url, String name) async {
+    final appStorage = await getTemporaryDirectory();
+    final file = File('${appStorage.path}/$name');
+    try {
+      final response = await Dio().get(url,
+          options: Options(
+            responseType: ResponseType.bytes,
+            followRedirects: false,
+            // receiveTimeout: const Duration(seconds: 0),
+          ));
+      final raf = file.openSync(mode: FileMode.write);
+      raf.writeFromSync(response.data);
+      await raf.close();
+    } catch (er) {
+      print(er.toString());
+    }
+    OpenFile.open(file.path);
+  }
+
+  static Future<String?> fileExtensionFromDownloadUrl({required String downloadUrl}) async {
+    final List<String> splitted1 = downloadUrl.split("%2F");
+    final List<String> splitted2 = splitted1[1].split("?");
+    final childId = splitted2[0];
+    final ref = FirebaseStorage.instance.ref("previousReports").child(childId);
+    final metaData = await ref.getMetadata();
+    final contentType = metaData.contentType;
+    return contentType?.split('/')[1];
   }
 }

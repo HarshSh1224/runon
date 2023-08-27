@@ -151,7 +151,7 @@ class _MyAppState extends State<MyApp> {
             AppointmentDetailScreen.routeName: (ctx) => AppointmentDetailScreen(),
             ForgotPasswordScreen.routeName: (ctx) => ForgotPasswordScreen(),
             ProfileScreen.routeName: (ctx) => ProfileScreen(toggleTheme),
-            DocumentsScreen.routeName: (ctx) => const DocumentsScreen(),
+            AllDocumentsScreen.routeName: (ctx) => const AllDocumentsScreen(),
             MyScheduleScreen.routeName: (ctx) => const MyScheduleScreen(),
             FlatFeetScreen.routeName: (ctx) => const FlatFeetScreen(),
             KnockKneeScreen.routeName: (ctx) => const KnockKneeScreen(),

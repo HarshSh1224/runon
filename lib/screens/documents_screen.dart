@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-class DocumentsScreen extends StatelessWidget {
+class AllDocumentsScreen extends StatelessWidget {
   static const routeName = '/documents-screen';
-  const DocumentsScreen({super.key});
+  const AllDocumentsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
