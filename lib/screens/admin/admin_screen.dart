@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
+import 'package:runon/screens/admin/patients_list.dart';
 import '../../widgets/clip_paths.dart';
 import '../profile_screen.dart';
 import 'package:runon/widgets/side_drawer.dart';
@@ -29,7 +30,8 @@ class AdminScreen extends StatelessWidget {
       key: _scaffoldKey,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
+        backgroundColor:
+            Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
         actions: [
           IconButton(
             icon: CircleAvatar(
@@ -53,7 +55,8 @@ class AdminScreen extends StatelessWidget {
           children: [
             Text(
               'Administrator',
-              style: GoogleFonts.raleway(fontSize: 30, fontWeight: FontWeight.bold),
+              style: GoogleFonts.raleway(
+                  fontSize: 30, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -66,7 +69,8 @@ class AdminScreen extends StatelessWidget {
           ),
           ClipPath(
             clipper: LowerEllipse(),
-            child: Container(color: Theme.of(context).colorScheme.secondaryContainer),
+            child: Container(
+                color: Theme.of(context).colorScheme.secondaryContainer),
           ),
           FutureBuilder(
             future: user.tryLogin(),
@@ -76,7 +80,8 @@ class AdminScreen extends StatelessWidget {
                       child: CircularProgressIndicator(),
                     )
                   : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 0, vertical: 0),
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
@@ -92,7 +97,8 @@ class AdminScreen extends StatelessWidget {
                               child: PageView(
                                   padEnds: false,
                                   pageSnapping: true,
-                                  controller: PageController(viewportFraction: 0.7),
+                                  controller:
+                                      PageController(viewportFraction: 0.7),
                                   children: [
                                     _pageViewItemBuilder(
                                       'No of Patients',
@@ -107,18 +113,24 @@ class AdminScreen extends StatelessWidget {
                                         Colors.black,
                                         0.5,
                                         'appointments'),
-                                    _pageViewItemBuilder('Medical Teams:',
-                                        'assets/images/graph.jpg', Colors.white, 0.7, 'doctors'),
+                                    _pageViewItemBuilder(
+                                        'Medical Teams:',
+                                        'assets/images/graph.jpg',
+                                        Colors.white,
+                                        0.7,
+                                        'doctors'),
                                     const SizedBox(
                                       width: 1,
                                     ),
                                   ]),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 18.0),
                               child: GestureDetector(
                                 onTap: () {
-                                  Navigator.of(context).pushNamed(MedicalTeamsScreen.routeName);
+                                  Navigator.of(context)
+                                      .pushNamed(MedicalTeamsScreen.routeName);
                                 },
                                 child: const CategoryItem(
                                     fit: BoxFit.fitWidth,
@@ -132,7 +144,27 @@ class AdminScreen extends StatelessWidget {
                             ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.of(context).pushNamed(AdminAppointments.routeName);
+                                Navigator.of(context)
+                                    .pushNamed(PatientsList.routName);
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 18.0),
+                                child: CategoryItem(
+                                  fit: BoxFit.fitWidth,
+                                  'assets/images/patients.jpg',
+                                  'Manage Patients',
+                                  Colors.deepPurpleAccent,
+                                  alignment: Alignment.center,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context)
+                                    .pushNamed(AdminAppointments.routeName);
                               },
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 18.0),
@@ -150,7 +182,8 @@ class AdminScreen extends StatelessWidget {
                             ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.of(context).pushNamed(ManageIssues.routeName);
+                                Navigator.of(context)
+                                    .pushNamed(ManageIssues.routeName);
                               },
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 18.0),
@@ -168,7 +201,8 @@ class AdminScreen extends StatelessWidget {
                             ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.of(context).pushNamed(UserFeedbackScreen.routeName);
+                                Navigator.of(context)
+                                    .pushNamed(UserFeedbackScreen.routeName);
                               },
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 18.0),
@@ -195,8 +229,8 @@ class AdminScreen extends StatelessWidget {
     );
   }
 
-  Widget _pageViewItemBuilder(
-      String title, String imageUrl, Color color, double opacity, String collection) {
+  Widget _pageViewItemBuilder(String title, String imageUrl, Color color,
+      double opacity, String collection) {
     return Padding(
       padding: const EdgeInsets.only(left: 18.0),
       child: Card(
@@ -228,11 +262,13 @@ class AdminScreen extends StatelessWidget {
               child: Align(
                 alignment: Alignment.bottomRight,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 30.0, vertical: 20),
                   child: FutureBuilder(
                       future: _fetchStats(collection),
                       builder: (context, snapshot) {
-                        return snapshot.connectionState == ConnectionState.waiting
+                        return snapshot.connectionState ==
+                                ConnectionState.waiting
                             ? Center(
                                 child: CircularProgressIndicator(
                                 color: color,
@@ -240,7 +276,9 @@ class AdminScreen extends StatelessWidget {
                             : Text(
                                 snapshot.data?.toString() ?? '-',
                                 style: GoogleFonts.notoSans(
-                                    fontSize: 60, fontWeight: FontWeight.bold, color: color),
+                                    fontSize: 60,
+                                    fontWeight: FontWeight.bold,
+                                    color: color),
                               );
                       }),
                 ),
@@ -253,7 +291,8 @@ class AdminScreen extends StatelessWidget {
   }
 
   Future<int> _fetchStats(String collection) async {
-    var query = await FirebaseFirestore.instance.collection(collection).count().get();
+    var query =
+        await FirebaseFirestore.instance.collection(collection).count().get();
     return query.count;
   }
 }

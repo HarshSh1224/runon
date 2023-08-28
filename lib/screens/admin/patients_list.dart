@@ -1,42 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:runon/providers/doctors.dart';
-import 'package:runon/screens/admin/manage_med_team.dart';
-import 'package:runon/screens/admin/add_medical_team.dart';
-
-class MedicalTeamsScreen extends StatelessWidget {
-  static const routeName = '/manage-medical-teams';
-  MedicalTeamsScreen({super.key});
-
-  List<Doctor> doctorsList = [];
-
-  Future<void> _fetchDoctors(Doctors doctors) async {
-    await doctors.fetchAndSetDoctors();
-    doctorsList = doctors.doctors;
-  }
+import 'package:runon/providers/auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import './add_patients.dart';
+class PatientsList extends StatelessWidget {
+  static const routName = "/patients-list";
+  const PatientsList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final doctors = Provider.of<Doctors>(context, listen: false);
-    // print(doctors);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Medical Teams'),
-      ),
-      body: FutureBuilder(
-          future: _fetchDoctors(doctors),
-          builder: (context, snapshot) {
-            return snapshot.connectionState == ConnectionState.waiting
-                ? const Center(child: CircularProgressIndicator())
-                : Padding(
+        appBar: AppBar(
+          title: const Text("Manage Patients"),
+        ),
+        body:
+        FutureBuilder(
+                  future: _getAllPatients(),
+                  builder: (context, snapshot) {
+                    List<Auth>? allpatients = snapshot.data;
+                    return snapshot.connectionState == ConnectionState.waiting
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                   : Padding(
                     padding:
                         const EdgeInsets.only(top: 18.0, left: 18, right: 18),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '   Available Teams',
+                          '   Enrolled Patients',
                           style: GoogleFonts.raleway(
                               fontSize: 30, fontWeight: FontWeight.bold),
                         ),
@@ -47,7 +41,7 @@ class MedicalTeamsScreen extends StatelessWidget {
                           flex: 8,
                           child: ListView.builder(
                             itemBuilder: (ctx, index) {
-                              return index == doctorsList.length
+                              return index == allpatients.length
                                   ? Card(
                                       elevation: 2,
                                       margin: const EdgeInsets.only(
@@ -101,7 +95,7 @@ class MedicalTeamsScreen extends StatelessWidget {
                                                   height: 10,
                                                 ),
                                                 Text(
-                                                  'Add Medical Teams',
+                                                  'Add Patient',
                                                   style: GoogleFonts.roboto(
                                                       fontSize: 18),
                                                 ),
@@ -112,10 +106,7 @@ class MedicalTeamsScreen extends StatelessWidget {
                                                 color: Colors.transparent,
                                                 child: InkWell(
                                                   onTap: () {
-                                                    Navigator.of(context)
-                                                        .pushNamed(
-                                                            AddMedicalTeam
-                                                                .routeName);
+                                                    Navigator.of(context).pushNamed(AddPatients.routName);
                                                   },
                                                   splashColor: Colors.black12,
                                                 ),
@@ -132,18 +123,18 @@ class MedicalTeamsScreen extends StatelessWidget {
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 20, vertical: 20),
-                                        height: 170,
+                                        height: 180,
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           image: DecorationImage(
                                               fit: BoxFit.fill,
                                               scale: 1.4,
-                                              opacity: 0.15,
+                                              opacity: 0.15,                                            
                                               image: Image.asset(
                                                 'assets/images/green_waves.png',
                                                 fit: BoxFit.fitHeight,
-                                                alignment: Alignment.topCenter,
+                                                alignment: Alignment.topCenter,                                                
                                               ).image),
                                         ),
                                         // color: Colors.black,
@@ -161,7 +152,8 @@ class MedicalTeamsScreen extends StatelessWidget {
                                                   borderRadius:
                                                       BorderRadius.circular(8),
                                                   child: Image.network(
-                                                    'https://i2-prod.mirror.co.uk/interactives/article12645227.ece/ALTERNATES/s1200c/doctor.jpg',
+                                                    allpatients[index].imageUrl==null?"https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg?w=740&t=st=1693160464~exp=1693161064~hmac=6f61856e254b9516d3f8a1c63f6e2f9b52507154511d51af1aca8b58b3c30c6d":allpatients[index].imageUrl!,
+                                                    // 'https://i2-prod.mirror.co.uk/interactives/article12645227.ece/ALTERNATES/s1200c/doctor.jpg',
                                                     fit: BoxFit.cover,
                                                   ),
                                                 ),
@@ -175,24 +167,26 @@ class MedicalTeamsScreen extends StatelessWidget {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  doctorsList[index].name,
+                                                  "${allpatients[index].fName!} ${allpatients[index].lName}",
                                                   style: GoogleFonts.notoSans(
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       fontSize: 17),
                                                 ),
                                                 Text(
-                                                  doctorsList[index]
-                                                      .qualifications,
-                                                  style: GoogleFonts.raleway(
+                                                  "DOB: ${DateFormat('dd MMM yyyy').format(allpatients[index].dateOfBirth!)}",
+                                                  style: GoogleFonts.robotoFlex(
                                                       fontSize: 15),
                                                 ),
                                                 Text(
-                                                  'Fees : ${doctorsList[index].fees.toString()} per hr',
-                                                  style: GoogleFonts.notoSans(
-                                                      fontSize: 12,
-                                                      fontStyle:
-                                                          FontStyle.italic),
+                                                  "${allpatients[index].address}",
+                                                  style: GoogleFonts.robotoFlex(
+                                                      fontSize: 15),
+                                                ),
+                                                Text(
+                                                  allpatients[index].gender=='M'?'Male':'Female',
+                                                  style: GoogleFonts.robotoFlex(
+                                                      fontSize: 15),
                                                 ),
                                                 const Spacer(),
                                                 Row(
@@ -203,17 +197,11 @@ class MedicalTeamsScreen extends StatelessWidget {
                                                       width: 50,
                                                     ),
                                                     OutlinedButton(
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pushNamed(
-                                                                  ManageMedicalTeam
-                                                                      .routeName,
-                                                                  arguments:
-                                                                      doctorsList[
-                                                                          index]);
+                                                        onPressed: () {            
                                                         },
                                                         child: const Text(
-                                                            '   Manage   ')),
+                                                            '   Manage   ')
+                                                            ),
                                                   ],
                                                 )
                                               ],
@@ -223,13 +211,24 @@ class MedicalTeamsScreen extends StatelessWidget {
                                       ),
                                     );
                             },
-                            itemCount: doctorsList.length + 1,
+                            itemCount: allpatients!.length + 1,
                           ),
                         ),
                       ],
                     ),
                   );
-          }),
-    );
+  }),
+        );
+
+  }
+  Future<List<Auth>> _getAllPatients() async {
+    final users = await FirebaseFirestore.instance.collection('users').get();
+    List<Auth> allUsers = [];
+    for (var doc in users.docs) {
+      if (doc.data()['type'] == 0) {
+        allUsers.add(Auth.fromMap(doc.data(), doc.id));
+      }
+    }
+    return allUsers;
   }
 }

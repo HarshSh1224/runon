@@ -10,6 +10,7 @@ import 'package:runon/providers/issue_data.dart';
 import 'package:runon/providers/slots.dart';
 import 'package:runon/providers/temp_provider.dart';
 import 'package:runon/screens/about_us_screen.dart';
+import 'package:runon/screens/admin/patients_list.dart';
 import 'package:runon/screens/patient/add_appointment.dart';
 import 'package:runon/screens/admin/admin_appointments.dart';
 import 'package:runon/screens/admin/user_feedbacks.dart';
@@ -38,6 +39,7 @@ import 'package:runon/screens/admin/manage_med_team.dart';
 import 'package:runon/screens/admin/manage_issues.dart';
 import 'package:runon/screens/admin/add_medical_team.dart';
 import 'package:runon/video_call/call.dart';
+import 'package:runon/screens/admin/add_patients.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -71,7 +73,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   void toggleTheme() async {
     setState(() {
-      themeBrightness = themeBrightness == Brightness.dark ? Brightness.light : Brightness.dark;
+      themeBrightness = themeBrightness == Brightness.dark
+          ? Brightness.light
+          : Brightness.dark;
     });
   }
 
@@ -130,13 +134,17 @@ class _MyAppState extends State<MyApp> {
                       future: auth.tryLogin(),
                       builder: (context, snapshot) {
                         // print(FirebaseAuth.instance.currentUser!.uid);
-                        return snapshot.connectionState == ConnectionState.waiting
+                        return snapshot.connectionState ==
+                                ConnectionState.waiting
                             ? const Scaffold(
-                                body: Center(child: CircularProgressIndicator()),
+                                body:
+                                    Center(child: CircularProgressIndicator()),
                               )
                             : auth.type == 1
                                 ? DoctorScreen()
-                                : (auth.type == 2 ? AdminScreen() : PatientScreen());
+                                : (auth.type == 2
+                                    ? AdminScreen()
+                                    : PatientScreen());
                       },
                     );
             },
@@ -148,7 +156,8 @@ class _MyAppState extends State<MyApp> {
             PatientScreen.routeName: (ctx) => PatientScreen(),
             AddAppointment.routeName: (ctx) => const AddAppointment(),
             NewAppointment.routeName: (ctx) => NewAppointment(),
-            AppointmentDetailScreen.routeName: (ctx) => AppointmentDetailScreen(),
+            AppointmentDetailScreen.routeName: (ctx) =>
+                AppointmentDetailScreen(),
             ForgotPasswordScreen.routeName: (ctx) => ForgotPasswordScreen(),
             ProfileScreen.routeName: (ctx) => ProfileScreen(toggleTheme),
             DocumentsScreen.routeName: (ctx) => const DocumentsScreen(),
@@ -160,7 +169,8 @@ class _MyAppState extends State<MyApp> {
             AboutUsScreen.routeName: (ctx) => const AboutUsScreen(),
             MessagesScreen.routeName: (ctx) => MessagesScreen(),
             DoctorScreen.routeName: (ctx) => DoctorScreen(),
-            MyAppointmentsScreenDoctor.routeName: (ctx) => MyAppointmentsScreenDoctor(),
+            MyAppointmentsScreenDoctor.routeName: (ctx) =>
+                MyAppointmentsScreenDoctor(),
             ManageSlotsScreen.routeName: (ctx) => const ManageSlotsScreen(),
             CallPage.routeName: (ctx) => const CallPage(),
             AdminScreen.routeName: (ctx) => AdminScreen(),
@@ -170,6 +180,8 @@ class _MyAppState extends State<MyApp> {
             AddMedicalTeam.routeName: (ctx) => AddMedicalTeam(),
             ManageIssues.routeName: (ctx) => const ManageIssues(),
             UserFeedbackScreen.routeName: (ctx) => UserFeedbackScreen(),
+            PatientsList.routName: (ctx) => const PatientsList(),
+            AddPatients.routName: (ctx)=> const AddPatients(),
           },
         );
       }),
