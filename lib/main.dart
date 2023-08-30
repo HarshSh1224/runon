@@ -181,7 +181,7 @@ class _MyAppState extends State<MyApp> {
             ManageIssues.routeName: (ctx) => const ManageIssues(),
             UserFeedbackScreen.routeName: (ctx) => UserFeedbackScreen(),
             PatientsList.routName: (ctx) => const PatientsList(),
-            AddPatients.routName: (ctx)=> const AddPatients(),
+            AddPatients.routName: (ctx)=> AddPatients(),
           },
         );
       }),
