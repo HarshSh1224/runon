@@ -15,7 +15,6 @@ class MyAppointmentsScreen extends StatelessWidget {
   Future<void> _fetchAppointments(
       Appointments appointmentsProvider, Auth auth, IssueData issue) async {
     await appointmentsProvider.fetchAndSetAppointments();
-    print(_myAppointments);
     await issue.fetchAndSetIssues();
     _myAppointments = appointmentsProvider.getAppointmentsByPatientId(id: auth.userId!);
   }
@@ -148,7 +147,7 @@ class UpcomingDeleteButton extends StatelessWidget {
                   : Theme.of(context).colorScheme.tertiary,
             ),
           ),
-          child: Text(_appointment.hasPassed ? 'Passed' : 'Upcoming'),
+          child: Text(_appointment.isCancelled ? 'Cancelled' : (_appointment.hasPassed ? 'Passed' : 'Upcoming')),
         ),
       ),
     );

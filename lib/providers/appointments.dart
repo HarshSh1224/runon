@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:runon/providers/slot_timings.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 
+enum TimelineType {appointment, consultation, cancelled}
+
 class Timeline {
+  TimelineType type;
   DateTime createdOn;
   String? paymentId;
   double? paymentAmount;
@@ -13,6 +16,7 @@ class Timeline {
   bool byDoctor;
 
   Timeline({
+    required this.type,
     required this.createdOn,
     this.byDoctor = false,
     this.paymentAmount,
@@ -44,7 +48,12 @@ class Appointment {
     this.reports,
   });
 
+  bool get isCancellable{
+    return timelines.last.type == TimelineType.appointment ;
+  }
+
   bool get hasPassed {
+    if(isCancelled) return true;
     DateTime slot = slotIdTodDateTime(slotId);
     String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
@@ -70,6 +79,44 @@ class Appointment {
       return true;
     }
     return false;
+  }
+
+  bool get isAfter48Hours {
+    DateTime slot = slotIdTodDateTime(slotId);
+    String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
+    slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
+    slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
+    if (time[6] == 'P') slot = slot.add(const Duration(hours: 12));
+
+    DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
+    if (slot.difference(nowTime).compareTo(const Duration(hours: 48)) >= 0) {
+      return true;
+    }
+    return false;
+  }
+
+  bool get isActive{
+    return timelines.last.type == TimelineType.appointment;
+  }
+
+  bool get isCancelled{
+    return timelines.last.type == TimelineType.cancelled;
+  }
+
+  cancel() async {
+    try {
+      print('Cancelling appntm');
+      await FirebaseFirestore.instance.collection('appointments/$appointmentId/timeline').add({
+        'is_cancelled': true,
+        'createdOn': DateTime.now().toIso8601String(),
+        'slotId': slotId,
+      });
+      print('Cancelling appntm success');
+
+    } catch (error){
+      print('Cancelling appntm failed');
+      debugPrint(error.toString());
+    }
   }
 }
 
@@ -99,12 +146,21 @@ class Appointments with ChangeNotifier {
 
       if (timeline.containsKey('byDoctor')) {
         timelinesList.add(Timeline(
+            type: TimelineType.consultation,
             createdOn: DateTime.parse(timeline['createdOn']),
             prescriptionList: tempList,
             byDoctor: true,
             slotId: timeline['slotId']));
+      } else if(timeline.containsKey('is_cancelled')){
+        timelinesList.add(Timeline(
+          type: TimelineType.cancelled,
+          createdOn: DateTime.parse(timeline['createdOn']),
+          prescriptionList: tempList,
+          slotId: timeline['slotId'],
+        ));
       } else {
         timelinesList.add(Timeline(
+          type: TimelineType.appointment,
           createdOn: DateTime.parse(timeline['createdOn']),
           paymentAmount: timeline['paymentAmount'],
           paymentId: timeline['paymentId'],
@@ -152,6 +208,7 @@ class Appointments with ChangeNotifier {
         );
       }
       _appointments = temp;
+      _appointments.sort((a, b) => slotIdTodDateTime(b.slotId, withTime: true).compareTo(slotIdTodDateTime(a.slotId, withTime: true)));
       // print('TEMP IS $temp');
     } catch (error) {
       print(error);

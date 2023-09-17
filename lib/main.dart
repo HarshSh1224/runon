@@ -38,8 +38,10 @@ import 'package:runon/screens/admin/manage_med_team.dart';
 import 'package:runon/screens/admin/manage_issues.dart';
 import 'package:runon/screens/admin/add_medical_team.dart';
 import 'package:runon/video_call/call.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
+  dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
     await Firebase.initializeApp(

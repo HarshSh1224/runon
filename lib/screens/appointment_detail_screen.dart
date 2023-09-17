@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -10,6 +11,7 @@ import 'package:runon/providers/appointments.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/slots.dart';
+import 'package:runon/screens/cancel_appointment_screen.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
 import 'package:runon/utils/app_methods.dart';
@@ -154,72 +156,14 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           // e['createdOn'];
                           return Transform.translate(
                             offset: const Offset(10, 0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Transform.translate(
-                                  offset: const Offset(0, 8),
-                                  child: Column(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 6,
-                                        backgroundColor: Theme.of(context).colorScheme.tertiary,
-                                      ),
-                                      Container(
-                                        height: 175,
-                                        width: 3,
-                                        color: Theme.of(context).colorScheme.tertiary,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  // child: Text('Date'),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        DateFormat('dd MMM yyyy').format(e.createdOn),
-                                        style: GoogleFonts.roboto(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                          color: Theme.of(context).colorScheme.tertiary,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 3,
-                                      ),
-                                      Text(
-                                        e.byDoctor
-                                            ? 'Successfully Consulted'
-                                            : 'Payment Scuccessful Rs ${e.paymentAmount}',
-                                        style: const TextStyle(fontStyle: FontStyle.italic),
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      AttachmentCard(
-                                        docsUrl: e.prescriptionList,
-                                        title: 'View Attachments',
-                                        color: Theme.of(context).colorScheme.secondaryContainer,
-                                        height: 70,
-                                      ),
-                                      const SizedBox(
-                                        height: 25,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                            child: e.type == TimelineType.cancelled ? _cancelledTimeline(context, e) : _normalTimeline(context, e),
                           );
                         }).toList(),
                         const SizedBox(
                           height: 20,
                         ),
-                        if (!appointment.hasPassed) _upcomingAppointment(appointment, context),
-                        if (appointment.hasPassed && !widget.isDoctor)
+                        if (!appointment.hasPassed && !appointment.isCancelled) _upcomingAppointment(appointment, context),
+                        if ((appointment.hasPassed && !widget.isDoctor) || appointment.isCancelled)
                           FollowUpButton(
                             appointment: appointment,
                             doctorName: _appointmentData['doctor']!,
@@ -231,6 +175,117 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                 );
         },
       ),
+    );
+  }
+
+  Widget _normalTimeline(BuildContext context, Timeline e) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Transform.translate(
+          offset: const Offset(0, 8),
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 6,
+                backgroundColor: Theme.of(context).colorScheme.tertiary,
+              ),
+              Container(
+                height: 175,
+                width: 3,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateFormat('dd MMM yyyy').format(e.createdOn),
+                style: GoogleFonts.roboto(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              const SizedBox(
+                height: 3,
+              ),
+              Text(
+                e.byDoctor
+                    ? 'Successfully Consulted'
+                    : 'Payment Scuccessful Rs ${e.paymentAmount}',
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              AttachmentCard(
+                docsUrl: e.prescriptionList,
+                title: 'View Attachments',
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                height: 70,
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _cancelledTimeline(BuildContext context, Timeline e) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Transform.translate(
+          offset: const Offset(0, 8),
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 6,
+                backgroundColor: Theme.of(context).colorScheme.tertiary,
+              ),
+              Container(
+                height: 60,
+                width: 3,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateFormat('dd MMM yyyy').format(e.createdOn),
+                style: GoogleFonts.roboto(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              const SizedBox(
+                height: 3,
+              ),
+              const Text(
+                'Appointment Cancelled. Fee Refunded',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -247,7 +302,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         const SizedBox(
           height: 20,
         ),
-        OutlinedButton(
+        FilledButton(
             onPressed: !canStartAppointment(appointment)
                 ? null
                 : () async {
@@ -271,6 +326,12 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           CountdownTimer(
             countTo: slotIdTodDateTime(appointment.slotId, withTime: true),
           ),
+        if (appointment.isCancellable)
+          TextButton(onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return CancelAppointmentScreen(appointment: appointment, paymentId: appointment.timelines.last.paymentId ?? '',);
+            }));
+          }, child: const Text('Cancel Appointment')),
         const SizedBox(
           height: 20,
         ),
@@ -279,7 +340,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   bool canStartAppointment(Appointment appointment) {
-    return true;
+    // return true;
     DateTime slot = slotIdTodDateTime(appointment.slotId, withTime: true);
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
