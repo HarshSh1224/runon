@@ -39,7 +39,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
     _start = widget.countTo
         .difference(DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30)))
         .inSeconds;
-    print(widget.countTo);
+    // print(widget.countTo);
     if (_start >= 0) startTimer();
     super.initState();
   }

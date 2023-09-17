@@ -24,6 +24,14 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
   @override
+  void dispose() {
+    nameController.dispose();
+    qualificationsController.dispose();
+    feesController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Doctor doctor = ModalRoute.of(context)!.settings.arguments as Doctor;
 
@@ -75,7 +83,11 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
                 return null;
               }),
               const SizedBox(
-                height: 100,
+                height: 10,
+              ),
+              _formRowBuilder('Email id :', feesController , (value) => null, disabledText: doctor.id),
+              const SizedBox(
+                height: 45,
               ),
               Align(
                 alignment: Alignment.centerRight,
@@ -194,6 +206,7 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
     String title,
     TextEditingController controller,
     String? Function(String?)? validator,
+    {String? disabledText}
   ) {
     return Row(
       children: [
@@ -206,16 +219,28 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
         ),
         Expanded(
           flex: 10,
-          child: TextFormField(
+          child: disabledText != null ? _disabledTextField(disabledText) : TextFormField(
             validator: validator,
             controller: controller,
             decoration: const InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 5),
+              contentPadding: EdgeInsets.symmetric(horizontal: 10),
               border: OutlineInputBorder(),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _disabledTextField(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        borderRadius: BorderRadius.circular(5),
+        color: Theme.of(context).colorScheme.outline.withOpacity(0.1)
+      ),
+      child: Text(text, style: TextStyle(color: Theme.of(context).colorScheme.outline)),
     );
   }
 }

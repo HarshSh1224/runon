@@ -19,7 +19,7 @@ class AdminAppointments extends StatelessWidget {
     await appointmentsProvider.fetchAndSetAppointments();
     appointments = appointmentsProvider.appointments;
     await issue.fetchAndSetIssues();
-    print(appointments);
+    // print(appointments);
   }
 
   String? initValue;

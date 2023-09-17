@@ -244,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Text('Welcome'),
         ),
       ));
-      print('TYPE: $type');
+      // print('TYPE: $type');
       Navigator.of(context).pushReplacementNamed(type == 1
           ? DoctorScreen.routeName
           : (type == 2 ? AdminScreen.routeName : PatientScreen.routeName));
@@ -253,11 +253,14 @@ class _LoginScreenState extends State<LoginScreen> {
       });
       return;
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0),
-        child: Text('Internal Error'),
-      )));
+
+      // Below Snackbar is producing bugs on login
+
+      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      //     content: Padding(
+      //   padding: EdgeInsets.symmetric(vertical: 10.0),
+      //   child: Text('Internal Error'),
+      // )));
       debugPrint('ERROR: $error');
       setState(() {
         _isLoading = false;
