@@ -37,6 +37,8 @@ class Auth with ChangeNotifier {
 
   bool get isDoctor => type == 1;
 
+  bool get isAdmin => type == 2;
+
   Future<int> authenticate(
       {required BuildContext context,
       required String email,

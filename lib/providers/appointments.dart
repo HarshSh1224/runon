@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:runon/controllers/database.dart';
 import 'package:runon/providers/slot_timings.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 
-enum TimelineType {appointment, consultation, cancelled}
+enum TimelineType { appointment, consultation, cancelled }
 
 class Timeline {
   TimelineType type;
@@ -14,6 +15,7 @@ class Timeline {
   String slotId;
   bool? isMissed;
   bool byDoctor;
+  String? refundId;
 
   Timeline({
     required this.type,
@@ -24,6 +26,7 @@ class Timeline {
     required this.prescriptionList,
     required this.slotId,
     this.isMissed = false,
+    this.refundId,
   });
 }
 
@@ -48,12 +51,12 @@ class Appointment {
     this.reports,
   });
 
-  bool get isCancellable{
-    return timelines.last.type == TimelineType.appointment ;
+  bool get isCancellable {
+    return timelines.last.type == TimelineType.appointment && isAfter48Hours;
   }
 
   bool get hasPassed {
-    if(isCancelled) return true;
+    if (isCancelled) return true;
     DateTime slot = slotIdTodDateTime(slotId);
     String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
@@ -95,25 +98,24 @@ class Appointment {
     return false;
   }
 
-  bool get isActive{
+  bool get isActive {
     return timelines.last.type == TimelineType.appointment;
   }
 
-  bool get isCancelled{
+  bool get isCancelled {
     return timelines.last.type == TimelineType.cancelled;
   }
 
-  cancel() async {
+  cancel({String? refundId}) async {
     try {
-      print('Cancelling appntm');
       await FirebaseFirestore.instance.collection('appointments/$appointmentId/timeline').add({
         'is_cancelled': true,
         'createdOn': DateTime.now().toIso8601String(),
         'slotId': slotId,
+        'refund_id': refundId,
       });
-      print('Cancelling appntm success');
-
-    } catch (error){
+      Database.addSlotToDoctor(slotId: slotId, doctorId: doctorId);
+    } catch (error) {
       print('Cancelling appntm failed');
       debugPrint(error.toString());
     }
@@ -151,12 +153,13 @@ class Appointments with ChangeNotifier {
             prescriptionList: tempList,
             byDoctor: true,
             slotId: timeline['slotId']));
-      } else if(timeline.containsKey('is_cancelled')){
+      } else if (timeline.containsKey('is_cancelled')) {
         timelinesList.add(Timeline(
           type: TimelineType.cancelled,
           createdOn: DateTime.parse(timeline['createdOn']),
           prescriptionList: tempList,
           slotId: timeline['slotId'],
+          refundId: timeline['refund_id'],
         ));
       } else {
         timelinesList.add(Timeline(
@@ -208,7 +211,8 @@ class Appointments with ChangeNotifier {
         );
       }
       _appointments = temp;
-      _appointments.sort((a, b) => slotIdTodDateTime(b.slotId, withTime: true).compareTo(slotIdTodDateTime(a.slotId, withTime: true)));
+      _appointments.sort((a, b) => slotIdTodDateTime(b.slotId, withTime: true)
+          .compareTo(slotIdTodDateTime(a.slotId, withTime: true)));
       // print('TEMP IS $temp');
     } catch (error) {
       print(error);

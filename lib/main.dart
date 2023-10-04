@@ -37,6 +37,7 @@ import 'package:runon/screens/admin/medical_teams.dart';
 import 'package:runon/screens/admin/manage_med_team.dart';
 import 'package:runon/screens/admin/manage_issues.dart';
 import 'package:runon/screens/admin/add_medical_team.dart';
+import 'package:runon/screens/youtube_player_screen.dart';
 import 'package:runon/video_call/call.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -172,6 +173,7 @@ class _MyAppState extends State<MyApp> {
             AddMedicalTeam.routeName: (ctx) => AddMedicalTeam(),
             ManageIssues.routeName: (ctx) => const ManageIssues(),
             UserFeedbackScreen.routeName: (ctx) => UserFeedbackScreen(),
+            YoutubePlayerScreen.routeName: (ctx) => const YoutubePlayerScreen()
           },
         );
       }),

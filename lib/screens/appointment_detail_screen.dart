@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -156,13 +155,16 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           // e['createdOn'];
                           return Transform.translate(
                             offset: const Offset(10, 0),
-                            child: e.type == TimelineType.cancelled ? _cancelledTimeline(context, e) : _normalTimeline(context, e),
+                            child: e.type == TimelineType.cancelled
+                                ? _cancelledTimeline(context, e)
+                                : _normalTimeline(context, e),
                           );
                         }).toList(),
                         const SizedBox(
                           height: 20,
                         ),
-                        if (!appointment.hasPassed && !appointment.isCancelled) _upcomingAppointment(appointment, context),
+                        if (!appointment.hasPassed && !appointment.isCancelled)
+                          _upcomingAppointment(appointment, context),
                         if ((appointment.hasPassed && !widget.isDoctor) || appointment.isCancelled)
                           FollowUpButton(
                             appointment: appointment,
@@ -215,9 +217,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                 height: 3,
               ),
               Text(
-                e.byDoctor
-                    ? 'Successfully Consulted'
-                    : 'Payment Scuccessful Rs ${e.paymentAmount}',
+                e.byDoctor ? 'Successfully Consulted' : 'Payment Scuccessful Rs ${e.paymentAmount}',
                 style: const TextStyle(fontStyle: FontStyle.italic),
               ),
               const SizedBox(
@@ -275,9 +275,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               const SizedBox(
                 height: 3,
               ),
-              const Text(
-                'Appointment Cancelled. Fee Refunded',
-                style: TextStyle(fontStyle: FontStyle.italic),
+              Text(
+                'Appointment Cancelled.${e.refundId != null ? ' Fee Refunded.' : ''}',
+                style: const TextStyle(fontStyle: FontStyle.italic),
               ),
               const SizedBox(
                 height: 10,
@@ -326,12 +326,17 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           CountdownTimer(
             countTo: slotIdTodDateTime(appointment.slotId, withTime: true),
           ),
-        if (appointment.isCancellable)
-          TextButton(onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return CancelAppointmentScreen(appointment: appointment, paymentId: appointment.timelines.last.paymentId ?? '',);
-            }));
-          }, child: const Text('Cancel Appointment')),
+        if (appointment.isCancellable || isAdmin && !appointment.hasPassed)
+          TextButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return CancelAppointmentScreen(
+                    appointment: appointment,
+                    paymentId: appointment.timelines.last.paymentId ?? '',
+                  );
+                }));
+              },
+              child: const Text('Cancel Appointment')),
         const SizedBox(
           height: 20,
         ),
