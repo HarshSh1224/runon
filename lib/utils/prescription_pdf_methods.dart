@@ -1,5 +1,7 @@
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:runon/misc/constants/app_constants.dart';
+import 'package:runon/models/flat_feet_options.dart';
 
 class GeneratePdfMethods {
   static Widget buildTitle(image, appointmentId) {
@@ -71,11 +73,12 @@ class GeneratePdfMethods {
         ]);
   }
 
-  static Widget buildContent(prescription) {
+  static Widget buildContent(prescription, FeetObservations? feetObservations) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       SizedBox(height: 40),
       Text('Prescription', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-      SizedBox(height: 20),
+      if (feetObservations != null) buildFeetObservations(feetObservations),
+      SizedBox(height: 10),
       Text(prescription),
     ]);
   }
@@ -93,5 +96,114 @@ class GeneratePdfMethods {
       ),
       Text('Phone: ${AppConstants.appPhoneNumber}'),
     ]);
+  }
+
+  static buildFeetObservations(FeetObservations feetObservations) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 10),
+        Text('Feet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        SizedBox(height: 10),
+        Row(children: [
+          Row(children: [
+            Checkbox(activeColor: PdfColors.green, value: feetObservations.flatFeet, name: 'Hello'),
+            SizedBox(width: 10),
+            Text('FlatFeet'),
+          ]),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green, value: feetObservations.highArched, name: 'Hello'),
+            SizedBox(width: 10),
+            Text('High Arched'),
+          ]),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green, value: feetObservations.normalArched, name: 'Hello'),
+            SizedBox(width: 10),
+            Text('Normal Arched'),
+          ]),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green, value: feetObservations.lowArched, name: 'Hello'),
+            SizedBox(width: 10),
+            Text('Low Arched'),
+          ]),
+        ]),
+        SizedBox(height: 20),
+        Text('Knock Knees', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        SizedBox(height: 10),
+        Row(children: [
+          Text('Left -   '),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green, value: feetObservations.leftKnockKnee, name: 'Hello'),
+            SizedBox(width: 10),
+            Text('Knock Knees'),
+          ]),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green, value: feetObservations.leftBowLeg, name: 'Hello'),
+            SizedBox(width: 10),
+            Text('Bow Leg'),
+          ]),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green, value: feetObservations.leftNormal, name: 'Hello'),
+            SizedBox(width: 10),
+            Text('Normal'),
+          ]),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green,
+                value: feetObservations.leftRecurvatum,
+                name: 'Hello'),
+            SizedBox(width: 10),
+            Text('Recurvatum'),
+          ]),
+        ]),
+        SizedBox(height: 6),
+        Row(children: [
+          Text('Right - '),
+          SizedBox(width: 15),
+          Checkbox(
+              activeColor: PdfColors.green, value: feetObservations.rightKnockKnee, name: 'Hello'),
+          SizedBox(width: 10),
+          Text('Knock Knees'),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green, value: feetObservations.rightBowLeg, name: 'Hello'),
+            SizedBox(width: 10),
+            Text('Bow Leg'),
+          ]),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green, value: feetObservations.rightNormal, name: 'Hello'),
+            SizedBox(width: 10),
+            Text('Normal'),
+          ]),
+          Row(children: [
+            SizedBox(width: 15),
+            Checkbox(
+                activeColor: PdfColors.green,
+                value: feetObservations.rightRecurvatum,
+                name: 'Hello'),
+            SizedBox(width: 10),
+            Text('Recurvatum'),
+          ]),
+        ]),
+        SizedBox(height: 30),
+        Text('Remarks', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      ],
+    );
   }
 }

@@ -56,6 +56,7 @@ class Appointment {
   }
 
   bool get hasPassed {
+    return false;
     if (isCancelled) return true;
     DateTime slot = slotIdTodDateTime(slotId);
     String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
@@ -104,6 +105,16 @@ class Appointment {
 
   bool get isCancelled {
     return timelines.last.type == TimelineType.cancelled;
+  }
+
+  bool get isFlatfeetOrKnocknee {
+    return issueId == 'I8' || issueId == 'I9';
+  }
+
+  Future delete() async {
+    await FirebaseFirestore.instance.collection('appointments').doc(appointmentId).update({
+      'archived': true,
+    });
   }
 
   cancel({String? refundId}) async {
@@ -188,6 +199,8 @@ class Appointments with ChangeNotifier {
       // print(response.docs[0].data()['timelines']);
       List<Appointment> temp = [];
       for (int i = 0; i < response.docs.length; i++) {
+        if (response.docs[i].data().containsKey('archived') &&
+            response.docs[i].data()['archived'] == true) continue;
         List<String> tempList = [];
 
         if (response.docs[i].data().containsKey('reportUrl')) {

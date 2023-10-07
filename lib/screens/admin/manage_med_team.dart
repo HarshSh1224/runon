@@ -85,7 +85,7 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
               const SizedBox(
                 height: 10,
               ),
-              _formRowBuilder('Email id :', feesController , (value) => null, disabledText: doctor.id),
+              _formRowBuilder('Email id :', feesController , (value) => null, disabledText: (doctor.email ?? 'Not available')),
               const SizedBox(
                 height: 45,
               ),
@@ -154,13 +154,86 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
                 ],
               ),
               const SizedBox(
-                height: 50,
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.onError,
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                      ),
+                      onPressed: () async {
+                        final deleteable = await doctor.isFree();
+                        showDialog(context: context, builder: (_){
+                          return deleteable ? _confirmDelete(context, doctor) : AlertDialog(
+                            title: const Text('Delete Team'),
+                            content: const Text('This team cannot be deleted as it has active appointments. Please delete all of their appointments to proceed'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Ok'),
+                              ),
+                            ],
+                          );
+                        });
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+                        child: Text(
+                            'Delete Team',
+                            style: TextStyle(fontSize: 17),
+                          ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
               ),
             ]),
           ),
         ),
       ),
     );
+  }
+
+  AlertDialog _confirmDelete(BuildContext context, Doctor doctor) {
+    return AlertDialog(
+                          title: const Text('Delete Team'),
+                          content: const Text('Are you sure you want to delete this team?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+                                try {
+                                  await FirebaseFirestore.instance.collection('doctors').doc(doctor.id).update({'archived' : true});
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Success',
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                  Navigator.of(context).pop();
+                                } catch (error) {
+                                  debugPrint(error.toString());
+                                }
+                              },
+                              child: const Text('Yes'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('No'),
+                            ),
+                          ],
+                        );
   }
 
   void _submit(context, Doctor doctor, setState) async {

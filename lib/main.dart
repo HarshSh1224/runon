@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
+import 'package:runon/providers/exercise_docs.dart';
 import 'package:runon/providers/issue_data.dart';
 import 'package:runon/providers/slots.dart';
 import 'package:runon/providers/temp_provider.dart';
@@ -113,6 +114,9 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider(
           create: (_) => Appointments(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ExerciseDocuments(),
         ),
       ],
       child: Consumer<Auth>(builder: (context, auth, ch) {

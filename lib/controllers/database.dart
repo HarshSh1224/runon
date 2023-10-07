@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 extension UserTypeExtension on String {
   String slotIdDatePart() => substring(0, 8);
@@ -82,5 +83,19 @@ class Database {
         docId: slotId.slotIdDatePart(),
         fieldKey: "slots",
         update: slotId.slotIdTimePart());
+  }
+
+  static Future<void> sendChatMessage(
+      {required String appointmentId,
+      required String type,
+      required String text,
+      String? title}) async {
+    await FirebaseFirestore.instance.collection('appointments/$appointmentId/messages').add({
+      'type': type,
+      'text': text,
+      'title': title,
+      'createdAt': DateTime.now().toIso8601String(),
+      'createdBy': FirebaseAuth.instance.currentUser!.uid,
+    });
   }
 }

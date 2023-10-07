@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/controllers/database.dart';
+import 'package:runon/models/flat_feet_options.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:runon/providers/auth.dart';
@@ -33,9 +34,10 @@ class AppointmentDetailScreen extends StatefulWidget {
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   bool isAdmin = false;
 
-  final _appointmentData = {
+  final Map<dynamic, String> _appointmentData = {
     'patient': 'Loading...',
     'patientImage': '',
+    'patient_age': 'Loading...',
     'doctor': 'Loading...',
     'doctorImage':
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6ILFjfb_VfmQr0Zd1ozwtBh_myghTAdRH2g&usqp=CAU',
@@ -50,6 +52,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         await FirebaseFirestore.instance.collection('users').doc(appointment.patientId).get();
 
     _appointmentData['patient'] = patient.data()!['fName'] + ' ' + patient.data()!['lName'];
+
+    _appointmentData['patient_age'] =
+        '${DateTime.now().year - (DateTime.parse(patient.data()!['dateOfBirth']).year)}y';
 
     _appointmentData['patientImage'] = patient.data()!['imageUrl'];
 
@@ -68,7 +73,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     // debugPrint('HELLLLLLLL${timelineFetch.docs[0]['paymentId']}');
   }
 
-  Widget _customWidgetBuilder(String type, String name, String imageUrl) {
+  Widget _customWidgetBuilder(String type, String name, String imageUrl, {Widget? trailing}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -94,6 +99,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.raleway(fontWeight: FontWeight.w600, fontSize: 18)),
             ),
+            if (trailing != null) ...[const SizedBox(width: 7), trailing]
           ],
         ),
       ],
@@ -133,7 +139,15 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _customWidgetBuilder('PATIENT', _appointmentData['patient']!,
-                            _appointmentData['patientImage']!),
+                            _appointmentData['patientImage']!,
+                            trailing: Text(
+                              _appointmentData['patient_age']!,
+                              style: GoogleFonts.roboto(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  fontStyle: FontStyle.italic,
+                                  color: Theme.of(context).colorScheme.outline),
+                            )),
                         _customWidgetBuilder('DOCTOR', _appointmentData['doctor']!,
                             _appointmentData['doctorImage']!),
                         SizedBox(
@@ -170,7 +184,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                             appointment: appointment,
                             doctorName: _appointmentData['doctor']!,
                             isAdmin: isAdmin,
-                          )
+                          ),
+                        if (appointment.isCancelled && isAdmin)
+                          _deleteAppointmentButton(appointment),
                       ],
                     ),
                   ),
@@ -344,8 +360,47 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     );
   }
 
+  Widget _deleteAppointmentButton(Appointment appointment) {
+    return OutlinedButton(
+        style: TextButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.error,
+          foregroundColor: Theme.of(context).colorScheme.onError,
+        ),
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (_) {
+                return AlertDialog(
+                  title: const Text('Delete Appointment'),
+                  content: const Text('Are you sure you want to delete this appointment?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('No')),
+                    TextButton(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          await appointment.delete();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Yes')),
+                  ],
+                );
+              });
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.delete),
+            Text('Delete Appointment'),
+          ],
+        ));
+  }
+
   bool canStartAppointment(Appointment appointment) {
-    // return true;
+    return true;
     DateTime slot = slotIdTodDateTime(appointment.slotId, withTime: true);
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
@@ -356,18 +411,19 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     return false;
   }
 
-  _uploadPrescription(String text, Appointment appointment) async {
-    if (text.isEmpty) return;
+  Future<void> _uploadPrescription(
+      String text, Appointment appointment, FeetObservations? feetObservations) async {
+    if (text.isEmpty && feetObservations == null) return;
     final prescription = await AppMethods.gneratePrescriptionPdf(
-      appointmentId: appointment.appointmentId,
-      patientName: _appointmentData['patient']!,
-      patientId: appointment.patientId,
-      doctorName: _appointmentData['doctor']!,
-      doctorId: appointment.doctorId,
-      issue: _appointmentData['issue']!,
-      date: expandSlot(appointment.slotId),
-      prescription: text,
-    );
+        appointmentId: appointment.appointmentId,
+        patientName: _appointmentData['patient']!,
+        patientId: appointment.patientId,
+        doctorName: _appointmentData['doctor']!,
+        doctorId: appointment.doctorId,
+        issue: _appointmentData['issue']!,
+        date: expandSlot(appointment.slotId),
+        prescription: text,
+        feetObservations: feetObservations);
 
     final ref = FirebaseStorage.instance
         .ref()
@@ -375,7 +431,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         .child(appointment.appointmentId + appointment.slotId);
     await ref.putFile(prescription);
     final url = await ref.getDownloadURL();
-    _generateTimeline(appointment.appointmentId, appointment.slotId, url);
+    await _generateTimeline(appointment.appointmentId, appointment.slotId, url);
   }
 
   Future<void> _generateTimeline(String appointmentId, String slotId,

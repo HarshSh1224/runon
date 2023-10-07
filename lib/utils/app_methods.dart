@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart';
+import 'package:runon/models/flat_feet_options.dart';
 import 'package:runon/utils/prescription_pdf_methods.dart';
 
 class AppMethods {
@@ -18,6 +19,7 @@ class AppMethods {
     required String issue,
     required String date,
     required String prescription,
+    FeetObservations? feetObservations,
   }) async {
     final pdf = Document();
     final image = MemoryImage(
@@ -38,7 +40,7 @@ class AppMethods {
             date: date,
             prescription: prescription,
           ),
-          GeneratePdfMethods.buildContent(prescription),
+          GeneratePdfMethods.buildContent(prescription, feetObservations),
         ];
       }),
       footer: (context) => GeneratePdfMethods.buildFooter(),
