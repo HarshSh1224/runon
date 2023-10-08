@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:runon/controllers/database.dart';
 import 'package:runon/providers/slot_timings.dart';
+import 'package:runon/utils/app_methods.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 
 enum TimelineType { appointment, consultation, cancelled }
@@ -52,11 +53,10 @@ class Appointment {
   });
 
   bool get isCancellable {
-    return timelines.last.type == TimelineType.appointment && isAfter48Hours;
+    return isActive;
   }
 
   bool get hasPassed {
-    return false;
     if (isCancelled) return true;
     DateTime slot = slotIdTodDateTime(slotId);
     String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
@@ -111,24 +111,40 @@ class Appointment {
     return issueId == 'I8' || issueId == 'I9';
   }
 
+  String? get mostRecentPaymentId {
+    return timelines.last.paymentId;
+  }
+
   Future delete() async {
     await FirebaseFirestore.instance.collection('appointments').doc(appointmentId).update({
       'archived': true,
     });
   }
 
-  cancel({String? refundId}) async {
+  Future<bool> cancel({required bool refundPayment}) async {
     try {
+      String? refundId;
+      if (refundPayment && mostRecentPaymentId != null) {
+        final response = await AppMethods.requestRazorpayRefund(paymentId: mostRecentPaymentId!);
+        if (response['status']) {
+          refundId = response['remarks'];
+        } else {
+          print('Refund error: ' + response['remarks']);
+          return false;
+        }
+      }
       await FirebaseFirestore.instance.collection('appointments/$appointmentId/timeline').add({
         'is_cancelled': true,
         'createdOn': DateTime.now().toIso8601String(),
         'slotId': slotId,
         'refund_id': refundId,
       });
-      Database.addSlotToDoctor(slotId: slotId, doctorId: doctorId);
+      await Database.addSlotToDoctor(slotId: slotId, doctorId: doctorId);
+      return true;
     } catch (error) {
       print('Cancelling appntm failed');
       debugPrint(error.toString());
+      return false;
     }
   }
 }

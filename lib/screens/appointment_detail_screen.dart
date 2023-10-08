@@ -342,13 +342,14 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           CountdownTimer(
             countTo: slotIdTodDateTime(appointment.slotId, withTime: true),
           ),
-        if (appointment.isCancellable || isAdmin && !appointment.hasPassed)
+        if (!appointment.hasPassed)
           TextButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return CancelAppointmentScreen(
                     appointment: appointment,
-                    paymentId: appointment.timelines.last.paymentId ?? '',
+                    paymentId: appointment.mostRecentPaymentId ?? '',
+                    auth: Provider.of<Auth>(context, listen: false),
                   );
                 }));
               },
@@ -400,7 +401,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   bool canStartAppointment(Appointment appointment) {
-    return true;
     DateTime slot = slotIdTodDateTime(appointment.slotId, withTime: true);
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
@@ -414,6 +414,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Future<void> _uploadPrescription(
       String text, Appointment appointment, FeetObservations? feetObservations) async {
     if (text.isEmpty && feetObservations == null) return;
+    print('Creating Prescription');
     final prescription = await AppMethods.gneratePrescriptionPdf(
         appointmentId: appointment.appointmentId,
         patientName: _appointmentData['patient']!,
@@ -441,12 +442,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         .doc(appointmentId + slotId);
 
     try {
-      await ref.set({
+      final data = {
         'createdOn': DateTime.now().toIso8601String(),
         'byDoctor': true,
-        'prescriptionList': [prescriptionUrl],
         'slotId': slotId,
-      });
+      };
+      if (prescriptionUrl != null) data['prescriptionList'] = [prescriptionUrl];
+      await ref.set(data);
     } catch (error) {
       print(error);
     }

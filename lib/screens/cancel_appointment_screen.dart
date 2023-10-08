@@ -8,12 +8,14 @@ import 'package:runon/providers/appointments.dart';
 import 'package:http/http.dart' as http;
 import 'package:runon/payment_gateway/razorpay_options.dart' as rp;
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:runon/providers/auth.dart';
 
 class CancelAppointmentScreen extends StatelessWidget {
   final Appointment appointment;
   final String paymentId;
-  CancelAppointmentScreen({required this.appointment, required this.paymentId, super.key});
+  final Auth auth;
+  CancelAppointmentScreen(
+      {required this.appointment, required this.paymentId, required this.auth, super.key});
 
   Payment? payment;
   late final theme;
@@ -40,8 +42,10 @@ class CancelAppointmentScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               _warning(context,
-                                  'You are${appointment.isCancellable ? ' ' : ' not '}eligible for a full refund',
-                                  isError: !appointment.isCancellable),
+                                  'You are${appointment.isAfter48Hours || auth.isDoctor || auth.isAdmin ? ' ' : ' not '}eligible for a full refund',
+                                  isError: !(appointment.isAfter48Hours ||
+                                      auth.isDoctor ||
+                                      auth.isAdmin)),
                               const SizedBox(
                                 height: 20,
                               ),
@@ -197,7 +201,7 @@ class CancelAppointmentScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Rs. ${appointment.isCancellable ? payment!.amount.toString() : '0'}',
+                    'Rs. ${appointment.isAfter48Hours || auth.isDoctor || auth.isAdmin ? payment!.amount.toString() : '0'}',
                     style: GoogleFonts.ubuntu(fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -289,48 +293,30 @@ class CancelAppointmentScreen extends StatelessWidget {
         builder: (_) => const Center(
               child: CircularProgressIndicator(),
             ));
-    final response = appointment.isCancellable
-        ? await _requestRazorpayRefund()
-        : {'status': true, 'remarks': null};
-    Navigator.of(context).pop();
-    if (response['status']) {
-      appointment.cancel(refundId: response['remarks']);
+    // final response = appointment.isAfter48Hours || auth.isDoctor || auth.isAdmin
+    //     ? await AppMethods.requestRazorpayRefund(paymentId: paymentId)
+    //     : {'status': true, 'remarks': null};
+    // Navigator.of(context).pop();
+    // if (response['status']) {
+    if (await appointment.cancel(
+            refundPayment: appointment.isAfter48Hours || auth.isAdmin || auth.isDoctor) ==
+        true) {
       Navigator.of(context).pop();
     } else {
       showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-                content: Text(response['remarks']),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('Ok')),
-                ],
-              ));
+        context: context,
+        builder: (_) => AlertDialog(
+          content: const Text('Something went wrong. Please try again later or contact admin.'),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Ok')),
+          ],
+        ),
+      );
     }
-  }
-
-  Future<Map<String, dynamic>> _requestRazorpayRefund() async {
-    // request razorpay to refund the amount
-    print('Requesting refund');
-    String username = rp.key;
-    String password = dotenv.env['razorpay_key_secret']!;
-    String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
-    final response = await http.post(
-      Uri.parse('https://api.razorpay.com/v1/payments/$paymentId/refund'),
-      headers: {HttpHeaders.authorizationHeader: basicAuth},
-    );
-    final responseJson = jsonDecode(response.body);
-    if (responseJson.containsKey('error')) {
-      print('Requesting refund Failed');
-      return {'status': false, 'remarks': responseJson['error']['description']};
-    } else {
-      print('Requesting refund Success');
-      return {'status': true, 'remarks': responseJson['id']};
-    }
-    // print(responseJson);
   }
 }

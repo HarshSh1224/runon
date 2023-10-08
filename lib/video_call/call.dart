@@ -22,7 +22,7 @@ class CallPage extends StatefulWidget {
 class _CallPageState extends State<CallPage> {
   bool isInit = false;
   String tempToken = "Error Please restart the video call";
-  final AgoraClient _client = AgoraClient(
+  AgoraClient _client = AgoraClient(
     agoraConnectionData: AgoraConnectionData(
       appId: appId,
       channelName: "test",
@@ -45,24 +45,24 @@ class _CallPageState extends State<CallPage> {
           (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['appointment'];
       uploadPrescription =
           (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['callback'];
-      // initAgora();
+      initAgora();
     }
     super.didChangeDependencies();
   }
 
-  // void initAgora() async {
-  //   _client = AgoraClient(
-  //       agoraConnectionData: AgoraConnectionData(
-  //           // username: ,
-  //           appId: appId,
-  //           channelName: appointment.appointmentId,
-  //           tempToken: tempToken
-  //           // tokenUrl:
-  //           //     "https://agora-node-tokenserver.run-onon1.repl.co/access_token?channelName=6pPJq7Tx2MJYX25pDjpN",
-  //           ),
-  //       enabledPermission: [Permission.camera, Permission.microphone]);
-  //   await _client.initialize();
-  // }
+  void initAgora() async {
+    _client = AgoraClient(
+        agoraConnectionData: AgoraConnectionData(
+            // username: ,
+            appId: appId,
+            channelName: appointment.appointmentId,
+            tempToken: tempToken
+            // tokenUrl:
+            //     "https://agora-node-tokenserver.run-onon1.repl.co/access_token?channelName=6pPJq7Tx2MJYX25pDjpN",
+            ),
+        enabledPermission: [Permission.camera, Permission.microphone]);
+    await _client.initialize();
+  }
 
   @override
   void dispose() async {
@@ -81,7 +81,6 @@ class _CallPageState extends State<CallPage> {
       final response = await http.get(Uri.parse(link));
       Map data = jsonDecode(response.body);
       tempToken = data["token"];
-      // initAgora();
     } catch (error) {
       debugPrint(error.toString());
     }

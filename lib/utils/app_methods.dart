@@ -1,13 +1,18 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart' as m;
 import 'package:flutter/services.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart';
 import 'package:runon/models/flat_feet_options.dart';
 import 'package:runon/utils/prescription_pdf_methods.dart';
+import 'package:runon/payment_gateway/razorpay_options.dart' as rp;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
 class AppMethods {
   static Future<File> gneratePrescriptionPdf({
@@ -92,5 +97,38 @@ class AppMethods {
     } catch (e) {
       return null;
     }
+  }
+
+  static Future<Map<String, dynamic>> requestRazorpayRefund({required String paymentId}) async {
+    // request razorpay to refund the amount
+
+    // Returns a map with 'status' : bool and 'remarks' : String. Remarks will be paymentId if status is true else error description
+
+    try {
+      print('https://api.razorpay.com/v1/payments/$paymentId/refund');
+      print('Requesting refund');
+      String username = rp.key;
+      String password = dotenv.env['razorpay_key_secret']!;
+      String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+      final response = await http.post(
+        Uri.parse('https://api.razorpay.com/v1/payments/$paymentId/refund'),
+        headers: {HttpHeaders.authorizationHeader: basicAuth},
+      );
+      // print(response.body.length);
+      final responseJson = jsonDecode(response.body);
+      if (responseJson.containsKey('error')) {
+        print('Refund error: ');
+        m.debugPrint(responseJson['error']);
+        print('Requesting refund Failedddd');
+        return {'status': false, 'remarks': responseJson['error']['description']};
+      } else {
+        print('Requesting refund Success');
+        return {'status': true, 'remarks': responseJson['id']};
+      }
+    } catch (e) {
+      print(e);
+      return {'status': false, 'remarks': 'Something went wrong'};
+    }
+    // print(responseJson);
   }
 }
