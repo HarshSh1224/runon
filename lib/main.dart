@@ -133,7 +133,9 @@ class _MyAppState extends State<MyApp> {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               return !snapshot.hasData
-                  ? const HomePage()
+                  ? HomePage(
+                      toggleTheme: toggleTheme,
+                    )
                   : FutureBuilder(
                       future: auth.tryLogin(),
                       builder: (context, snapshot) {
@@ -144,7 +146,11 @@ class _MyAppState extends State<MyApp> {
                               )
                             : auth.type == 1
                                 ? DoctorScreen()
-                                : (auth.type == 2 ? AdminScreen() : const HomePage());
+                                : (auth.type == 2
+                                    ? AdminScreen()
+                                    : HomePage(
+                                        toggleTheme: toggleTheme,
+                                      ));
                       },
                     );
             },

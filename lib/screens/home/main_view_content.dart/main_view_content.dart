@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:runon/providers/auth.dart';
 import 'package:runon/screens/home/data/youtube_data.dart' as yt;
 import 'package:runon/screens/home/widgets/our_team.dart';
+import 'package:runon/screens/login.dart';
+import 'package:runon/screens/patient/add_appointment.dart';
+import 'package:runon/screens/youtube_player_screen.dart';
 
 class MainViewContent extends StatefulWidget {
   const MainViewContent({super.key});
@@ -58,10 +63,19 @@ class _MainViewContentState extends State<MainViewContent> {
       child: Row(
         children: [
           const SizedBox(width: 10),
-          ..._consultOptions.map((e) => _card(
-              height: 120,
-              width: 180,
-              child: _consultCard(context: context, title: e['title'], image: e['image']))),
+          ..._consultOptions.map((e) => GestureDetector(
+                onTap: () {
+                  if (Provider.of<Auth>(context, listen: false).isAuth) {
+                    Navigator.pushNamed(context, AddAppointment.routeName);
+                  } else {
+                    Navigator.pushNamed(context, LoginScreen.routeName);
+                  }
+                },
+                child: _card(
+                    height: 120,
+                    width: 180,
+                    child: _consultCard(context: context, title: e['title'], image: e['image'])),
+              )),
         ],
       ),
     );
@@ -94,31 +108,36 @@ class _MainViewContentState extends State<MainViewContent> {
     );
   }
 
-  Column _youtubeCard(e) {
-    return Column(
-      children: [
-        _card(
-          height: 180,
-          width: 250,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(e['thumb'], fit: BoxFit.cover),
-          ),
-        ),
-        Transform.translate(
-          offset: const Offset(0, -10),
-          child: SizedBox(
+  Widget _youtubeCard(e) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, YoutubePlayerScreen.routeName, arguments: e['url']);
+      },
+      child: Column(
+        children: [
+          _card(
+            height: 180,
             width: 250,
-            child: Text(
-              e['title'],
-              style: GoogleFonts.sen(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-              ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(e['thumb'], fit: BoxFit.cover),
             ),
           ),
-        )
-      ],
+          Transform.translate(
+            offset: const Offset(0, -10),
+            child: SizedBox(
+              width: 250,
+              child: Text(
+                e['title'],
+                style: GoogleFonts.sen(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 

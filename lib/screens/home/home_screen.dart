@@ -10,7 +10,8 @@ import 'package:runon/screens/patient/patient_screen.dart';
 import 'package:runon/widgets/clip_paths.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final Function() toggleTheme;
+  const HomePage({required this.toggleTheme, super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -76,30 +77,47 @@ class _HomePageState extends State<HomePage> {
             child: SafeArea(
               child: Opacity(
                 opacity: 1,
-                child: GestureDetector(
-                  onTap: () {
-                    if (auth.isAuth) {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        return auth.type == 2
-                            ? AdminScreen()
-                            : (auth.type == 1 ? DoctorScreen() : PatientScreen());
-                      }));
-                    } else {
-                      Navigator.push(
-                          context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-                    }
-                  },
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    backgroundImage: Image.network(
-                      auth.imageUrl ?? AppConstants.blankProfileImage,
-                      fit: BoxFit.cover,
-                    ).image,
-                  ),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (auth.isAuth) {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            return auth.type == 2
+                                ? AdminScreen()
+                                : (auth.type == 1 ? DoctorScreen() : PatientScreen());
+                          }));
+                        } else {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => const LoginScreen()));
+                        }
+                      },
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        backgroundImage: Image.network(
+                          auth.imageUrl ?? AppConstants.blankProfileImage,
+                          fit: BoxFit.cover,
+                        ).image,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
+          ),
+          Positioned(
+            top: 15,
+            left: 13,
+            // child: SafeArea(
+            child: IconButton(
+                onPressed: widget.toggleTheme,
+                icon: const Icon(
+                  Icons.brightness_6,
+                  size: 20,
+                  color: Color.fromARGB(255, 159, 159, 159),
+                )),
+            // ),
           ),
         ],
       ),

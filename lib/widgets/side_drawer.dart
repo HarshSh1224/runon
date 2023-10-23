@@ -1,6 +1,4 @@
-
 import 'package:runon/providers/auth.dart';
-import 'package:runon/screens/home/home_screen.dart';
 import 'package:runon/screens/patient/add_appointment.dart';
 import 'package:runon/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
@@ -127,11 +125,11 @@ class SideDrawer extends StatelessWidget {
                           color: Colors.white,
                           size: 25,
                         ), () async {
-                      var page = await Future.microtask(() {
-                        return const HomePage();
-                      });
-                      var route = MaterialPageRoute(builder: (_) => page);
-                      Navigator.push(context, route);
+                      // var page = await Future.microtask(() {
+                      //   // return const HomePage();
+                      // });
+                      // var route = MaterialPageRoute(builder: (_) => page);
+                      // Navigator.push(context, route);
                     }),
                     const SizedBox(
                       height: 20,
