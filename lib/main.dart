@@ -11,6 +11,7 @@ import 'package:runon/providers/issue_data.dart';
 import 'package:runon/providers/slots.dart';
 import 'package:runon/providers/temp_provider.dart';
 import 'package:runon/screens/about_us_screen.dart';
+import 'package:runon/screens/home/home_screen.dart';
 import 'package:runon/screens/patient/add_appointment.dart';
 import 'package:runon/screens/admin/admin_appointments.dart';
 import 'package:runon/screens/admin/user_feedbacks.dart';
@@ -122,7 +123,7 @@ class _MyAppState extends State<MyApp> {
       child: Consumer<Auth>(builder: (context, auth, ch) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
+          title: 'Healthy Aayu',
           theme: ThemeData(
             brightness: themeBrightness,
             useMaterial3: true,
@@ -132,7 +133,7 @@ class _MyAppState extends State<MyApp> {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               return !snapshot.hasData
-                  ? const LoginScreen()
+                  ? const HomePage()
                   : FutureBuilder(
                       future: auth.tryLogin(),
                       builder: (context, snapshot) {
@@ -143,7 +144,7 @@ class _MyAppState extends State<MyApp> {
                               )
                             : auth.type == 1
                                 ? DoctorScreen()
-                                : (auth.type == 2 ? AdminScreen() : PatientScreen());
+                                : (auth.type == 2 ? AdminScreen() : const HomePage());
                       },
                     );
             },

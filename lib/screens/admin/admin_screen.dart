@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:runon/misc/constants/app_constants.dart';
 import 'package:runon/providers/auth.dart';
 import '../../widgets/clip_paths.dart';
 import '../profile_screen.dart';
@@ -33,9 +34,7 @@ class AdminScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: CircleAvatar(
-              backgroundImage: Image.network(user.imageUrl ??
-                      'https://firebasestorage.googleapis.com/v0/b/runon-c2c2e.appspot.com/o/profilePics%2Fdefault.jpg?alt=media&token=dbbd8628-1910-40dd-a2cc-fdf9ba86278e')
-                  .image,
+              backgroundImage: Image.network(user.imageUrl ?? AppConstants.blankProfileImage).image,
             ),
             onPressed: () {
               Navigator.of(context).pushNamed(ProfileScreen.routeName);

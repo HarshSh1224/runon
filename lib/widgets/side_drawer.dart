@@ -1,9 +1,6 @@
-import 'dart:io';
 
-import 'package:open_file_plus/open_file_plus.dart';
-import 'package:runon/models/flat_feet_options.dart';
 import 'package:runon/providers/auth.dart';
-import 'package:runon/screens/about_us_screen.dart';
+import 'package:runon/screens/home/home_screen.dart';
 import 'package:runon/screens/patient/add_appointment.dart';
 import 'package:runon/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:runon/screens/doctor/doctor_screen.dart';
 import 'package:runon/screens/patient/patient_screen.dart';
 import 'package:runon/screens/profile_screen.dart';
-import 'package:runon/utils/app_methods.dart';
 
 class SideDrawer extends StatelessWidget {
   const SideDrawer({super.key});
@@ -132,24 +128,9 @@ class SideDrawer extends StatelessWidget {
                           size: 25,
                         ), () async {
                       var page = await Future.microtask(() {
-                        return const AboutUsScreen();
+                        return const HomePage();
                       });
                       var route = MaterialPageRoute(builder: (_) => page);
-                      File pdf = await AppMethods.gneratePrescriptionPdf(
-                          appointmentId: 'appointmentId',
-                          patientName: 'patientName',
-                          patientId: 'patientId',
-                          doctorName: 'doctorName',
-                          doctorId: 'doctorId',
-                          issue: 'issue',
-                          date: 'date',
-                          prescription: 'prescription',
-                          feetObservations: FeetObservations(
-                            flatFeet: true,
-                            highArched: true,
-                            rightBowLeg: true,
-                          ));
-                      OpenFile.open(pdf.path);
                       Navigator.push(context, route);
                     }),
                     const SizedBox(

@@ -108,6 +108,7 @@ class Auth with ChangeNotifier {
         imageUrl = userDataLogin['imageUrl'];
 
         // print('FETCHED IMAGE URL $imageUrl');
+        // notifyListeners();
       } catch (error) {
         rethrow;
       }
