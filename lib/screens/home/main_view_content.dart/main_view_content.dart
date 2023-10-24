@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/screens/home/data/youtube_data.dart' as yt;
+import 'package:runon/screens/home/data/consult_options.dart';
 import 'package:runon/screens/home/widgets/our_team.dart';
 import 'package:runon/screens/login.dart';
 import 'package:runon/screens/patient/add_appointment.dart';
@@ -16,21 +17,6 @@ class MainViewContent extends StatefulWidget {
 }
 
 class _MainViewContentState extends State<MainViewContent> {
-  final List<Map> _consultOptions = [
-    {
-      'title': 'Flat Feet',
-      'image': 'assets/images/icons/flat_feet.png',
-    },
-    {
-      'title': 'Knock Knees',
-      'image': 'assets/images/icons/knock_knees.png',
-    },
-    {
-      'title': 'Flat Feet',
-      'image': 'assets/images/icons/flat_feet.png',
-    },
-  ];
-
   final List<String> _tags = ['Flexibility', 'Strength', 'Agility', 'Badminton', 'Cricket'];
   int selectedTag = 0;
 
@@ -63,7 +49,7 @@ class _MainViewContentState extends State<MainViewContent> {
       child: Row(
         children: [
           const SizedBox(width: 10),
-          ..._consultOptions.map((e) => GestureDetector(
+          ...consultOptions.map((e) => GestureDetector(
                 onTap: () {
                   if (Provider.of<Auth>(context, listen: false).isAuth) {
                     Navigator.pushNamed(context, AddAppointment.routeName);
@@ -277,7 +263,7 @@ class _MainViewContentState extends State<MainViewContent> {
             ),
           ),
           Positioned(
-            bottom: 20,
+            bottom: 10,
             right: 20,
             child: MediaQuery(
               data: MediaQuery.of(context).copyWith(

@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.background),
                 ),
-                const SizedBox(height: 100),
+                const SizedBox(height: 80),
                 _clipPath(context),
                 _form(context),
               ],
@@ -138,8 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: StatefulBuilder(builder: (context, setState) {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-              child: Expanded(
-                child: OutlinedButton(
+              child: OutlinedButton(
                   onPressed: () {
                     Navigator.of(context).pushNamed(SignupScreen.routeName);
                   },
@@ -173,7 +172,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                     ),
                   ),
-                ),
               ),
             );
           }),
@@ -197,8 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: StatefulBuilder(builder: (context, setState) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-          child: Expanded(
-            child: FilledButton(
+          child: FilledButton(
               onPressed: () {
                 _submit(context, setState);
               },
@@ -229,7 +226,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                   )),
             ),
-          ),
         );
       }),
     );
