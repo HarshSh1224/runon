@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
             opacity: 0.3,
             child: Image.asset(
               'assets/images/3_doctors.jpeg',
-              height: 500,
+              height: 300,
               fit: BoxFit.fitHeight,
             ),
           ),
@@ -59,23 +59,25 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 180),
-                Text(
-                  '    Welcome',
-                  style: GoogleFonts.ubuntu(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.background),
-                ),
-                Text(
-                  '    Back',
-                  style: GoogleFonts.ubuntu(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.background),
-                ),
-                const SizedBox(height: 80),
+                const SizedBox(height: 250),
                 _clipPath(context),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(30),
+                  color: Theme.of(context).colorScheme.background,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Welcome\nBack',
+                        style: GoogleFonts.ubuntu(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onBackground),
+                      ),
+                    ],
+                  ),
+                ),
                 _form(context),
               ],
             ),
@@ -139,39 +141,39 @@ class _LoginScreenState extends State<LoginScreen> {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
               child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(SignupScreen.routeName);
-                  },
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                      Theme.of(context).colorScheme.outline,
-                    ),
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(SignupScreen.routeName);
+                },
+                style: ButtonStyle(
+                  foregroundColor: MaterialStateProperty.all<Color>(
+                    Theme.of(context).colorScheme.outline,
+                  ),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: _isLoading
-                          ? Center(
-                              child: SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Theme.of(context).colorScheme.primaryContainer,
-                              ),
-                            ))
-                          : const Text(
-                              'SIGN UP',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 17),
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: _isLoading
+                        ? Center(
+                            child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Theme.of(context).colorScheme.primaryContainer,
                             ),
-                    ),
+                          ))
+                        : const Text(
+                            'SIGN UP',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 17),
+                          ),
                   ),
+                ),
               ),
             );
           }),
@@ -196,36 +198,36 @@ class _LoginScreenState extends State<LoginScreen> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
           child: FilledButton(
-              onPressed: () {
-                _submit(context, setState);
-              },
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+            onPressed: () {
+              _submit(context, setState);
+            },
+            style: ButtonStyle(
+              shape: MaterialStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
-              child: SizedBox(
-                  width: double.infinity,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: _isLoading
-                        ? Center(
-                            child: SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Theme.of(context).colorScheme.primaryContainer,
-                            ),
-                          ))
-                        : const Text(
-                            'LOGIN',
-                            style: TextStyle(fontSize: 17),
-                            textAlign: TextAlign.center,
-                          ),
-                  )),
             ),
+            child: SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: _isLoading
+                      ? Center(
+                          child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.primaryContainer,
+                          ),
+                        ))
+                      : const Text(
+                          'LOGIN',
+                          style: TextStyle(fontSize: 17),
+                          textAlign: TextAlign.center,
+                        ),
+                )),
+          ),
         );
       }),
     );

@@ -45,9 +45,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<Auth>(
-      context,
-    );
+    final auth = Provider.of<Auth>(context);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.onBackground,
       body: Stack(
@@ -124,25 +122,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-// StreamBuilder<User?>(
-//             stream: FirebaseAuth.instance.authStateChanges(),
-//             builder: (context, snapshot) {
-//               return !snapshot.hasData
-//                   ? const LoginScreen()
-//                   : FutureBuilder(
-//                       future: auth.tryLogin(),
-//                       builder: (context, snapshot) {
-//                         // print(FirebaseAuth.instance.currentUser!.uid);
-//                         return snapshot.connectionState == ConnectionState.waiting
-//                             ? const Scaffold(
-//                                 body: Center(child: CircularProgressIndicator()),
-//                               )
-//                             : auth.type == 1
-//                                 ? DoctorScreen()
-//                                 : (auth.type == 2 ? AdminScreen() : PatientScreen());
-//                       },
-//                     );
-//             },
-//           ),
-

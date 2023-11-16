@@ -9,6 +9,7 @@ extension UserTypeExtension on String {
 class Database {
   static const String _slotsCollection = "slots";
   static const String _doctorsCollection = "doctors";
+  static const String _youtubeFeed = "youtube_feed";
 
   static Future<Map<String, dynamic>> downloadDoc(
       {required String collection, required String docId}) async {
@@ -97,5 +98,20 @@ class Database {
       'createdAt': DateTime.now().toIso8601String(),
       'createdBy': FirebaseAuth.instance.currentUser!.uid,
     });
+  }
+
+  static Future<List<Map<String, dynamic>>> downloadYoutubeFeed() async {
+    List<Map<String, dynamic>> youtubeFeed = [];
+    try {
+      final response = await FirebaseFirestore.instance.collection(_youtubeFeed).get();
+      for (int i = 0; i < response.docs.length; i++) {
+        final element = response.docs[i];
+        youtubeFeed.add(element.data());
+      }
+      return youtubeFeed;
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
   }
 }

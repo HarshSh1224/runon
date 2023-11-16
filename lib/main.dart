@@ -10,6 +10,7 @@ import 'package:runon/providers/exercise_docs.dart';
 import 'package:runon/providers/issue_data.dart';
 import 'package:runon/providers/slots.dart';
 import 'package:runon/providers/temp_provider.dart';
+import 'package:runon/providers/youtube_feed.dart';
 import 'package:runon/screens/about_us_screen.dart';
 import 'package:runon/screens/home/home_screen.dart';
 import 'package:runon/screens/patient/add_appointment.dart';
@@ -118,6 +119,9 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider(
           create: (_) => ExerciseDocuments(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => YoutubeFeed(),
         ),
       ],
       child: Consumer<Auth>(builder: (context, auth, ch) {

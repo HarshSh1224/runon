@@ -46,107 +46,120 @@ class ForgotPasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(40.0),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formkey,
-            child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              Center(
-                child: SizedBox(
+    return Stack(
+      children: [
+        Image.asset(
+          'assets/images/olymp_bg.jpg',
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          fit: BoxFit.cover,
+        ),
+        Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.8),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formkey,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                  Center(
+                    child: SizedBox(
+                        height: 200,
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.fitWidth,
+                        )),
+                  ),
+                  Row(
+                    children: const [
+                      Text(
+                        'Enter your registered email',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: const [
+                      Text(
+                        'A reset password link will be sent to this email',
+                        style: TextStyle(
+                          fontFamily: 'Raleway',
+                          // fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                    controller: emailController,
+                    style: const TextStyle(fontFamily: 'Raleway', fontWeight: FontWeight.w700),
+                    keyboardType: TextInputType.emailAddress,
+                    // maxLength: 20,
+                    decoration: const InputDecoration(
+                        labelText: 'Email',
+                        labelStyle: TextStyle(fontFamily: 'Raleway'),
+                        border: OutlineInputBorder()
+                        // border: OutlineInputBorder(),
+                        // contentPadding: EdgeInsets.symmetric(vertical: ),
+                        ),
+                    validator: (value) {
+                      if (value!.isEmpty || !value.contains('@')) {
+                        return 'Invalid email!';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      // _formData['email'] = value!;
+                    },
+                    // style: TextStyle(fontSize: 10),
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  StatefulBuilder(builder: (context, setState) {
+                    return FilledButton(
+                      onPressed: () {
+                        _submit(context, setState);
+                      },
+                      // onPressed: !_isLogin && !agree ? null : _submit,
+                      // style: ElevatedButton.styleFrom(
+                      //     backgroundColor:
+                      //         Theme.of(context).colorScheme.onPrimaryContainer,
+                      //     foregroundColor:
+                      //         Theme.of(context).colorScheme.onSecondary),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        child: _isLoading
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ))
+                            : const Text(
+                                'Continue',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 18, fontFamily: 'MoonBold'),
+                              ),
+                      ),
+                    );
+                  }),
+                  const SizedBox(
                     height: 200,
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      fit: BoxFit.fitWidth,
-                    )),
-              ),
-              Row(
-                children: const [
-                  Text(
-                    'Enter your registered email',
                   ),
-                ],
+                ]),
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: const [
-                  Text(
-                    'A reset password link will be sent to this email',
-                    style: TextStyle(
-                      fontFamily: 'Raleway',
-                      // fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              // EmailTextFormField(emailController),
-              TextFormField(
-                controller: emailController,
-                style: const TextStyle(fontFamily: 'Raleway', fontWeight: FontWeight.w700),
-                keyboardType: TextInputType.emailAddress,
-                // maxLength: 20,
-                decoration: const InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: TextStyle(fontFamily: 'Raleway'),
-                    border: OutlineInputBorder()
-                    // border: OutlineInputBorder(),
-                    // contentPadding: EdgeInsets.symmetric(vertical: ),
-                    ),
-                validator: (value) {
-                  if (value!.isEmpty || !value.contains('@')) {
-                    return 'Invalid email!';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  // _formData['email'] = value!;
-                },
-                // style: TextStyle(fontSize: 10),
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              StatefulBuilder(builder: (context, setState) {
-                return FilledButton(
-                  onPressed: () {
-                    _submit(context, setState);
-                  },
-                  // onPressed: !_isLogin && !agree ? null : _submit,
-                  // style: ElevatedButton.styleFrom(
-                  //     backgroundColor:
-                  //         Theme.of(context).colorScheme.onPrimaryContainer,
-                  //     foregroundColor:
-                  //         Theme.of(context).colorScheme.onSecondary),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(10),
-                    child: _isLoading
-                        ? Center(
-                            child: CircularProgressIndicator(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ))
-                        : const Text(
-                            'Continue',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 18, fontFamily: 'MoonBold'),
-                          ),
-                  ),
-                );
-              }),
-              const SizedBox(
-                height: 200,
-              ),
-            ]),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

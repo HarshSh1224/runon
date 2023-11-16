@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
-import 'package:runon/screens/home/data/youtube_data.dart' as yt;
 import 'package:runon/screens/home/data/consult_options.dart';
+import 'package:runon/screens/home/widgets/explore_section.dart';
 import 'package:runon/screens/home/widgets/our_team.dart';
 import 'package:runon/screens/login.dart';
 import 'package:runon/screens/patient/add_appointment.dart';
-import 'package:runon/screens/youtube_player_screen.dart';
 
 class MainViewContent extends StatefulWidget {
   const MainViewContent({super.key});
@@ -17,9 +16,6 @@ class MainViewContent extends StatefulWidget {
 }
 
 class _MainViewContentState extends State<MainViewContent> {
-  final List<String> _tags = ['Flexibility', 'Strength', 'Agility', 'Badminton', 'Cricket'];
-  int selectedTag = 0;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,9 +25,7 @@ class _MainViewContentState extends State<MainViewContent> {
         children: [
           _subHeading('Consult'),
           _consultRow(),
-          _subHeading('Explore'),
-          _tagsRow(),
-          _youtubeRow(),
+          const ExploreSection(),
           const SizedBox(
             height: 20,
           ),
@@ -62,66 +56,6 @@ class _MainViewContentState extends State<MainViewContent> {
                     width: 180,
                     child: _consultCard(context: context, title: e['title'], image: e['image'])),
               )),
-        ],
-      ),
-    );
-  }
-
-  SingleChildScrollView _tagsRow() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          const SizedBox(width: 10),
-          for (int i = 0; i < _tags.length; i++) tag(_tags[i], border: i == selectedTag)
-        ],
-      ),
-    );
-  }
-
-  SingleChildScrollView _youtubeRow() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(width: 10),
-          ...yt.youtubeVideos.map(
-            (e) => _youtubeCard(e),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _youtubeCard(e) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, YoutubePlayerScreen.routeName, arguments: e['url']);
-      },
-      child: Column(
-        children: [
-          _card(
-            height: 180,
-            width: 250,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(e['thumb'], fit: BoxFit.cover),
-            ),
-          ),
-          Transform.translate(
-            offset: const Offset(0, -10),
-            child: SizedBox(
-              width: 250,
-              child: Text(
-                e['title'],
-                style: GoogleFonts.sen(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          )
         ],
       ),
     );
@@ -159,7 +93,7 @@ class _MainViewContentState extends State<MainViewContent> {
                       height: 10,
                     ),
                     Text(
-                      'Browse our curated plans for shools or organisations for onsite camps/mass consultation',
+                      'Browse our curated plans for schools or organisations for onsite camps/mass consultation',
                       style: GoogleFonts.sen(color: Colors.white, fontSize: 12),
                       textAlign: TextAlign.center,
                     ),
@@ -183,21 +117,6 @@ class _MainViewContentState extends State<MainViewContent> {
             ),
           )
         ],
-      ),
-    );
-  }
-
-  Widget tag(text, {border = false}) {
-    return GestureDetector(
-      onTap: () => setState(() {
-        selectedTag = _tags.indexOf(text);
-      }),
-      child: _card(
-        border: border,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(text, style: GoogleFonts.raleway(fontWeight: FontWeight.w700)),
-        ),
       ),
     );
   }
