@@ -100,6 +100,7 @@ class Slots with ChangeNotifier {
   }
 
   removeSlot(String date, String slot, String doctorId) async {
+    slot = int.parse(slot).toString();
     List<String> slotsList = _slots[date] == null ? [] : [..._slots[date]!];
     slotsList.removeWhere((element) => element == slot);
 
