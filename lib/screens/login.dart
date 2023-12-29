@@ -39,6 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  bool get kIsWeb {
+    return MediaQuery.of(context).size.height <= MediaQuery.of(context).size.width;
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<Auth>(context);
@@ -51,36 +55,31 @@ class _LoginScreenState extends State<LoginScreen> {
             opacity: 0.3,
             child: Image.asset(
               'assets/images/3_doctors.jpeg',
-              height: 300,
-              fit: BoxFit.fitHeight,
+              height: kIsWeb ? MediaQuery.of(context).size.height : 300,
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.cover,
+              alignment: Alignment.topCenter,
             ),
           ),
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 250),
-                _clipPath(context),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(30),
-                  color: Theme.of(context).colorScheme.background,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Welcome\nBack',
-                        style: GoogleFonts.ubuntu(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onBackground),
+          Row(
+            children: [
+              if (kIsWeb) Expanded(flex: 5, child: Container()),
+              Expanded(
+                flex: 4,
+                child: kIsWeb
+                    ? _form(context)
+                    : SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 250),
+                            _clipPath(context),
+                            _form(context),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-                _form(context),
-              ],
-            ),
+              ),
+            ],
           ),
           Positioned(
             left: 15,
@@ -114,21 +113,43 @@ class _LoginScreenState extends State<LoginScreen> {
     return Form(
       key: _formKey,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 30.0),
-        color: Theme.of(context).colorScheme.background,
+        padding: EdgeInsets.symmetric(horizontal: kIsWeb ? 70 : 30.0),
+        color: Theme.of(context).colorScheme.background.withOpacity(kIsWeb ? 0.8 : 1),
         child: Column(
           children: [
+            if (kIsWeb) Expanded(child: Container()),
+            _welcomeBack(context),
+            const SizedBox(height: 30),
             _emailField(context),
             const SizedBox(height: 10),
             _passwordField(context),
             _forgotPassword(context),
-            const SizedBox(height: 30),
+            if (kIsWeb) Expanded(child: Container()),
             _loginButton(),
             _or(),
             _signupButton(),
-            const SizedBox(height: 20)
+            const SizedBox(height: 20),
           ],
         ),
+      ),
+    );
+  }
+
+  Container _welcomeBack(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(right: 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Welcome\nBack',
+            style: GoogleFonts.ubuntu(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onBackground),
+          ),
+        ],
       ),
     );
   }
