@@ -11,6 +11,11 @@ class Slots with ChangeNotifier {
     return {..._slots};
   }
 
+  bool isScheduled(String date, String slot) {
+    slot = int.parse(slot).toString();
+    return _slots.containsKey(date) && _slots[date]!.contains(slot.toString());
+  }
+
   bool get isEmpty {
     return _slots.isEmpty;
   }
@@ -94,6 +99,8 @@ class Slots with ChangeNotifier {
           .collection('doctors/$doctorId/slots')
           .doc(date)
           .set({'slots': slotsList});
+      _slots[date] = slotsList;
+      notifyListeners();
     } catch (e) {
       print(e);
     }
@@ -107,12 +114,15 @@ class Slots with ChangeNotifier {
     try {
       if (slotsList.isEmpty) {
         await FirebaseFirestore.instance.collection('doctors/$doctorId/slots').doc(date).delete();
+        _slots[date] = [];
       } else {
         await FirebaseFirestore.instance
             .collection('doctors/$doctorId/slots')
             .doc(date)
             .set({'slots': slotsList});
+        _slots[date] = slotsList;
       }
+      notifyListeners();
     } catch (e) {
       print(e);
     }

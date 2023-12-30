@@ -47,18 +47,21 @@ class _DoctorsDropdownState extends State<DoctorsDropdown> {
         ...widget.doctors.doctors.map((e) {
           return DropdownMenuItem(
             value: e.id,
-            child: Row(
-              children: [
-                Text(e.name),
-                const SizedBox(
-                  width: 7,
-                ),
-                Text(
-                  '(${e.qualifications})',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.outline, fontStyle: FontStyle.italic),
-                ),
-              ],
+            child: FittedBox(
+              child: Row(
+                children: [
+                  Text(e.name),
+                  const SizedBox(
+                    width: 7,
+                  ),
+                  Text(
+                    '(${e.qualifications})',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.outline, fontStyle: FontStyle.italic),
+                  ),
+                ],
+              ),
             ),
           );
         }),

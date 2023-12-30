@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:provider/provider.dart';
-import 'package:runon/screens/chats_screen.dart';
 import 'package:runon/screens/patient/my_appointments.dart';
 import 'package:runon/widgets/user_detail_card.dart';
-import 'package:runon/screens/documents_screen.dart';
 import 'package:runon/screens/feedback_screen.dart';
 import 'package:runon/screens/about_us_screen.dart';
 
@@ -85,22 +83,22 @@ class ProfileScreen extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(children: [
-                          ListTile(
-                            title: const Text('Messages'),
-                            onTap: () {
-                              Navigator.of(context).pushNamed(ChatsScreen.routeName);
-                            },
-                            leading: const Icon(Icons.chat),
-                            trailing: const Icon(Icons.chevron_right_sharp),
-                          ),
-                          ListTile(
-                            title: const Text('Documents'),
-                            onTap: () {
-                              Navigator.of(context).pushNamed(AllDocumentsScreen.routeName);
-                            },
-                            leading: const Icon(Icons.file_present_rounded),
-                            trailing: const Icon(Icons.chevron_right_sharp),
-                          ),
+                          // ListTile(
+                          //   title: const Text('Messages'),
+                          //   onTap: () {
+                          //     Navigator.of(context).pushNamed(ChatsScreen.routeName);
+                          //   },
+                          //   leading: const Icon(Icons.chat),
+                          //   trailing: const Icon(Icons.chevron_right_sharp),
+                          // ),
+                          // ListTile(
+                          //   title: const Text('Documents'),
+                          //   onTap: () {
+                          //     Navigator.of(context).pushNamed(AllDocumentsScreen.routeName);
+                          //   },
+                          //   leading: const Icon(Icons.file_present_rounded),
+                          //   trailing: const Icon(Icons.chevron_right_sharp),
+                          // ),
                           ListTile(
                             title: const Text('Previous Appointments'),
                             onTap: () {
