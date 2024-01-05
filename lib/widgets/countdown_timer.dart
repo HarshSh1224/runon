@@ -45,6 +45,12 @@ class _CountdownTimerState extends State<CountdownTimer> {
   }
 
   @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Text(
       'Time Remaining: $_timerString',
