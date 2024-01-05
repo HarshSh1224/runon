@@ -41,7 +41,6 @@ import 'package:runon/screens/admin/manage_med_team.dart';
 import 'package:runon/screens/admin/manage_issues.dart';
 import 'package:runon/screens/admin/add_medical_team.dart';
 import 'package:runon/screens/youtube_player_screen.dart';
-import 'package:runon/video_call/call.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
@@ -180,7 +179,6 @@ class _MyAppState extends State<MyApp> {
             DoctorScreen.routeName: (ctx) => DoctorScreen(),
             MyAppointmentsScreenDoctor.routeName: (ctx) => MyAppointmentsScreenDoctor(),
             ManageSlotsScreen.routeName: (ctx) => const ManageSlotsScreen(),
-            CallPage.routeName: (ctx) => const CallPage(),
             AdminScreen.routeName: (ctx) => AdminScreen(),
             ManageMedicalTeam.routeName: (ctx) => const ManageMedicalTeam(),
             MedicalTeamsScreen.routeName: (ctx) => MedicalTeamsScreen(),

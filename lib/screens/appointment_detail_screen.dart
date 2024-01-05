@@ -15,7 +15,6 @@ import 'package:runon/screens/cancel_appointment_screen.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
 import 'package:runon/utils/app_methods.dart';
-import 'package:runon/video_call/call.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
 import 'package:runon/widgets/attachment_card.dart';
@@ -325,8 +324,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                     if (widget.isDoctor) {
                       await _generateTimeline(appointment.appointmentId, appointment.slotId);
                     }
-                    Navigator.of(context).pushNamed(CallPage.routeName,
-                        arguments: {'appointment': appointment, 'callback': _uploadPrescription});
+                    // Navigator.of(context).pushNamed(CallPage.routeName,
+                    //     arguments: {'appointment': appointment, 'callback': _uploadPrescription});
                   },
             child: Padding(
               padding: const EdgeInsets.all(10.0),

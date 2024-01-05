@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:runon/controllers/database.dart';
+import 'package:runon/misc/constants/app_constants.dart';
 import 'package:runon/providers/slot_timings.dart';
 import 'package:runon/utils/app_methods.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
@@ -29,6 +30,49 @@ class Timeline {
     this.isMissed = false,
     this.refundId,
   });
+
+  // define tomap and from map
+
+  Map<String, dynamic> toMap() {
+    final json = {
+      AppConstants.createdOn: createdOn.toIso8601String(),
+      AppConstants.paymentId: paymentId,
+      AppConstants.paymentAmount: paymentAmount,
+      AppConstants.prescriptionList: prescriptionList,
+      AppConstants.slotId: slotId,
+      AppConstants.isMissed: isMissed,
+      AppConstants.byDoctor: byDoctor,
+      AppConstants.refundId: refundId,
+    };
+
+    if (type == TimelineType.cancelled) {
+      json[AppConstants.isCancelled] = true;
+    } else if (type == TimelineType.consultation) {
+      json[AppConstants.byDoctor] = true;
+    }
+
+    return json;
+  }
+
+  factory Timeline.fromMap(Map<String, dynamic> json) {
+    return Timeline(
+      type: json.containsKey(AppConstants.isCancelled)
+          ? TimelineType.cancelled
+          : json.containsKey(AppConstants.byDoctor)
+              ? TimelineType.consultation
+              : TimelineType.appointment,
+      createdOn: DateTime.parse(json[AppConstants.createdOn]),
+      paymentId: json[AppConstants.paymentId],
+      paymentAmount: json[AppConstants.paymentAmount],
+      prescriptionList: json.containsKey(AppConstants.prescriptionList)
+          ? json[AppConstants.prescriptionList].map<String>((e) => '$e').toList()
+          : [],
+      slotId: json[AppConstants.slotId],
+      isMissed: json[AppConstants.isMissed],
+      byDoctor: json[AppConstants.byDoctor] ?? false,
+      refundId: json[AppConstants.refundId],
+    );
+  }
 }
 
 class Appointment {
@@ -37,7 +81,6 @@ class Appointment {
   String doctorId;
   String issueId;
   String slotId;
-  String? prescriptionId;
   List<Timeline> timelines;
   List<String>? reports;
 
@@ -48,9 +91,33 @@ class Appointment {
     required this.issueId,
     required this.slotId,
     required this.timelines,
-    this.prescriptionId,
     this.reports,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      AppConstants.appointmentId: appointmentId,
+      AppConstants.patientId: patientId,
+      AppConstants.doctorId: doctorId,
+      AppConstants.issueId: issueId,
+      AppConstants.slotId: slotId,
+      AppConstants.reportUrl: reports,
+    };
+  }
+
+  factory Appointment.fromMap(Map<String, dynamic> json) {
+    return Appointment(
+      appointmentId: json[AppConstants.appointmentId],
+      patientId: json[AppConstants.patientId],
+      doctorId: json[AppConstants.doctorId],
+      issueId: json[AppConstants.issueId],
+      slotId: json[AppConstants.slotId],
+      timelines: [],
+      reports: json.containsKey(AppConstants.reportUrl)
+          ? json[AppConstants.reportUrl].map<String>((e) => '$e').toList()
+          : [],
+    );
+  }
 
   bool get isCancellable {
     return isActive;
@@ -117,7 +184,7 @@ class Appointment {
 
   Future delete() async {
     await FirebaseFirestore.instance.collection('appointments').doc(appointmentId).update({
-      'archived': true,
+      AppConstants.archived: true,
     });
   }
 
@@ -126,18 +193,18 @@ class Appointment {
       String? refundId;
       if (refundPayment && mostRecentPaymentId != null) {
         final response = await AppMethods.requestRazorpayRefund(paymentId: mostRecentPaymentId!);
-        if (response['status']) {
-          refundId = response['remarks'];
+        if (response[AppConstants.status]) {
+          refundId = response[AppConstants.remarks];
         } else {
-          print('Refund error: ' + response['remarks']);
+          print('Refund error: ' + response[AppConstants.remarks]);
           return false;
         }
       }
       await FirebaseFirestore.instance.collection('appointments/$appointmentId/timeline').add({
-        'is_cancelled': true,
-        'createdOn': DateTime.now().toIso8601String(),
-        'slotId': slotId,
-        'refund_id': refundId,
+        AppConstants.isCancelled: true,
+        AppConstants.createdOn: DateTime.now().toIso8601String(),
+        AppConstants.slotId: slotId,
+        AppConstants.refundId: refundId,
       });
       await Database.addSlotToDoctor(slotId: slotId, doctorId: doctorId);
       return true;
@@ -158,91 +225,37 @@ class Appointments with ChangeNotifier {
 
   Future<List<Timeline>> fetchTimleines(String appointmentId) async {
     List<Timeline> timelinesList = [];
-
-    // try {
     final response =
         await FirebaseFirestore.instance.collection('appointments/$appointmentId/timeline').get();
 
     for (int i = 0; i < response.docs.length; i++) {
-      final timeline = response.docs[i].data();
-
-      List<String> tempList = [];
-      if (response.docs[i].data().containsKey('prescriptionList')) {
-        response.docs[i].data()['prescriptionList'].map((el) {
-          tempList.add('$el');
-        }).toList();
-      }
-
-      if (timeline.containsKey('byDoctor')) {
-        timelinesList.add(Timeline(
-            type: TimelineType.consultation,
-            createdOn: DateTime.parse(timeline['createdOn']),
-            prescriptionList: tempList,
-            byDoctor: true,
-            slotId: timeline['slotId']));
-      } else if (timeline.containsKey('is_cancelled')) {
-        timelinesList.add(Timeline(
-          type: TimelineType.cancelled,
-          createdOn: DateTime.parse(timeline['createdOn']),
-          prescriptionList: tempList,
-          slotId: timeline['slotId'],
-          refundId: timeline['refund_id'],
-        ));
-      } else {
-        timelinesList.add(Timeline(
-          type: TimelineType.appointment,
-          createdOn: DateTime.parse(timeline['createdOn']),
-          paymentAmount: timeline['paymentAmount'],
-          paymentId: timeline['paymentId'],
-          prescriptionList: tempList,
-          slotId: timeline['slotId'],
-        ));
-      }
+      final json = response.docs[i].data();
+      timelinesList.add(Timeline.fromMap(json));
     }
-    // } catch (error) {
-    //   print(error);
-    //   rethrow;
-    // }
 
     timelinesList.sort((Timeline a, Timeline b) => a.createdOn.compareTo(b.createdOn));
-
     return timelinesList;
   }
 
   Future<void> fetchAndSetAppointments() async {
     try {
       final response = await FirebaseFirestore.instance.collection('appointments').get();
-      // print(response.docs[0].data()['timelines']);
       List<Appointment> temp = [];
       for (int i = 0; i < response.docs.length; i++) {
-        if (response.docs[i].data().containsKey('archived') &&
-            response.docs[i].data()['archived'] == true) continue;
-        List<String> tempList = [];
-
-        if (response.docs[i].data().containsKey('reportUrl')) {
-          response.docs[i].data()['reportUrl'].map((el) {
-            tempList.add('$el');
-          }).toList();
+        final json = response.docs[i].data();
+        if (json.containsKey(AppConstants.archived) && json[AppConstants.archived] == true) {
+          continue;
         }
 
         final timelines = await fetchTimleines(response.docs[i].id);
-
-        temp.add(
-          Appointment(
-            appointmentId: response.docs[i].id,
-            patientId: response.docs[i].data()['patientId'],
-            doctorId: response.docs[i].data()['doctorId'],
-            issueId: response.docs[i].data()['issueId'],
-            timelines: timelines,
-            slotId: timelines[timelines.length - 1].slotId,
-            reports: tempList,
-          ),
-        );
+        json[AppConstants.appointmentId] = response.docs[i].id;
+        final app = Appointment.fromMap(json);
+        app.timelines = timelines;
+        temp.add(app);
       }
       _appointments = temp;
       _appointments.sort((a, b) => slotIdTodDateTime(b.slotId, withTime: true)
           .compareTo(slotIdTodDateTime(a.slotId, withTime: true)));
-      // print('TEMP IS $temp');
     } catch (error) {
       print(error);
       rethrow;
