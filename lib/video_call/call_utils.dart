@@ -1,63 +1,63 @@
-// import 'dart:convert';
+import 'dart:convert';
 
-// import 'package:flutter/widgets.dart';
-// import 'package:runon/video_call/video_call_methods.dart';
-// import 'package:runon/miscellaneous/AppMethods.dart';
-// import 'package:runon/miscellaneous/constants/app_constants.dart';
-// import 'package:runon/models/call_model.dart';
-// import 'package:runon/models/user_model.dart';
-// import 'package:runon/objects/chat_member.dart';
-// import 'package:runon/controllers/navigation.dart';
-// import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:runon/providers/appointments.dart';
+import 'package:runon/video_call/call_methods.dart';
+import 'package:runon/misc/constants/app_constants.dart';
+import 'package:runon/video_call/call_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:runon/video_call/video_call_screen.dart';
 
-// class CallUtilities{
-//   static final CallMethods callMethods = CallMethods();
+class CallUtilities {
+  static final CallMethods callMethods = CallMethods();
 
-//   static dial({
-//     required UserModel userModel,
-//     required ChatMember member,
-//     required BuildContext context,
-//     required CallType callType,
-//     required String programId,
-//     required String programTitle,
-//   }) async {
-//     Call call = Call(
-//       callerId: userModel.userId,
-//       callerName: userModel.fullName,
-//       callerTitle: AppMethods.titleStringFromConstant(userModel.title),
-//       callerPic: userModel.avatar,
-//       receiverId: member.userId,
-//       receiverName: member.generateFullName(),
-//       receiverPic: member.avatar,
-//       programId: programId,
-//       programTitle: programTitle,
-//       channelId: userModel.userId + member.userId,
-//       callCreateTime: DateTime.now(),
-//       callType: callType,
-//       hasDialed: true,
-//     );
+  static dial({
+    required BuildContext context,
+    required Appointment appointment,
+    required String doctorName,
+    required String patientName,
+    required String doctorProfilePic,
+    required String patientProfilePic,
+  }) async {
+    Call call = Call(
+      callCreateTime: DateTime.now(),
+      channelId: appointment.appointmentId,
+      appointment: appointment,
+      doctorId: appointment.doctorId,
+      patientId: appointment.patientId,
+      doctorName: doctorName,
+      patientName: patientName,
+      doctorProfilePic: doctorProfilePic,
+      patientProfilePic: patientProfilePic,
+    );
 
-//     bool callMade = await callMethods.makeCall(call: call);
-//     call.hasDialed = true;
+    bool callMade = await callMethods.makeCall(call: call);
 
-//     if(callMade){
-//       if(callType == CallType.videoCall) {
-//         Navigation.goToVideoCallScreen(context, call: call);
-//       } else {
-//         Navigation.goToAudioCallScreen(context, call: call);
-//       }
-//     }
-//   }
+    if (callMade) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => VideoCallScreen(call: call),
+        ),
+      );
+      // if (callType == CallType.videoCall) {
+      //   Navigation.goToVideoCallScreen(context, call: call);
+      // } else {
+      //   Navigation.goToAudioCallScreen(context, call: call);
+      // }
+    }
+  }
 
-//   static Future<String?> getToken({required String channelId,required String userId,}) async {
-//     String url = 'https://agoratokenserverwithgo--mura-developers.repl.co/rtc/$channelId/publisher/userAccount/$userId/';
-//     try {
-//       final response = await http.get(Uri.parse(url));
-//       final json = jsonDecode(response.body);
-//       return json[AppConstants.rtcToken];
-//     } catch (error) {
-//       debugPrint(error.toString());
-//       rethrow;
-//     }
-//   }
-// }
+  static Future<String?> getToken({
+    required String channelId,
+  }) async {
+    String url = 'https://smiling-hosiery-mite.cyclic.app/access_token?channelName=$channelId';
+    try {
+      final response = await http.get(Uri.parse(url));
+      final json = jsonDecode(response.body);
+      return json[AppConstants.token];
+    } catch (error) {
+      debugPrint(error.toString());
+      rethrow;
+    }
+  }
+}

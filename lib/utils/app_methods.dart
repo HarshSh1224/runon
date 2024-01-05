@@ -3,11 +3,11 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart' as m;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/widgets.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:runon/models/flat_feet_options.dart';
 import 'package:runon/utils/prescription_pdf_methods.dart';
 import 'package:runon/payment_gateway/razorpay_options.dart' as rp;
@@ -15,6 +15,19 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class AppMethods {
+  static showSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5.0),
+          child: Text(message),
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   static Future<File> gneratePrescriptionPdf({
     required String appointmentId,
     required String patientName,
@@ -26,12 +39,12 @@ class AppMethods {
     required String prescription,
     FeetObservations? feetObservations,
   }) async {
-    final pdf = Document();
-    final image = MemoryImage(
+    final pdf = pw.Document();
+    final image = pw.MemoryImage(
       (await rootBundle.load('assets/images/logo.png')).buffer.asUint8List(),
     );
 
-    pdf.addPage(MultiPage(
+    pdf.addPage(pw.MultiPage(
       build: ((context) {
         return [
           GeneratePdfMethods.buildTitle(image, appointmentId),
@@ -56,7 +69,7 @@ class AppMethods {
 
   static Future<File> _savePdfDocument({
     required String name,
-    required Document pdf,
+    required pw.Document pdf,
   }) async {
     final bytes = await pdf.save();
     final dir = await getApplicationDocumentsDirectory();
@@ -118,7 +131,7 @@ class AppMethods {
       final responseJson = jsonDecode(response.body);
       if (responseJson.containsKey('error')) {
         print('Refund error: ');
-        m.debugPrint(responseJson['error']);
+        debugPrint(responseJson['error']);
         print('Requesting refund Failedddd');
         return {'status': false, 'remarks': responseJson['error']['description']};
       } else {

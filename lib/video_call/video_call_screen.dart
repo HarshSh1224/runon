@@ -1,201 +1,319 @@
-// import 'dart:convert';
+import 'dart:async';
 
-// import 'package:flutter/material.dart';
-// import 'package:agora_uikit/agora_uikit.dart';
-// import 'package:provider/provider.dart';
-// import 'package:runon/models/flat_feet_options.dart';
-// import 'package:runon/providers/appointments.dart';
-// import 'package:runon/providers/auth.dart';
-// import 'package:runon/providers/exercise_docs.dart';
-// import 'package:runon/video_call/settings.dart';
-// import 'package:http/http.dart' as http;
-// import 'package:runon/widgets/video_call_drawer.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:runon/utils/app_methods.dart';
+import 'package:runon/video_call/call_methods.dart';
+import 'package:runon/video_call/call_model.dart';
+import 'package:runon/video_call/call_utils.dart';
+import 'package:runon/video_call/configs.dart' as agora_configs;
+import 'package:runon/video_call/widgets/avatar.dart';
+import 'package:runon/video_call/widgets/call_action_button.dart';
+import 'package:runon/video_call/widgets/toolbar_button.dart';
 
-// class CallPage extends StatefulWidget {
-//   static const routeName = '/call-page';
+class VideoCallScreen extends StatefulWidget {
+  VideoCallScreen({required this.call, super.key});
+  final Call call;
+  final callMethods = CallMethods();
 
-//   const CallPage({super.key});
-//   @override
-//   State<CallPage> createState() => _CallPageState();
-// }
+  @override
+  State<VideoCallScreen> createState() => _VideoCallScreenState();
+}
 
-// class _CallPageState extends State<CallPage> {
-//   bool isInit = false;
-//   String tempToken = "Error Please restart the video call";
-//   AgoraClient _client = AgoraClient(
-//     agoraConnectionData: AgoraConnectionData(
-//       appId: appId,
-//       channelName: "test",
-//     ),
-//   );
+class _VideoCallScreenState extends State<VideoCallScreen> {
+  late StreamSubscription callStreamSubscription;
+  late String appointmentId;
+  String? token;
+  int? _remoteUid;
+  bool _isCurrentUserJoined = false;
+  late RtcEngine agoraEngine;
+  int uid = 0;
+  bool agoraIsInitialized = false;
+  bool audioMuted = false;
+  bool videoMuted = false;
+  bool remoteVideoMuted = true;
 
-//   late Appointment appointment;
-//   late Function(String, Appointment, FeetObservations?) uploadPrescription;
+  @override
+  void initState() {
+    super.initState();
+    appointmentId = widget.call.appointment.appointmentId;
+    addPostFrameCallback(); // Subscribe to Firebase vaudeo collection stream
+    setupVideoSDKEngine(); // Init Agora
+  }
 
-//   @override
-//   void didChangeDependencies() {
-//     if (!isInit) {
-//       isInit = true;
+  showMessage(String message) {
+    AppMethods.showSnackbar(context, message);
+  }
 
-//       // Send Map<String, dynamic> as arguments
-//       // Map['appointment'] is in instance of Appointment
-//       // Map['callback'] is a Function(String, Appointment, FeetObservations?) uploadPrescription
+  @override
+  void dispose() {
+    widget.callMethods.endCall(call: widget.call);
+    if (agoraIsInitialized) {
+      Future.delayed(Duration.zero, () async {
+        await agoraEngine.leaveChannel();
+        await agoraEngine.release();
+      });
+    }
+    callStreamSubscription.cancel();
+    super.dispose();
+  }
 
-//       appointment =
-//           (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['appointment'];
-//       uploadPrescription =
-//           (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>)['callback'];
-//       initAgora();
-//     }
-//     super.didChangeDependencies();
-//   }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Stack(
+          children: <Widget>[
+            _viewColumn(),
+            _toolbar(),
+          ],
+        ),
+      ),
+    );
+  }
 
-//   void initAgora() async {
-//     _client = AgoraClient(
-//         agoraConnectionData: AgoraConnectionData(
-//             // username: ,
-//             appId: appId,
-//             channelName: appointment.appointmentId,
-//             tempToken: tempToken
-//             // tokenUrl:
-//             //     "https://agora-node-tokenserver.run-onon1.repl.co/access_token?channelName=6pPJq7Tx2MJYX25pDjpN",
-//             ),
-//         enabledPermission: [Permission.camera, Permission.microphone]);
-//     await _client.initialize();
-//   }
+  addPostFrameCallback() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      callStreamSubscription =
+          widget.callMethods.callStream(uid: appointmentId).listen((DocumentSnapshot snapshot) {
+        if (snapshot.data() == null) {
+          Navigator.pop(context);
+        }
+      });
+    });
+  }
 
-//   @override
-//   void dispose() async {
-//     Future.delayed(Duration.zero, () async {
-//       await _client.release();
-//     });
-//     _prescriptionDialogController.dispose();
-//     _prescriptionDialogFocusNode.dispose();
-//     super.dispose();
-//   }
+  Future<void> setupVideoSDKEngine() async {
+    await [Permission.microphone, Permission.camera].request();
 
-//   Future<void> getToken() async {
-//     String link =
-//         'https://agora-node-tokenserver.run-onon1.repl.co/access_token?channelName=${appointment.appointmentId}';
-//     try {
-//       final response = await http.get(Uri.parse(link));
-//       Map data = jsonDecode(response.body);
-//       tempToken = data["token"];
-//     } catch (error) {
-//       debugPrint(error.toString());
-//     }
-//     if (tempToken.contains('Error')) _client.release();
-//   }
+    try {
+      token = await CallUtilities.getToken(
+        channelId: widget.call.channelId,
+      );
+    } catch (e) {
+      showMessage("Error Occurred. Please Retry");
+      widget.callMethods.endCall(call: widget.call);
+    }
+    if (token == null) {
+      showMessage("Error Occurred. Please Retry");
+      widget.callMethods.endCall(call: widget.call);
+    }
 
-//   var feetObservations = FeetObservations();
+    if (mounted) {
+      agoraEngine = createAgoraRtcEngine();
+      await agoraEngine.initialize(const RtcEngineContext(appId: agora_configs.appId));
+      VideoEncoderConfiguration videoConfig = VideoEncoderConfiguration(
+        dimensions:
+            VideoDimensions(width: agora_configs.videoWidth, height: agora_configs.videoHeight),
+        frameRate: agora_configs.frameRate,
+        bitrate: agora_configs.bitrate,
+      );
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return FutureBuilder(
-//       future: getToken(),
-//       builder: (context, snapshot) {
-//         return snapshot.connectionState == ConnectionState.waiting
-//             ? const Scaffold(
-//                 body: Center(
-//                   child: CircularProgressIndicator(),
-//                 ),
-//               )
-//             : Scaffold(
-//                 endDrawer: !Provider.of<Auth>(context, listen: false).isDoctor
-//                     ? null
-//                     : FutureBuilder(
-//                         future: Provider.of<ExerciseDocuments>(context, listen: false)
-//                             .fetchAndSetExerciseDocuments(),
-//                         builder: (context, snapshot) {
-//                           return snapshot.connectionState == ConnectionState.waiting
-//                               ? const Center(
-//                                   child: CircularProgressIndicator(),
-//                                 )
-//                               : CallDrawer(
-//                                   prescriptionController: _prescriptionDialogController,
-//                                   feetObservations:
-//                                       appointment.isFlatfeetOrKnocknee ? feetObservations : null,
-//                                   onChangedFeetObservations: (changed) {
-//                                     feetObservations = changed;
-//                                   },
-//                                   appointmentId: appointment.appointmentId);
-//                         }),
-//                 appBar: AppBar(
-//                   title: const Text('Video Call'),
-//                   centerTitle: true,
-//                   // actions: [
-//                   //   if (Provider.of<Auth>(context, listen: false).isDoctor)
-//                   //     IconButton(
-//                   //       icon: const Icon(Icons.edit),
-//                   //       onPressed: _onTapEdit,
-//                   //     )
-//                   // ],
-//                 ),
-//                 backgroundColor: Colors.black,
-//                 body: Stack(
-//                   children: [
-//                     AgoraVideoViewer(
-//                       client: _client,
-//                       showNumberOfUsers: false,
-//                       layoutType: Layout.oneToOne,
-//                     ),
-//                     AgoraVideoButtons(
-//                       client: _client,
-//                       onDisconnect: () async {
-//                         await uploadPrescription(_prescriptionDialogController.text, appointment,
-//                             appointment.isFlatfeetOrKnocknee ? feetObservations : null);
-//                         ScaffoldMessenger.of(context).showSnackBar(
-//                           const SnackBar(
-//                             content: Padding(
-//                               padding: EdgeInsets.all(8.0),
-//                               child: Text('Call Ended'),
-//                             ),
-//                           ),
-//                         );
-//                         Navigator.of(context).pop();
-//                       },
-//                     ),
-//                     Text(
-//                       // '',
-//                       tempToken.contains('Error') ? tempToken : '',
-//                       style: const TextStyle(color: Colors.white),
-//                     ),
-//                   ],
-//                 ),
-//               );
-//       },
-//     );
-//   }
+      agoraIsInitialized = true;
 
-//   final FocusNode _prescriptionDialogFocusNode = FocusNode();
-//   final TextEditingController _prescriptionDialogController = TextEditingController();
+      agoraEngine.setVideoEncoderConfiguration(videoConfig);
 
-//   _onTapEdit() {
-//     _prescriptionDialogFocusNode.requestFocus();
-//     showDialog(
-//       context: context,
-//       builder: (_) => AlertDialog(
-//         content: TextFormField(
-//           controller: _prescriptionDialogController,
-//           focusNode: _prescriptionDialogFocusNode,
-//           minLines: 3,
-//           maxLines: 10,
-//           keyboardType: TextInputType.multiline,
-//           decoration: const InputDecoration(hintText: 'Write your prescriptions here'),
-//         ),
-//         actions: [
-//           TextButton(
-//               onPressed: () {
-//                 Navigator.of(context).pop();
-//                 prescription = _prescriptionDialogController.text;
-//                 _prescriptionDialogController.clear();
-//               },
-//               child: const Text('Submit')),
-//           TextButton(onPressed: Navigator.of(context).pop, child: const Text('Save & close')),
-//         ],
-//       ),
-//     );
-//   }
+      await agoraEngine.enableVideo();
 
-//   String? prescription;
-// }
+      agoraEngine.registerEventHandler(
+        RtcEngineEventHandler(
+          onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+            // Local User Joins the Channel
+            showMessage('Channel joined');
+            setState(() {
+              _isCurrentUserJoined = true;
+            });
+          },
+          onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+            // Remote user joins the channel
+            showMessage('Remote user joined');
+            setState(() {
+              _remoteUid = remoteUid;
+            });
+          },
+          onRemoteVideoStateChanged: (connection, remoteUid, state, reason, elapsed) {
+            // Show Avatar When Remote video is stopped/muted/frozen
+            showMessage('Remote video state changed');
+            if (state == RemoteVideoState.remoteVideoStateStopped ||
+                state == RemoteVideoState.remoteVideoStateFrozen ||
+                state == RemoteVideoState.remoteVideoStateFailed) {
+              setState(() {
+                remoteVideoMuted = true;
+              });
+            } else {
+              setState(() {
+                remoteVideoMuted = false;
+              });
+            }
+          },
+          onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
+            // End call if Remote user loses connection
+            showMessage('Remote user exited');
+            setState(() {
+              _remoteUid = null;
+            });
+            widget.callMethods.endCall(call: widget.call);
+          },
+        ),
+      );
+      joinChannel();
+    }
+  }
+
+  void joinChannel() async {
+    await agoraEngine.startPreview();
+
+    ChannelMediaOptions options = const ChannelMediaOptions(
+      clientRoleType: ClientRoleType.clientRoleBroadcaster,
+      channelProfile: ChannelProfileType.channelProfileCommunication,
+    );
+
+    await agoraEngine.joinChannel(
+      token: token!,
+      channelId: widget.call.channelId,
+      options: options,
+      uid: uid,
+    );
+  }
+
+  Widget _viewColumn() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Expanded(child: _remoteVideo()),
+        Expanded(child: _localPreview()),
+      ],
+    );
+  }
+
+  Widget _toolbar() {
+    return Container(
+      alignment: Alignment.bottomCenter,
+      padding: const EdgeInsets.symmetric(vertical: 50),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          ToolbarButton(
+            icon: audioMuted ? Icons.mic_off : Icons.mic,
+            toggleWith: audioMuted,
+            onPressed: _onToggleMute,
+            isDisabled: !_isCurrentUserJoined,
+          ),
+          ToolbarButton(
+            onPressed: _onToggleVideo,
+            icon: videoMuted ? Icons.videocam_off_rounded : Icons.videocam,
+            toggleWith: videoMuted,
+            isDisabled: !_isCurrentUserJoined,
+          ),
+          ToolbarButton(
+            onPressed: _onSwitchCamera,
+            icon: Icons.switch_camera,
+            toggleWith: false,
+            isDisabled: !_isCurrentUserJoined,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(30),
+            child: CallActionButton(
+              onTap: () => widget.callMethods.endCall(call: widget.call),
+              size: 60,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onToggleMute() {
+    setState(() {
+      audioMuted = !audioMuted;
+    });
+    agoraEngine.muteLocalAudioStream(audioMuted);
+  }
+
+  void _onSwitchCamera() {
+    agoraEngine.switchCamera();
+  }
+
+  void _onToggleVideo() {
+    setState(() {
+      videoMuted = !videoMuted;
+    });
+    agoraEngine.muteLocalVideoStream(videoMuted);
+  }
+
+  Widget _noVideoAvatar({required String image, required title}) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          VideoCallAvatar(
+            networkImage: image,
+            widgetSize: VideoCallAvatarSize.small,
+          ),
+          const SizedBox(height: 5),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _localPreview() {
+    return Container(
+      alignment: Alignment.center,
+      child: _isCurrentUserJoined
+          ? videoMuted
+              ? _noVideoAvatar(
+                  image: '',
+                  title: 'First Last',
+                )
+              : AgoraVideoView(
+                  controller: VideoViewController(
+                    rtcEngine: agoraEngine,
+                    canvas: const VideoCanvas(uid: 0),
+                  ),
+                )
+          : const Text(
+              "Joining Channel",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+    );
+  }
+
+  Widget _remoteVideo() {
+    if (_remoteUid != null) {
+      return remoteVideoMuted
+          ? _noVideoAvatar(
+              image: '',
+              title: 'First Last',
+            )
+          : AgoraVideoView(
+              controller: VideoViewController.remote(
+                rtcEngine: agoraEngine,
+                canvas: VideoCanvas(uid: _remoteUid),
+                connection: RtcConnection(channelId: widget.call.channelId),
+              ),
+            );
+    } else {
+      String msg = "Awaiting Client";
+      return Center(
+          child: Text(
+        msg,
+        style: const TextStyle(
+          color: Colors.white,
+        ),
+      ));
+    }
+  }
+}

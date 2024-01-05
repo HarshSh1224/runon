@@ -27,4 +27,9 @@ class AppConstants {
   static const String isCancelled = "is_cancelled";
   static const String refundId = 'refund_id';
   static const String archived = 'archived';
+  static const String token = "token";
+  static const String doctorName = "doctorName";
+  static const String patientName = "patientName";
+  static const String doctorProfilePic = "doctorProfilePic";
+  static const String patientProfilePic = "patientProfilePic";
 }

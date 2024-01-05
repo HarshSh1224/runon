@@ -15,6 +15,10 @@ import 'package:runon/screens/cancel_appointment_screen.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
 import 'package:runon/utils/app_methods.dart';
+import 'package:runon/video_call/call_methods.dart';
+import 'package:runon/video_call/call_model.dart';
+import 'package:runon/video_call/call_utils.dart';
+import 'package:runon/video_call/video_call_screen.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
 import 'package:runon/widgets/attachment_card.dart';
@@ -32,6 +36,13 @@ class AppointmentDetailScreen extends StatefulWidget {
 
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   bool isAdmin = false;
+
+  late StreamSubscription callStreamSubscription;
+  late Call call;
+  bool incomingCall = false;
+  final callMethods = CallMethods();
+
+  late Appointment appointment;
 
   final Map<dynamic, String> _appointmentData = {
     'patient': 'Loading...',
@@ -108,13 +119,37 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   @override
   void initState() {
     super.initState();
+    addPostFrameCallback();
+  }
+
+  addPostFrameCallback() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
+      widget.isDoctor = appointment.doctorId == FirebaseAuth.instance.currentUser!.uid;
+      // isAdmin = Provider.of<Auth>(context, listen: false).type == 2;
+
+      if (!widget.isDoctor && !isAdmin) {
+        callStreamSubscription = callMethods
+            .callStream(uid: appointment.appointmentId)
+            .listen((DocumentSnapshot snapshot) {
+          if (snapshot.data() != null) {
+            call = Call.fromMap(snapshot.data() as Map<String, dynamic>);
+            setState(() {
+              incomingCall = true;
+            });
+          } else {
+            setState(() {
+              incomingCall = false;
+            });
+          }
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final Appointment appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
-    widget.isDoctor = appointment.doctorId == FirebaseAuth.instance.currentUser!.uid;
-    isAdmin = Provider.of<Auth>(context).type == 2;
+    appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Appointment Details'),
@@ -318,15 +353,33 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           height: 20,
         ),
         FilledButton(
-            onPressed: !canStartAppointment(appointment)
+            onPressed: !widget.isDoctor && !incomingCall
                 ? null
-                : () async {
-                    if (widget.isDoctor) {
-                      await _generateTimeline(appointment.appointmentId, appointment.slotId);
-                    }
-                    // Navigator.of(context).pushNamed(CallPage.routeName,
-                    //     arguments: {'appointment': appointment, 'callback': _uploadPrescription});
-                  },
+                : () => (widget.isDoctor
+                    ? CallUtilities.dial(
+                        context: context,
+                        appointment: appointment,
+                        patientName: _appointmentData['patient']!,
+                        doctorName: _appointmentData['doctor']!,
+                        patientProfilePic: _appointmentData['patientImage']!,
+                        doctorProfilePic: _appointmentData['doctorImage']!,
+                      )
+                    : (incomingCall
+                        ? Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => VideoCallScreen(call: call),
+                            ),
+                          )
+                        : null)),
+            // !canStartAppointment(appointment)
+            //     ? null
+            //     : () async {
+            //         if (widget.isDoctor) {
+            //           await _generateTimeline(appointment.appointmentId, appointment.slotId);
+            //         }
+            // Navigator.of(context).pushNamed(CallPage.routeName,
+            //     arguments: {'appointment': appointment, 'callback': _uploadPrescription});
+            // },
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Text(
