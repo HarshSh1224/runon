@@ -111,7 +111,7 @@ class Appointment {
       patientId: json[AppConstants.patientId],
       doctorId: json[AppConstants.doctorId],
       issueId: json[AppConstants.issueId],
-      slotId: json[AppConstants.slotId],
+      slotId: "",
       timelines: [],
       reports: json.containsKey(AppConstants.reportUrl)
           ? json[AppConstants.reportUrl].map<String>((e) => '$e').toList()
@@ -129,7 +129,7 @@ class Appointment {
     String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
     slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
-    if (time[6] == 'P') slot = slot.add(const Duration(hours: 12));
+    if (time[6] == 'P' && time.substring(0, 2) != '12') slot = slot.add(const Duration(hours: 12));
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
     if (nowTime.isAfter(slot.add(const Duration(minutes: 30)))) {
@@ -143,7 +143,7 @@ class Appointment {
     String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
     slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
-    if (time[6] == 'P') slot = slot.add(const Duration(hours: 12));
+    if (time[6] == 'P' && time.substring(0, 2) != '12') slot = slot.add(const Duration(hours: 12));
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
     if (nowTime.difference(slot).compareTo(const Duration(hours: 48)) >= 0) {
@@ -157,7 +157,7 @@ class Appointment {
     String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
     slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
-    if (time[6] == 'P') slot = slot.add(const Duration(hours: 12));
+    if (time[6] == 'P' && time.substring(0, 2) != '12') slot = slot.add(const Duration(hours: 12));
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
     if (slot.difference(nowTime).compareTo(const Duration(hours: 48)) >= 0) {
@@ -251,6 +251,7 @@ class Appointments with ChangeNotifier {
         json[AppConstants.appointmentId] = response.docs[i].id;
         final app = Appointment.fromMap(json);
         app.timelines = timelines;
+        app.slotId = timelines.last.slotId;
         temp.add(app);
       }
       _appointments = temp;

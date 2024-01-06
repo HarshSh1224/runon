@@ -36,14 +36,12 @@ class CallUtilities {
     if (callMade) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => VideoCallScreen(call: call),
+          builder: (context) => VideoCallScreen(
+            call: call,
+            isDoctor: true,
+          ),
         ),
       );
-      // if (callType == CallType.videoCall) {
-      //   Navigation.goToVideoCallScreen(context, call: call);
-      // } else {
-      //   Navigation.goToAudioCallScreen(context, call: call);
-      // }
     }
   }
 

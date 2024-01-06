@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CountdownTimer extends StatefulWidget {
-  const CountdownTimer({required this.countTo, super.key});
+  CountdownTimer({required this.countTo, this.onComplete, super.key});
   final DateTime countTo;
+  VoidCallback? onComplete;
 
   @override
   State<CountdownTimer> createState() => _CountdownTimerState();
@@ -25,6 +26,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
           setState(() {
             timer.cancel();
           });
+          widget.onComplete?.call();
         } else {
           setState(() {
             _start--;

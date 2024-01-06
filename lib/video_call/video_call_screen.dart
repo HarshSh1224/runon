@@ -14,8 +14,9 @@ import 'package:runon/video_call/widgets/call_action_button.dart';
 import 'package:runon/video_call/widgets/toolbar_button.dart';
 
 class VideoCallScreen extends StatefulWidget {
-  VideoCallScreen({required this.call, super.key});
+  VideoCallScreen({required this.call, required this.isDoctor, super.key});
   final Call call;
+  final bool isDoctor;
   final callMethods = CallMethods();
 
   @override
@@ -69,7 +70,22 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           children: <Widget>[
             _viewColumn(),
             _toolbar(),
+            _logo(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Positioned _logo() {
+    return Positioned(
+      bottom: 20,
+      left: 20,
+      child: Opacity(
+        opacity: 0.3,
+        child: Image.asset(
+          'assets/images/logo.png',
+          height: 23,
         ),
       ),
     );
@@ -192,7 +208,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   Widget _toolbar() {
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.symmetric(vertical: 50),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -210,7 +226,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           ),
           ToolbarButton(
             onPressed: _onSwitchCamera,
-            icon: Icons.switch_camera,
+            icon: Icons.cameraswitch_rounded,
             toggleWith: false,
             isDisabled: !_isCurrentUserJoined,
           ),
@@ -251,9 +267,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         children: [
           VideoCallAvatar(
             networkImage: image,
-            widgetSize: VideoCallAvatarSize.small,
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 15),
           Text(
             title,
             style: const TextStyle(
@@ -261,6 +276,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
               fontSize: 18,
             ),
           ),
+          const SizedBox(height: 35),
         ],
       ),
     );
@@ -268,12 +284,15 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   Widget _localPreview() {
     return Container(
+      color: videoMuted ? const Color(0xff1f1f1f) : Colors.black,
       alignment: Alignment.center,
       child: _isCurrentUserJoined
           ? videoMuted
               ? _noVideoAvatar(
-                  image: '',
-                  title: 'First Last',
+                  image: widget.isDoctor
+                      ? widget.call.doctorProfilePic
+                      : widget.call.patientProfilePic,
+                  title: widget.isDoctor ? widget.call.doctorName : widget.call.patientName,
                 )
               : AgoraVideoView(
                   controller: VideoViewController(
@@ -294,9 +313,13 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   Widget _remoteVideo() {
     if (_remoteUid != null) {
       return remoteVideoMuted
-          ? _noVideoAvatar(
-              image: '',
-              title: 'First Last',
+          ? Container(
+              color: const Color(0xff1f1f1f),
+              child: _noVideoAvatar(
+                image:
+                    widget.isDoctor ? widget.call.patientProfilePic : widget.call.doctorProfilePic,
+                title: widget.isDoctor ? widget.call.patientName : widget.call.doctorName,
+              ),
             )
           : AgoraVideoView(
               controller: VideoViewController.remote(

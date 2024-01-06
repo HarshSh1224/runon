@@ -126,7 +126,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
       widget.isDoctor = appointment.doctorId == FirebaseAuth.instance.currentUser!.uid;
-      // isAdmin = Provider.of<Auth>(context, listen: false).type == 2;
+      isAdmin = Provider.of<Auth>(context, listen: false).type == 2;
 
       if (!widget.isDoctor && !isAdmin) {
         callStreamSubscription = callMethods
@@ -353,46 +353,41 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           height: 20,
         ),
         FilledButton(
-            onPressed: !widget.isDoctor && !incomingCall
-                ? null
-                : () => (widget.isDoctor
-                    ? CallUtilities.dial(
-                        context: context,
-                        appointment: appointment,
-                        patientName: _appointmentData['patient']!,
-                        doctorName: _appointmentData['doctor']!,
-                        patientProfilePic: _appointmentData['patientImage']!,
-                        doctorProfilePic: _appointmentData['doctorImage']!,
-                      )
-                    : (incomingCall
-                        ? Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => VideoCallScreen(call: call),
-                            ),
-                          )
-                        : null)),
-            // !canStartAppointment(appointment)
-            //     ? null
-            //     : () async {
-            //         if (widget.isDoctor) {
-            //           await _generateTimeline(appointment.appointmentId, appointment.slotId);
-            //         }
-            // Navigator.of(context).pushNamed(CallPage.routeName,
-            //     arguments: {'appointment': appointment, 'callback': _uploadPrescription});
-            // },
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                widget.isDoctor ? 'Start Video Call' : 'Join Video Call',
-                style: const TextStyle(fontSize: 18),
-              ),
-            )),
+          onPressed: !canStartAppointment(appointment)
+              ? null
+              : (!widget.isDoctor && !incomingCall)
+                  ? null
+                  : (widget.isDoctor
+                      ? () async {
+                          await _generateTimeline(appointment.appointmentId, appointment.slotId);
+                          CallUtilities.dial(
+                            context: context,
+                            appointment: appointment,
+                            patientName: _appointmentData['patient']!,
+                            doctorName: _appointmentData['doctor']!,
+                            patientProfilePic: _appointmentData['patientImage']!,
+                            doctorProfilePic: _appointmentData['doctorImage']!,
+                          );
+                        }
+                      : (incomingCall
+                          ? () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => VideoCallScreen(
+                                    call: call,
+                                    isDoctor: false,
+                                  ),
+                                ),
+                              )
+                          : null)),
+          child: _buttonContent(),
+        ),
         const SizedBox(
           height: 5,
         ),
         if (!canStartAppointment(appointment))
           CountdownTimer(
             countTo: slotIdTodDateTime(appointment.slotId, withTime: true),
+            onComplete: () => setState(() {}),
           ),
         if (!appointment.hasPassed)
           TextButton(
@@ -410,6 +405,34 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           height: 20,
         ),
       ],
+    );
+  }
+
+  Padding _buttonContent() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (widget.isDoctor)
+            const Text(
+              'Start Video Call',
+              style: TextStyle(fontSize: 18),
+            ),
+          if (!widget.isDoctor)
+            Text(
+              canStartAppointment(appointment) && !incomingCall
+                  ? 'Waiting for Doctor '
+                  : 'Join Video Call',
+              style: const TextStyle(fontSize: 18),
+            ),
+          const SizedBox(width: 5),
+          !widget.isDoctor && !incomingCall && canStartAppointment(appointment)
+              ? const SizedBox(
+                  height: 17, width: 17, child: FittedBox(child: CircularProgressIndicator()))
+              : const Icon(Icons.play_circle_sharp, size: 30)
+        ],
+      ),
     );
   }
 
@@ -453,6 +476,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   bool canStartAppointment(Appointment appointment) {
+    if (incomingCall) return true;
     DateTime slot = slotIdTodDateTime(appointment.slotId, withTime: true);
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));

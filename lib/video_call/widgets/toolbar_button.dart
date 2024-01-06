@@ -21,16 +21,16 @@ class ToolbarButton extends StatelessWidget {
     return RawMaterialButton(
       onPressed: isDisabled ? null : onPressed,
       shape: const CircleBorder(),
-      elevation: 2.0,
+      elevation: 0.0,
       fillColor: !isDisabled
           ? toggleWith
-              ? Colors.blue
-              : Colors.white
+              ? Colors.green.withOpacity(0.4)
+              : Colors.white.withOpacity(0.2)
           : Colors.grey.withOpacity(0.5),
       padding: const EdgeInsets.all(15),
       child: Icon(
         icon,
-        color: !isDisabled ? (toggleWith ? Colors.white : Colors.blue) : Colors.grey,
+        color: !isDisabled ? (toggleWith ? Colors.white : Colors.green) : Colors.grey,
         size: largeButton ? 40.0 : 25.0,
       ),
     );

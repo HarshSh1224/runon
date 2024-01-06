@@ -19,12 +19,14 @@ class CallActionButton extends StatelessWidget {
       child: Container(
         height: size,
         width: size,
-        decoration: BoxDecoration(
-            shape: BoxShape.circle, border: Border.all(width: size / 13.3, color: Colors.red)),
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.red,
+        ),
         child: Center(
             child: Icon(
           Icons.call_end,
-          color: Colors.red,
+          color: Colors.white,
           size: size / 2,
         )),
       ),
