@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
+import 'package:runon/screens/patient/offline_appointment.dart';
 import 'package:runon/widgets/clip_paths.dart';
 import 'package:runon/widgets/previous_appointments.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -48,9 +49,29 @@ class AddAppointment extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
                       child: Text(
-                        'New Appointment',
+                        'Online Appointment',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.cabin(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.roboto(
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  FilledButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(OfflineAppointmentScreen.routeName);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Text(
+                        'Offline Appointment',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.roboto(
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                   ),

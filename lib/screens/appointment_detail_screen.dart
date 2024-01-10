@@ -24,6 +24,8 @@ import 'package:runon/widgets/method_slot_formatter.dart';
 import 'package:runon/widgets/attachment_card.dart';
 import 'package:runon/widgets/countdown_timer.dart';
 
+enum Option { cancel, reschedule }
+
 class AppointmentDetailScreen extends StatefulWidget {
   static const routeName = '/appointment-detail-screen';
   AppointmentDetailScreen({this.isDoctor = false, super.key});
@@ -151,16 +153,56 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Widget build(BuildContext context) {
     appointment = ModalRoute.of(context)!.settings.arguments as Appointment;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Appointment Details'),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(MessagesScreen.routeName, arguments: appointment);
-              },
-              icon: const Icon(Icons.chat))
-        ],
-      ),
+      appBar: AppBar(title: const Text('Appointment Details'), actions: [
+        PopupMenuButton(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            onSelected: ((value) {
+              if (value == Option.cancel) {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return CancelAppointmentScreen(
+                    appointment: appointment,
+                    paymentId: appointment.mostRecentPaymentId ?? '',
+                    auth: Provider.of<Auth>(context, listen: false),
+                  );
+                }));
+              } else {
+                // setState(() {
+                //   _showOnlyOptions = false;
+                // });
+              }
+            }),
+            itemBuilder: (_) {
+              return [
+                PopupMenuItem(
+                  value: Option.cancel,
+                  child: Text(
+                    'Cancel Appointment',
+                    style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: Option.reschedule,
+                  child: Text(
+                    'Reschedule Appointment',
+                    style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                  ),
+                ),
+                // PopupMenuItem(
+                //   child: PopupMenuButton(
+                //     child: Padding(
+                //         padding: EdgeInsets.all(20), child: Text("Nested Items")),
+                //     itemBuilder: (_) {
+                //       return [
+                //         PopupMenuItem(child: Text("Item2")),
+                //         PopupMenuItem(child: Text("Item3"))
+                //       ];
+                //     },
+                //   ),
+                //   value: Option.all,
+                // ),
+              ];
+            })
+      ]),
       body: FutureBuilder(
         future: _fetchAndSetData(appointment),
         builder: (context, snapshot) {
@@ -352,34 +394,53 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         const SizedBox(
           height: 20,
         ),
-        FilledButton(
-          onPressed: !canStartAppointment(appointment)
-              ? null
-              : (!widget.isDoctor && !incomingCall)
-                  ? null
-                  : (widget.isDoctor
-                      ? () async {
-                          await _generateTimeline(appointment.appointmentId, appointment.slotId);
-                          CallUtilities.dial(
-                            context: context,
-                            appointment: appointment,
-                            patientName: _appointmentData['patient']!,
-                            doctorName: _appointmentData['doctor']!,
-                            patientProfilePic: _appointmentData['patientImage']!,
-                            doctorProfilePic: _appointmentData['doctorImage']!,
-                          );
-                        }
-                      : (incomingCall
-                          ? () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => VideoCallScreen(
-                                    call: call,
-                                    isDoctor: false,
-                                  ),
-                                ),
-                              )
-                          : null)),
-          child: _buttonContent(),
+        Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: FilledButton(
+                onPressed: !canStartAppointment(appointment)
+                    ? null
+                    : (!widget.isDoctor && !incomingCall)
+                        ? null
+                        : (widget.isDoctor
+                            ? () async {
+                                await _generateTimeline(
+                                    appointment.appointmentId, appointment.slotId);
+                                CallUtilities.dial(
+                                  context: context,
+                                  appointment: appointment,
+                                  patientName: _appointmentData['patient']!,
+                                  doctorName: _appointmentData['doctor']!,
+                                  patientProfilePic: _appointmentData['patientImage']!,
+                                  doctorProfilePic: _appointmentData['doctorImage']!,
+                                );
+                              }
+                            : (incomingCall
+                                ? () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => VideoCallScreen(
+                                          call: call,
+                                          isDoctor: false,
+                                        ),
+                                      ),
+                                    )
+                                : null)),
+                child: FittedBox(child: _buttonContent()),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+                flex: 1,
+                child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context)
+                          .pushNamed(MessagesScreen.routeName, arguments: appointment);
+                    },
+                    child: const Text(
+                      'Chat',
+                    )))
+          ],
         ),
         const SizedBox(
           height: 5,
@@ -389,18 +450,12 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             countTo: slotIdTodDateTime(appointment.slotId, withTime: true),
             onComplete: () => setState(() {}),
           ),
-        if (!appointment.hasPassed)
-          TextButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return CancelAppointmentScreen(
-                    appointment: appointment,
-                    paymentId: appointment.mostRecentPaymentId ?? '',
-                    auth: Provider.of<Auth>(context, listen: false),
-                  );
-                }));
-              },
-              child: const Text('Cancel Appointment')),
+        // if (!appointment.hasPassed)
+        // TextButton(
+        //     onPressed: () {
+
+        //     },
+        //     child: const Text('Cancel Appointment')),
         const SizedBox(
           height: 20,
         ),

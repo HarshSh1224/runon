@@ -25,6 +25,7 @@ import 'package:runon/screens/feedback_screen.dart';
 import 'package:runon/screens/knock_knee_screen.dart';
 import 'package:runon/screens/login.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
+import 'package:runon/screens/patient/offline_appointment.dart';
 import 'package:runon/screens/patient/patient_screen.dart';
 import 'package:runon/screens/signup.dart';
 import 'package:runon/screens/forgot_password_screen.dart';
@@ -186,7 +187,8 @@ class _MyAppState extends State<MyApp> {
             AddMedicalTeam.routeName: (ctx) => AddMedicalTeam(),
             ManageIssues.routeName: (ctx) => const ManageIssues(),
             UserFeedbackScreen.routeName: (ctx) => UserFeedbackScreen(),
-            YoutubePlayerScreen.routeName: (ctx) => const YoutubePlayerScreen()
+            YoutubePlayerScreen.routeName: (ctx) => const YoutubePlayerScreen(),
+            OfflineAppointmentScreen.routeName: (ctx) => const OfflineAppointmentScreen(),
           },
         );
       }),
