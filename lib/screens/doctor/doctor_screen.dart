@@ -119,8 +119,8 @@ class DoctorScreen extends StatelessWidget {
                                       onTap: () {
                                         Navigator.of(context).pushNamed(MyScheduleScreen.routeName);
                                       },
-                                      child: const CategoryItem('assets/images/messages.jpg',
-                                          'Messages', Color(0xFF028E81)),
+                                      child: const CategoryItem('assets/images/stetho.jpg',
+                                          'Manage Medical Team', Color(0xFF028E81)),
                                     ),
                                   ),
                                 ],

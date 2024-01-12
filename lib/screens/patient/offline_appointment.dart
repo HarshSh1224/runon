@@ -21,6 +21,7 @@ class OfflineAppointmentScreen extends StatelessWidget {
             _space20(),
             Expanded(
               child: _card(
+                  context: context,
                   title: 'Regular',
                   color: Colors.pink,
                   body:
@@ -36,6 +37,7 @@ class OfflineAppointmentScreen extends StatelessWidget {
             _space20(),
             Expanded(
               child: _card(
+                  context: context,
                   title: 'Package',
                   color: Colors.blue,
                   body:
@@ -53,7 +55,8 @@ class OfflineAppointmentScreen extends StatelessWidget {
   }
 
   Widget _card(
-      {required String title,
+      {required BuildContext context,
+      required String title,
       required String body,
       required String image,
       required TextAlign align,
@@ -124,6 +127,9 @@ class OfflineAppointmentScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(width: 1.0, color: Colors.white),
+                              ),
                               onPressed: () {},
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 11),
@@ -142,6 +148,10 @@ class OfflineAppointmentScreen extends StatelessWidget {
                           ),
                           Expanded(
                             child: FilledButton(
+                              style: FilledButton.styleFrom(
+                                foregroundColor: Theme.of(context).colorScheme.background,
+                                backgroundColor: Theme.of(context).colorScheme.onBackground,
+                              ),
                               onPressed: () {},
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
@@ -150,7 +160,6 @@ class OfflineAppointmentScreen extends StatelessWidget {
                                     'Book Now',
                                     style: GoogleFonts.roboto(
                                       fontSize: 20,
-                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),

@@ -14,6 +14,7 @@ import 'package:runon/providers/slots.dart';
 import 'package:runon/screens/cancel_appointment_screen.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
+import 'package:runon/screens/reschedule_appointment.dart';
 import 'package:runon/utils/app_methods.dart';
 import 'package:runon/video_call/call_methods.dart';
 import 'package:runon/video_call/call_model.dart';
@@ -166,9 +167,20 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   );
                 }));
               } else {
-                // setState(() {
-                //   _showOnlyOptions = false;
-                // });
+                if (!appointment.before48Hours) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Cannot reschedule'),
+                  ));
+                } else {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                    return RescheduleAppointmentScreen(
+                      doctorId: appointment.doctorId,
+                      doctorImage: _appointmentData['doctorImage']!,
+                      doctorName: _appointmentData['doctor']!,
+                      appointment: appointment,
+                    );
+                  }));
+                }
               }
             }),
             itemBuilder: (_) {

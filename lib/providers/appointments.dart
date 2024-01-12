@@ -9,6 +9,7 @@ import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 enum TimelineType { appointment, consultation, cancelled }
 
 class Timeline {
+  String id;
   TimelineType type;
   DateTime createdOn;
   String? paymentId;
@@ -20,6 +21,7 @@ class Timeline {
   String? refundId;
 
   Timeline({
+    required this.id,
     required this.type,
     required this.createdOn,
     this.byDoctor = false,
@@ -54,8 +56,9 @@ class Timeline {
     return json;
   }
 
-  factory Timeline.fromMap(Map<String, dynamic> json) {
+  factory Timeline.fromMap(Map<String, dynamic> json, String id) {
     return Timeline(
+      id: id,
       type: json.containsKey(AppConstants.isCancelled)
           ? TimelineType.cancelled
           : json.containsKey(AppConstants.byDoctor)
@@ -152,7 +155,7 @@ class Appointment {
     return false;
   }
 
-  bool get isAfter48Hours {
+  bool get before48Hours {
     DateTime slot = slotIdTodDateTime(slotId);
     String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
@@ -230,7 +233,7 @@ class Appointments with ChangeNotifier {
 
     for (int i = 0; i < response.docs.length; i++) {
       final json = response.docs[i].data();
-      timelinesList.add(Timeline.fromMap(json));
+      timelinesList.add(Timeline.fromMap(json, response.docs[i].id));
     }
 
     timelinesList.sort((Timeline a, Timeline b) => a.createdOn.compareTo(b.createdOn));

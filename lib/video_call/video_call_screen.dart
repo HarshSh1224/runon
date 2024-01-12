@@ -138,21 +138,21 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         RtcEngineEventHandler(
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
             // Local User Joins the Channel
-            showMessage('Channel joined');
+            showMessage('Joined');
             setState(() {
               _isCurrentUserJoined = true;
             });
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
             // Remote user joins the channel
-            showMessage('Remote user joined');
+            showMessage('Client joined');
             setState(() {
               _remoteUid = remoteUid;
             });
           },
           onRemoteVideoStateChanged: (connection, remoteUid, state, reason, elapsed) {
             // Show Avatar When Remote video is stopped/muted/frozen
-            showMessage('Remote video state changed');
+            // showMessage('Remote video state changed');
             if (state == RemoteVideoState.remoteVideoStateStopped ||
                 state == RemoteVideoState.remoteVideoStateFrozen ||
                 state == RemoteVideoState.remoteVideoStateFailed) {

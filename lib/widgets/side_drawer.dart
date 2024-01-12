@@ -1,10 +1,10 @@
 import 'package:runon/providers/auth.dart';
-import 'package:runon/screens/patient/add_appointment.dart';
-import 'package:runon/screens/chats_screen.dart';
+import 'package:runon/screens/admin/admin_screen.dart';
+import 'package:runon/screens/doctor/doctor_screen.dart';
+import 'package:runon/screens/doctor/my_appointments.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:runon/screens/doctor/doctor_screen.dart';
-import 'package:runon/screens/patient/patient_screen.dart';
+import 'package:runon/screens/patient/my_appointments.dart';
 import 'package:runon/screens/profile_screen.dart';
 
 class SideDrawer extends StatelessWidget {
@@ -77,35 +77,30 @@ class SideDrawer extends StatelessWidget {
                           color: Colors.white,
                           size: 25,
                         ), () {
-                      // Navigator.popUntil(context, ModalRoute.withName('/tabs-screen'));
-                      Navigator.of(context).popUntil((route) => route != ModalRoute.withName('/'));
+                      Navigator.of(context).popUntil((route) => false);
                       if (auth.type == 0) {
-                        Navigator.of(context).pushReplacementNamed(PatientScreen.routeName);
+                        Navigator.of(context).pushNamed('/');
                       }
                       if (auth.type == 1) {
-                        Navigator.of(context).pushReplacementNamed(DoctorScreen.routeName);
+                        Navigator.of(context).pushNamed(DoctorScreen.routeName);
+                      }
+                      if (auth.type == 2) {
+                        Navigator.of(context).pushReplacementNamed(AdminScreen.routeName);
                       }
                     }),
-                    _listTileBuilder(
-                        context,
-                        'Chats',
-                        const Icon(
-                          Icons.chat,
-                          color: Colors.white,
-                          size: 25,
-                        ), () {
-                      Navigator.of(context).pushNamed(ChatsScreen.routeName);
-                    }),
-                    _listTileBuilder(
-                        context,
-                        'New Appointment',
-                        const Icon(
-                          Icons.person_add_alt_1,
-                          color: Colors.white,
-                          size: 25,
-                        ), () {
-                      Navigator.of(context).pushNamed(AddAppointment.routeName);
-                    }),
+                    if (!auth.isAdmin)
+                      _listTileBuilder(
+                          context,
+                          'My Appointments',
+                          const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 25,
+                          ), () {
+                        Navigator.of(context).pushNamed(auth.isDoctor
+                            ? MyAppointmentsScreenDoctor.routeName
+                            : MyAppointmentsScreen.routeName);
+                      }),
                     _listTileBuilder(
                         context,
                         'Settings',

@@ -42,8 +42,8 @@ class CancelAppointmentScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               _warning(context,
-                                  'You are${appointment.isAfter48Hours || auth.isDoctor || auth.isAdmin ? ' ' : ' not '}eligible for a full refund',
-                                  isError: !(appointment.isAfter48Hours ||
+                                  'You are${appointment.before48Hours || auth.isDoctor || auth.isAdmin ? ' ' : ' not '}eligible for a full refund',
+                                  isError: !(appointment.before48Hours ||
                                       auth.isDoctor ||
                                       auth.isAdmin)),
                               const SizedBox(
@@ -201,7 +201,7 @@ class CancelAppointmentScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Rs. ${appointment.isAfter48Hours || auth.isDoctor || auth.isAdmin ? payment!.amount.toString() : '0'}',
+                    'Rs. ${appointment.before48Hours || auth.isDoctor || auth.isAdmin ? payment!.amount.toString() : '0'}',
                     style: GoogleFonts.ubuntu(fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -299,7 +299,7 @@ class CancelAppointmentScreen extends StatelessWidget {
     // Navigator.of(context).pop();
     // if (response['status']) {
     if (await appointment.cancel(
-            refundPayment: appointment.isAfter48Hours || auth.isAdmin || auth.isDoctor) ==
+            refundPayment: appointment.before48Hours || auth.isAdmin || auth.isDoctor) ==
         true) {
       Navigator.of(context).pop();
     } else {
