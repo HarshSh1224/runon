@@ -32,4 +32,5 @@ class AppConstants {
   static const String patientName = "patientName";
   static const String doctorProfilePic = "doctorProfilePic";
   static const String patientProfilePic = "patientProfilePic";
+  static const String isReschedullable = "is_reschedullable";
 }

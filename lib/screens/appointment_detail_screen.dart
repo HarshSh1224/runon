@@ -167,7 +167,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   );
                 }));
               } else {
-                if (!appointment.before48Hours) {
+                if (!appointment.before48Hours || !appointment.canReschedule) {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text('Cannot reschedule'),
                   ));

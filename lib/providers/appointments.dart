@@ -19,19 +19,20 @@ class Timeline {
   bool? isMissed;
   bool byDoctor;
   String? refundId;
+  bool? isReschedullable;
 
-  Timeline({
-    required this.id,
-    required this.type,
-    required this.createdOn,
-    this.byDoctor = false,
-    this.paymentAmount,
-    this.paymentId,
-    required this.prescriptionList,
-    required this.slotId,
-    this.isMissed = false,
-    this.refundId,
-  });
+  Timeline(
+      {required this.id,
+      required this.type,
+      required this.createdOn,
+      this.byDoctor = false,
+      this.paymentAmount,
+      this.paymentId,
+      required this.prescriptionList,
+      required this.slotId,
+      this.isMissed = false,
+      this.refundId,
+      this.isReschedullable = true});
 
   // define tomap and from map
 
@@ -45,6 +46,7 @@ class Timeline {
       AppConstants.isMissed: isMissed,
       AppConstants.byDoctor: byDoctor,
       AppConstants.refundId: refundId,
+      AppConstants.isReschedullable: isReschedullable,
     };
 
     if (type == TimelineType.cancelled) {
@@ -74,6 +76,7 @@ class Timeline {
       isMissed: json[AppConstants.isMissed],
       byDoctor: json[AppConstants.byDoctor] ?? false,
       refundId: json[AppConstants.refundId],
+      isReschedullable: json[AppConstants.isReschedullable],
     );
   }
 }
@@ -124,6 +127,10 @@ class Appointment {
 
   bool get isCancellable {
     return isActive;
+  }
+
+  bool get canReschedule {
+    return timelines.last.isReschedullable ?? true;
   }
 
   bool get hasPassed {

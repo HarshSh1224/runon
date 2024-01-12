@@ -58,10 +58,13 @@ class _RescheduleAppointmentScreenState extends State<RescheduleAppointmentScree
             ),
             const SizedBox(height: 40),
             FutureBuilder(
-                future: _fetchSlots(),
-                builder: (context, snapshot) {
-                  return _content(context);
-                })
+              future: _fetchSlots(),
+              builder: (context, snapshot) {
+                return _content(context);
+              },
+            ),
+            const SizedBox(height: 20),
+            const Text('Reschedules are allowed only once.'),
           ],
         ),
       ),
@@ -118,7 +121,7 @@ class _RescheduleAppointmentScreenState extends State<RescheduleAppointmentScree
 
     final prevSlot = widget.appointment.slotId;
 
-    await ref.update({AppConstants.slotId: chosenSlot});
+    await ref.update({AppConstants.slotId: chosenSlot, AppConstants.isReschedullable: false});
     await Provider.of<Slots>(context, listen: false).addSlot(
         prevSlot.substring(0, prevSlot.length - 2),
         prevSlot.substring(prevSlot.length - 2, prevSlot.length),
@@ -133,6 +136,8 @@ class _RescheduleAppointmentScreenState extends State<RescheduleAppointmentScree
     });
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Success')));
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
     Navigator.of(context).pop();
   }
 }
