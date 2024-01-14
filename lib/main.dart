@@ -38,9 +38,10 @@ import 'package:runon/screens/admin/medical_teams.dart';
 import 'package:runon/screens/admin/manage_med_team.dart';
 import 'package:runon/screens/admin/manage_issues.dart';
 import 'package:runon/screens/admin/add_medical_team.dart';
+import 'package:runon/screens/youtube_player_screen.dart';
 import 'package:runon/video_call/call.dart';
 import 'package:runon/screens/admin/add_patients.dart';
-
+import 'package:runon/screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
@@ -182,6 +183,8 @@ class _MyAppState extends State<MyApp> {
             UserFeedbackScreen.routeName: (ctx) => UserFeedbackScreen(),
             PatientsList.routName: (ctx) => const PatientsList(),
             AddPatients.routName: (ctx)=> AddPatients(),
+            HomeScreen.routeName: (ctx)=> HomeScreen(),
+            YoutubePlayerScreen.routeName: (ctx)=> YoutubePlayerScreen(),
           },
         );
       }),

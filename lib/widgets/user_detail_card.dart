@@ -227,7 +227,7 @@ class UserDetailCard extends StatelessWidget {
                             setState(() {
                               _isCopied = true;
                             });
-                            await Clipboard.setData(ClipboardData(text: user.userId));
+                            await Clipboard.setData(ClipboardData(text: user.userId as String));
                             await Future.delayed(const Duration(seconds: 1));
                             setState(() {
                               _isCopied = false;

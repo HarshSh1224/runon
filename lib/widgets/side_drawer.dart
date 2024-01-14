@@ -1,5 +1,6 @@
 import 'package:runon/providers/auth.dart';
 import 'package:runon/screens/about_us_screen.dart';
+import 'package:runon/screens/home_screen.dart';
 import 'package:runon/screens/patient/add_appointment.dart';
 import 'package:runon/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
@@ -116,6 +117,16 @@ class SideDrawer extends StatelessWidget {
                           size: 25,
                         ), () {
                       Navigator.of(context).pushNamed(ProfileScreen.routeName);
+                    }),
+                    _listTileBuilder(
+                        context,
+                        'Home Screen',
+                        const Icon(
+                          Icons.home_work_rounded,
+                          color: Colors.white,
+                          size: 25,
+                        ), () {
+                      Navigator.of(context).pushNamed(HomeScreen.routeName);
                     }),
                     const Spacer(),
                     _listTileBuilder(

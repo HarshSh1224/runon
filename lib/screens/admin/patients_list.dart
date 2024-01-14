@@ -188,22 +188,14 @@ class PatientsList extends StatelessWidget {
                                                   style: GoogleFonts.robotoFlex(
                                                       fontSize: 15),
                                                 ),
-                                                const Spacer(),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                    const SizedBox(
-                                                      width: 50,
-                                                    ),
-                                                    OutlinedButton(
-                                                        onPressed: () {            
-                                                        },
-                                                        child: const Text(
-                                                            '   Manage   ')
-                                                            ),
-                                                  ],
-                                                )
+                                                Expanded(
+                                                  child: Text(
+                                                    allpatients[index].email as String,
+                                                    style: GoogleFonts.robotoFlex(
+                                                        fontSize: 15),
+                                                    softWrap: true,
+                                                  ),
+                                                ),
                                               ],
                                             )
                                           ],
