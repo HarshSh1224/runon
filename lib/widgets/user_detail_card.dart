@@ -39,7 +39,7 @@ class UserDetailCard extends StatelessWidget {
 
     setState(() {
       _pickedImage = _croppedImage != null ? File(_croppedImage!.path) : null;
-      print('PICKED ${_xPickedImage?.path}');
+      // print('PICKED ${_xPickedImage?.path}');
     });
     // widget.getProfilePic(_pickedImage);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

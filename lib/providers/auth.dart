@@ -35,6 +35,10 @@ class Auth with ChangeNotifier {
     return (DateTime.now().year - dateOfBirth!.year).toString();
   }
 
+  bool get isDoctor => type == 1;
+
+  bool get isAdmin => type == 2;
+
   Future<int> authenticate(
       {required BuildContext context,
       required String email,
@@ -104,6 +108,7 @@ class Auth with ChangeNotifier {
         imageUrl = userDataLogin['imageUrl'];
 
         // print('FETCHED IMAGE URL $imageUrl');
+        // notifyListeners();
       } catch (error) {
         rethrow;
       }

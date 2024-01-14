@@ -10,7 +10,7 @@ class ManageIssues extends StatelessWidget {
 
   Future<void> _fetchData(IssueData issueProvider) async {
     await issueProvider.fetchAndSetIssues();
-    print(issueProvider.issueData);
+    // print(issueProvider.issueData);
   }
 
   @override

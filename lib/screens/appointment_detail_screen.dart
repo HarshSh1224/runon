@@ -1,16 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/controllers/database.dart';
+import 'package:runon/models/flat_feet_options.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/slots.dart';
+import 'package:runon/screens/cancel_appointment_screen.dart';
 import 'package:runon/screens/messages_screen.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
+import 'package:runon/utils/app_methods.dart';
 import 'package:runon/video_call/call.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 import 'package:runon/widgets/method_slot_formatter.dart';
@@ -30,9 +34,10 @@ class AppointmentDetailScreen extends StatefulWidget {
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   bool isAdmin = false;
 
-  final _appointmentData = {
+  final Map<dynamic, String> _appointmentData = {
     'patient': 'Loading...',
     'patientImage': '',
+    'patient_age': 'Loading...',
     'doctor': 'Loading...',
     'doctorImage':
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6ILFjfb_VfmQr0Zd1ozwtBh_myghTAdRH2g&usqp=CAU',
@@ -47,6 +52,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         await FirebaseFirestore.instance.collection('users').doc(appointment.patientId).get();
 
     _appointmentData['patient'] = patient.data()!['fName'] + ' ' + patient.data()!['lName'];
+
+    _appointmentData['patient_age'] =
+        '${DateTime.now().year - (DateTime.parse(patient.data()!['dateOfBirth']).year)}y';
 
     _appointmentData['patientImage'] = patient.data()!['imageUrl'];
 
@@ -65,7 +73,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     // debugPrint('HELLLLLLLL${timelineFetch.docs[0]['paymentId']}');
   }
 
-  Widget _customWidgetBuilder(String type, String name, String imageUrl) {
+  Widget _customWidgetBuilder(String type, String name, String imageUrl, {Widget? trailing}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -91,6 +99,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.raleway(fontWeight: FontWeight.w600, fontSize: 18)),
             ),
+            if (trailing != null) ...[const SizedBox(width: 7), trailing]
           ],
         ),
       ],
@@ -130,7 +139,15 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _customWidgetBuilder('PATIENT', _appointmentData['patient']!,
-                            _appointmentData['patientImage']!),
+                            _appointmentData['patientImage']!,
+                            trailing: Text(
+                              _appointmentData['patient_age']!,
+                              style: GoogleFonts.roboto(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  fontStyle: FontStyle.italic,
+                                  color: Theme.of(context).colorScheme.outline),
+                            )),
                         _customWidgetBuilder('DOCTOR', _appointmentData['doctor']!,
                             _appointmentData['doctorImage']!),
                         SizedBox(
@@ -152,82 +169,139 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           // e['createdOn'];
                           return Transform.translate(
                             offset: const Offset(10, 0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Transform.translate(
-                                  offset: const Offset(0, 8),
-                                  child: Column(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 6,
-                                        backgroundColor: Theme.of(context).colorScheme.tertiary,
-                                      ),
-                                      Container(
-                                        height: 175,
-                                        width: 3,
-                                        color: Theme.of(context).colorScheme.tertiary,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  // child: Text('Date'),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        DateFormat('dd MMM yyyy').format(e.createdOn),
-                                        style: GoogleFonts.roboto(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                          color: Theme.of(context).colorScheme.tertiary,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 3,
-                                      ),
-                                      Text(
-                                        e.byDoctor
-                                            ? 'Successfully Consulted'
-                                            : 'Payment Scuccessful Rs ${e.paymentAmount}',
-                                        style: const TextStyle(fontStyle: FontStyle.italic),
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      AttachmentCard(
-                                        title: 'View Attachments',
-                                        color: Theme.of(context).colorScheme.secondaryContainer,
-                                        height: 70,
-                                      ),
-                                      const SizedBox(
-                                        height: 25,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                            child: e.type == TimelineType.cancelled
+                                ? _cancelledTimeline(context, e)
+                                : _normalTimeline(context, e),
                           );
                         }).toList(),
                         const SizedBox(
                           height: 20,
                         ),
-                        if (!appointment.hasPassed) _upcomingAppointment(appointment, context),
-                        if (appointment.hasPassed && !widget.isDoctor)
+                        if (!appointment.hasPassed && !appointment.isCancelled)
+                          _upcomingAppointment(appointment, context),
+                        if ((appointment.hasPassed && !widget.isDoctor) || appointment.isCancelled)
                           FollowUpButton(
                             appointment: appointment,
                             doctorName: _appointmentData['doctor']!,
                             isAdmin: isAdmin,
-                          )
+                          ),
+                        if (appointment.isCancelled && isAdmin)
+                          _deleteAppointmentButton(appointment),
                       ],
                     ),
                   ),
                 );
         },
       ),
+    );
+  }
+
+  Widget _normalTimeline(BuildContext context, Timeline e) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Transform.translate(
+          offset: const Offset(0, 8),
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 6,
+                backgroundColor: Theme.of(context).colorScheme.tertiary,
+              ),
+              Container(
+                height: 175,
+                width: 3,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateFormat('dd MMM yyyy').format(e.createdOn),
+                style: GoogleFonts.roboto(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              const SizedBox(
+                height: 3,
+              ),
+              Text(
+                e.byDoctor ? 'Successfully Consulted' : 'Payment Scuccessful Rs ${e.paymentAmount}',
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              AttachmentCard(
+                docsUrl: e.prescriptionList,
+                title: 'View Attachments',
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                height: 70,
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _cancelledTimeline(BuildContext context, Timeline e) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Transform.translate(
+          offset: const Offset(0, 8),
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 6,
+                backgroundColor: Theme.of(context).colorScheme.tertiary,
+              ),
+              Container(
+                height: 60,
+                width: 3,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateFormat('dd MMM yyyy').format(e.createdOn),
+                style: GoogleFonts.roboto(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              const SizedBox(
+                height: 3,
+              ),
+              Text(
+                'Appointment Cancelled.${e.refundId != null ? ' Fee Refunded.' : ''}',
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -244,15 +318,15 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         const SizedBox(
           height: 20,
         ),
-        OutlinedButton(
+        FilledButton(
             onPressed: !canStartAppointment(appointment)
                 ? null
                 : () async {
                     if (widget.isDoctor) {
                       await _generateTimeline(appointment.appointmentId, appointment.slotId);
                     }
-                    Navigator.of(context)
-                        .pushNamed(CallPage.routeName, arguments: appointment.appointmentId);
+                    Navigator.of(context).pushNamed(CallPage.routeName,
+                        arguments: {'appointment': appointment, 'callback': _uploadPrescription});
                   },
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -268,11 +342,62 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           CountdownTimer(
             countTo: slotIdTodDateTime(appointment.slotId, withTime: true),
           ),
+        if (!appointment.hasPassed)
+          TextButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return CancelAppointmentScreen(
+                    appointment: appointment,
+                    paymentId: appointment.mostRecentPaymentId ?? '',
+                    auth: Provider.of<Auth>(context, listen: false),
+                  );
+                }));
+              },
+              child: const Text('Cancel Appointment')),
         const SizedBox(
           height: 20,
         ),
       ],
     );
+  }
+
+  Widget _deleteAppointmentButton(Appointment appointment) {
+    return OutlinedButton(
+        style: TextButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.error,
+          foregroundColor: Theme.of(context).colorScheme.onError,
+        ),
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (_) {
+                return AlertDialog(
+                  title: const Text('Delete Appointment'),
+                  content: const Text('Are you sure you want to delete this appointment?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('No')),
+                    TextButton(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          await appointment.delete();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Yes')),
+                  ],
+                );
+              });
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.delete),
+            Text('Delete Appointment'),
+          ],
+        ));
   }
 
   bool canStartAppointment(Appointment appointment) {
@@ -286,18 +411,44 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     return false;
   }
 
-  Future<void> _generateTimeline(String appointmentId, String slotId) async {
+  Future<void> _uploadPrescription(
+      String text, Appointment appointment, FeetObservations? feetObservations) async {
+    if (text.isEmpty && feetObservations == null) return;
+    print('Creating Prescription');
+    final prescription = await AppMethods.gneratePrescriptionPdf(
+        appointmentId: appointment.appointmentId,
+        patientName: _appointmentData['patient']!,
+        patientId: appointment.patientId,
+        doctorName: _appointmentData['doctor']!,
+        doctorId: appointment.doctorId,
+        issue: _appointmentData['issue']!,
+        date: expandSlot(appointment.slotId),
+        prescription: text,
+        feetObservations: feetObservations);
+
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('prescriptions')
+        .child(appointment.appointmentId + appointment.slotId);
+    await ref.putFile(prescription);
+    final url = await ref.getDownloadURL();
+    await _generateTimeline(appointment.appointmentId, appointment.slotId, url);
+  }
+
+  Future<void> _generateTimeline(String appointmentId, String slotId,
+      [String? prescriptionUrl]) async {
     final ref = FirebaseFirestore.instance
         .collection('appointments/$appointmentId/timeline')
         .doc(appointmentId + slotId);
 
     try {
-      await ref.set({
+      final data = {
         'createdOn': DateTime.now().toIso8601String(),
         'byDoctor': true,
-        'prescriptionList': [],
         'slotId': slotId,
-      });
+      };
+      if (prescriptionUrl != null) data['prescriptionList'] = [prescriptionUrl];
+      await ref.set(data);
     } catch (error) {
       print(error);
     }

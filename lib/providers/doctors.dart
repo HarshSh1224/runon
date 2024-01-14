@@ -6,13 +6,24 @@ class Doctor {
   String name;
   double fees;
   String qualifications;
+  String? email;
 
   Doctor({
     required this.id,
     required this.name,
     required this.fees,
     required this.qualifications,
+    this.email,
   });
+
+  Future<bool> isFree() async {
+    final response = await FirebaseFirestore.instance.collection('appointments').get();
+      for (int i = 0; i < response.docs.length; i++) {
+        if(response.docs[i].data().containsKey('archived') && response.docs[i].data()['archived'] == true) continue;
+        if(response.docs[i].data()['doctorId'] == id) return false;
+      }
+      return true;
+  }
 }
 
 class Doctors with ChangeNotifier {
@@ -39,6 +50,7 @@ class Doctors with ChangeNotifier {
 
       for (int i = 0; i < fetchedDoctors.length; i++) {
         // print('object');
+        if(fetchedDoctors[i].data().containsKey('archived') && fetchedDoctors[i]['archived'] == true) continue;
         temp.add(
           Doctor(
             id: fetchedDoctors[i].id,
@@ -47,6 +59,7 @@ class Doctors with ChangeNotifier {
                 ? -1
                 : double.parse('${fetchedDoctors[i]['fees']}'),
             qualifications: fetchedDoctors[i]['qualification'],
+            email: (fetchedDoctors[i].data()).containsKey('email') ? fetchedDoctors[i]['email'] : null,
           ),
         );
       }

@@ -41,8 +41,8 @@ class _EditBottomSheetState extends State<EditBottomSheet> {
       return;
     }
     _formKey.currentState!.save();
-    print(_formData.toString());
-    print(_pickedDate);
+    // print(_formData.toString());
+    // print(_pickedDate);
 
     setState(() {
       _isLoading = true;

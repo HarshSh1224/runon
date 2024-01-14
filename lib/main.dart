@@ -6,11 +6,12 @@ import 'package:provider/provider.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
+import 'package:runon/providers/exercise_docs.dart';
 import 'package:runon/providers/issue_data.dart';
 import 'package:runon/providers/slots.dart';
 import 'package:runon/providers/temp_provider.dart';
+import 'package:runon/providers/youtube_feed.dart';
 import 'package:runon/screens/about_us_screen.dart';
-import 'package:runon/screens/admin/patients_list.dart';
 import 'package:runon/screens/patient/add_appointment.dart';
 import 'package:runon/screens/admin/admin_appointments.dart';
 import 'package:runon/screens/admin/user_feedbacks.dart';
@@ -40,9 +41,9 @@ import 'package:runon/screens/admin/manage_issues.dart';
 import 'package:runon/screens/admin/add_medical_team.dart';
 import 'package:runon/screens/youtube_player_screen.dart';
 import 'package:runon/video_call/call.dart';
-import 'package:runon/screens/admin/add_patients.dart';
-import 'package:runon/screens/home_screen.dart';
+
 void main() async {
+  dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
     await Firebase.initializeApp(
@@ -116,11 +117,17 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(
           create: (_) => Appointments(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ExerciseDocuments(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => YoutubeFeed(),
+        ),
       ],
       child: Consumer<Auth>(builder: (context, auth, ch) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
+          title: 'Healthy Aayu',
           theme: ThemeData(
             brightness: themeBrightness,
             useMaterial3: true,
@@ -130,7 +137,9 @@ class _MyAppState extends State<MyApp> {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               return !snapshot.hasData
-                  ? const LoginScreen()
+                  ? HomePage(
+                      toggleTheme: toggleTheme,
+                    )
                   : FutureBuilder(
                       future: auth.tryLogin(),
                       builder: (context, snapshot) {
@@ -143,9 +152,7 @@ class _MyAppState extends State<MyApp> {
                               )
                             : auth.type == 1
                                 ? DoctorScreen()
-                                : (auth.type == 2
-                                    ? AdminScreen()
-                                    : PatientScreen());
+                                : (auth.type == 2 ? AdminScreen() : PatientScreen());
                       },
                     );
             },
@@ -161,7 +168,7 @@ class _MyAppState extends State<MyApp> {
                 AppointmentDetailScreen(),
             ForgotPasswordScreen.routeName: (ctx) => ForgotPasswordScreen(),
             ProfileScreen.routeName: (ctx) => ProfileScreen(toggleTheme),
-            DocumentsScreen.routeName: (ctx) => const DocumentsScreen(),
+            AllDocumentsScreen.routeName: (ctx) => const AllDocumentsScreen(),
             MyScheduleScreen.routeName: (ctx) => const MyScheduleScreen(),
             FlatFeetScreen.routeName: (ctx) => const FlatFeetScreen(),
             KnockKneeScreen.routeName: (ctx) => const KnockKneeScreen(),
@@ -181,10 +188,6 @@ class _MyAppState extends State<MyApp> {
             AddMedicalTeam.routeName: (ctx) => AddMedicalTeam(),
             ManageIssues.routeName: (ctx) => const ManageIssues(),
             UserFeedbackScreen.routeName: (ctx) => UserFeedbackScreen(),
-            PatientsList.routName: (ctx) => const PatientsList(),
-            AddPatients.routName: (ctx)=> AddPatients(),
-            HomeScreen.routeName: (ctx)=> HomeScreen(),
-            YoutubePlayerScreen.routeName: (ctx)=> YoutubePlayerScreen(),
           },
         );
       }),

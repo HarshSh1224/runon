@@ -15,7 +15,6 @@ class MyAppointmentsScreen extends StatelessWidget {
   Future<void> _fetchAppointments(
       Appointments appointmentsProvider, Auth auth, IssueData issue) async {
     await appointmentsProvider.fetchAndSetAppointments();
-    print(_myAppointments);
     await issue.fetchAndSetIssues();
     _myAppointments = appointmentsProvider.getAppointmentsByPatientId(id: auth.userId!);
   }
@@ -27,7 +26,14 @@ class MyAppointmentsScreen extends StatelessWidget {
     final issue = Provider.of<IssueData>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Appointments'),
+        automaticallyImplyLeading: false,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Text(
+            'All Appointments',
+            style: GoogleFonts.raleway(fontWeight: FontWeight.bold, fontSize: 30),
+          ),
+        ),
       ),
       body: FutureBuilder(
           future: _fetchAppointments(appointmentsProvider, auth, issue),
@@ -37,20 +43,10 @@ class MyAppointmentsScreen extends StatelessWidget {
                     child: CircularProgressIndicator(),
                   )
                 : Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+                    padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Text(
-                            'All Appointments',
-                            style: GoogleFonts.raleway(fontWeight: FontWeight.bold, fontSize: 30),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
                         _myAppointments.isEmpty
                             ? Expanded(
                                 child: Center(
@@ -148,7 +144,9 @@ class UpcomingDeleteButton extends StatelessWidget {
                   : Theme.of(context).colorScheme.tertiary,
             ),
           ),
-          child: Text(_appointment.hasPassed ? 'Passed' : 'Upcoming'),
+          child: Text(_appointment.isCancelled
+              ? 'Cancelled'
+              : (_appointment.hasPassed ? 'Passed' : 'Upcoming')),
         ),
       ),
     );

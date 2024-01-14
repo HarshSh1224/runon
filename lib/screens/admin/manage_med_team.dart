@@ -24,6 +24,14 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
   @override
+  void dispose() {
+    nameController.dispose();
+    qualificationsController.dispose();
+    feesController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Doctor doctor = ModalRoute.of(context)!.settings.arguments as Doctor;
 
@@ -75,7 +83,11 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
                 return null;
               }),
               const SizedBox(
-                height: 100,
+                height: 10,
+              ),
+              _formRowBuilder('Email id :', feesController , (value) => null, disabledText: (doctor.email ?? 'Not available')),
+              const SizedBox(
+                height: 45,
               ),
               Align(
                 alignment: Alignment.centerRight,
@@ -142,13 +154,86 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
                 ],
               ),
               const SizedBox(
-                height: 50,
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.onError,
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                      ),
+                      onPressed: () async {
+                        final deleteable = await doctor.isFree();
+                        showDialog(context: context, builder: (_){
+                          return deleteable ? _confirmDelete(context, doctor) : AlertDialog(
+                            title: const Text('Delete Team'),
+                            content: const Text('This team cannot be deleted as it has active appointments. Please delete all of their appointments to proceed'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Ok'),
+                              ),
+                            ],
+                          );
+                        });
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+                        child: Text(
+                            'Delete Team',
+                            style: TextStyle(fontSize: 17),
+                          ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
               ),
             ]),
           ),
         ),
       ),
     );
+  }
+
+  AlertDialog _confirmDelete(BuildContext context, Doctor doctor) {
+    return AlertDialog(
+                          title: const Text('Delete Team'),
+                          content: const Text('Are you sure you want to delete this team?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+                                try {
+                                  await FirebaseFirestore.instance.collection('doctors').doc(doctor.id).update({'archived' : true});
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Success',
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                  Navigator.of(context).pop();
+                                } catch (error) {
+                                  debugPrint(error.toString());
+                                }
+                              },
+                              child: const Text('Yes'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('No'),
+                            ),
+                          ],
+                        );
   }
 
   void _submit(context, Doctor doctor, setState) async {
@@ -194,6 +279,7 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
     String title,
     TextEditingController controller,
     String? Function(String?)? validator,
+    {String? disabledText}
   ) {
     return Row(
       children: [
@@ -206,16 +292,28 @@ class _ManageMedicalTeamState extends State<ManageMedicalTeam> {
         ),
         Expanded(
           flex: 10,
-          child: TextFormField(
+          child: disabledText != null ? _disabledTextField(disabledText) : TextFormField(
             validator: validator,
             controller: controller,
             decoration: const InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 5),
+              contentPadding: EdgeInsets.symmetric(horizontal: 10),
               border: OutlineInputBorder(),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _disabledTextField(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        borderRadius: BorderRadius.circular(5),
+        color: Theme.of(context).colorScheme.outline.withOpacity(0.1)
+      ),
+      child: Text(text, style: TextStyle(color: Theme.of(context).colorScheme.outline)),
     );
   }
 }

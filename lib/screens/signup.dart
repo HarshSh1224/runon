@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runon/misc/constants/app_constants.dart';
 import 'package:runon/providers/auth.dart';
+import 'package:runon/screens/login.dart';
 import 'package:runon/screens/patient/patient_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/clip_paths.dart';
@@ -24,8 +26,7 @@ class SignupScreen extends StatelessWidget {
     'gender': '',
     'email': '',
     'address': '',
-    'imageUrl':
-        'https://firebasestorage.googleapis.com/v0/b/runon-c2c2e.appspot.com/o/profilePics%2Fdefault.jpg?alt=media&token=dbbd8628-1910-40dd-a2cc-fdf9ba86278e'
+    'imageUrl': AppConstants.blankProfileImage
   };
 
   void _submit(BuildContext context, setState) async {
@@ -396,6 +397,7 @@ class SignupScreen extends StatelessWidget {
                         child: TextButton(
                             onPressed: () {
                               Navigator.pushReplacementNamed(context, '/');
+                              Navigator.pushNamed(context, LoginScreen.routeName);
                             },
                             child: Text(
                               'Login Instead',

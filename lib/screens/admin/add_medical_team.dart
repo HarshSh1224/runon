@@ -65,6 +65,7 @@ class AddMedicalTeam extends StatelessWidget {
               email: _formData['email'], password: _passwordController.text);
 
       final userId = authResponse.user!.uid;
+      _doctorData['email'] = _formData['email'];
       await FirebaseFirestore.instance.collection('users').doc(userId).set(_formData);
       await FirebaseFirestore.instance.collection('doctors').doc(userId).set(_doctorData);
       // print(_formData);

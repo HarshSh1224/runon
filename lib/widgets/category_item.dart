@@ -25,7 +25,7 @@ class CategoryItem extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 350, maxHeight: 250),
       width: double.infinity,
       child: Card(
-        color: ColorScheme.fromSeed(seedColor: _color).secondaryContainer,
+        color: ColorScheme.fromSeed(seedColor: _color, brightness: Theme.of(context).brightness).secondaryContainer,
         elevation: 6,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           SizedBox(
@@ -51,7 +51,7 @@ class CategoryItem extends StatelessWidget {
               style: GoogleFonts.raleway(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: ColorScheme.fromSeed(seedColor: _color).secondary),
+                  color: ColorScheme.fromSeed(seedColor: _color, brightness: Theme.of(context).brightness).secondary),
             ),
           ),
         ]),

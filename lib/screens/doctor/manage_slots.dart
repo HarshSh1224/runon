@@ -203,38 +203,79 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
             size: 30,
           ),
           onPressed: () {
+            var tempList = [];
             showDialog(
                 context: context,
                 builder: (ctx) {
-                  return AlertDialog(
-                    title: Text(DateFormat('dd MMM yyy').format(_today)),
-                    content: Wrap(children: [
-                      ...slotTimings.values.map((e) {
-                        return InkWell(
-                          onTap: () {
-                            // print(slotTimings.keys.firstWhere(
-                            //     (element) => slotTimings[element] == e));
-                            Provider.of<Slots>(context, listen: false).addSlot(
-                                dateTimeToSlotId(_today),
-                                slotTimings.keys.firstWhere((element) => slotTimings[element] == e),
-                                doctorId ?? FirebaseAuth.instance.currentUser!.uid);
-                            setState(() {
-                              ensureOnce = false;
-                            });
-                            Navigator.of(context).pop();
-                          },
-                          child: Card(
-                              child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(e),
-                          )),
-                        );
-                      }).toList()
-                    ]),
+                  return SlotsDialog(
+                    doctorId: doctorId,
+                    today: _today,
+                    setstate: () => setState(() {
+                      ensureOnce = false;
+                    }),
                   );
                 });
           },
         ),
+      ),
+    );
+  }
+}
+
+class SlotsDialog extends StatefulWidget {
+  const SlotsDialog({
+    required this.today,
+    this.doctorId,
+    super.key,
+    required this.setstate,
+  });
+
+  final DateTime today;
+  final String? doctorId;
+  final VoidCallback setstate;
+
+  @override
+  State<SlotsDialog> createState() => _SlotsDialogState();
+}
+
+class _SlotsDialogState extends State<SlotsDialog> {
+  @override
+  Widget build(BuildContext context) {
+    final slots = Provider.of<Slots>(context);
+    return AlertDialog(
+      title: Text(DateFormat('dd MMM yyy').format(widget.today)),
+      content: SingleChildScrollView(
+        child: Wrap(children: [
+          ...slotTimings.values.map((e) {
+            return InkWell(
+              onTap: () {
+                if (!slots.isScheduled(dateTimeToSlotId(widget.today),
+                    slotTimings.keys.firstWhere((element) => slotTimings[element] == e))) {
+                  Provider.of<Slots>(context, listen: false).addSlot(
+                      dateTimeToSlotId(widget.today),
+                      slotTimings.keys.firstWhere((element) => slotTimings[element] == e),
+                      widget.doctorId ?? FirebaseAuth.instance.currentUser!.uid);
+                } else {
+                  Provider.of<Slots>(context, listen: false).removeSlot(
+                      dateTimeToSlotId(widget.today),
+                      slotTimings.keys.firstWhere((element) => slotTimings[element] == e),
+                      widget.doctorId ?? FirebaseAuth.instance.currentUser!.uid);
+                }
+                widget.setstate();
+                // Navigator.of(context).pop();
+              },
+              child: Card(
+                  color: slots.isScheduled(dateTimeToSlotId(widget.today),
+                          slotTimings.keys.firstWhere((element) => slotTimings[element] == e))
+                      ? Theme.of(context).colorScheme.inversePrimary
+                      : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(e),
+                  )),
+            );
+          }).toList()
+        ]),
       ),
     );
   }
