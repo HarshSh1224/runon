@@ -1,44 +1,35 @@
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/payment_gateway/razorpay_options.dart' as rp;
 import 'package:runon/providers/doctors.dart';
-import 'package:runon/providers/slots.dart';
-import 'package:runon/screens/payment_success.dart';
+import 'package:runon/utils/save_appointment_to_server.dart';
 import '../widgets/method_slot_formatter.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class ConfirmAppointmentDialog extends StatefulWidget {
-  ConfirmAppointmentDialog(
+  const ConfirmAppointmentDialog(
     this._doctorId,
     this._slot,
     this._issue,
     this._formData,
     this._files, {
+    required this.isOffline,
     this.isFollowUp = false,
     this.appointmentId,
     this.patient,
     super.key,
   });
 
+  final bool isOffline;
   final bool isFollowUp;
   final String? appointmentId;
   final String _doctorId;
   final String _slot;
   final String _issue;
   final Auth? patient;
-  final _formData;
-  final _files;
-  final timelineData = {
-    'createdOn': '',
-    'paymentId': '',
-    'paymentAmount': '',
-    'prescriptionList': [],
-    'slotId': '',
-  };
+  final Map<String, dynamic> _formData;
+  final List _files;
 
   @override
   State<ConfirmAppointmentDialog> createState() => _ConfirmAppointmentDialogState();
@@ -75,8 +66,15 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         );
       },
     );
-    widget.timelineData['paymentId'] = response.paymentId as String;
-    _sendDataToServer(context);
+    sendAppointmentDataToServer(
+      context: context,
+      doctorId: widget._doctorId,
+      formData: widget._formData,
+      files: widget._files,
+      isFollowUp: widget.isFollowUp,
+      appointmentID: widget.appointmentId,
+      paymentId: response.paymentId!,
+    );
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
@@ -101,140 +99,6 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
         );
       },
     );
-  }
-
-  void _sendDataToServer(context) async {
-    final firebaseDatabase = FirebaseFirestore.instance.collection('appointments');
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          content: SizedBox(
-            height: 100,
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  CircularProgressIndicator(),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text('Please wait')
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-
-    bool success = false;
-    String appointmentId = "";
-
-    try {
-      if (!widget.isFollowUp) {
-        final response = await firebaseDatabase.add(widget._formData);
-        for (int i = 0; i < widget._files.length; i++) {
-          final ref =
-              FirebaseStorage.instance.ref().child('previousReports').child('${response.id}$i');
-          await ref.putFile(File(widget._files[i].path));
-          final url = await ref.getDownloadURL();
-          (widget.timelineData['prescriptionList']! as List).add(url);
-        }
-
-        final String slot = widget._formData['slotId'];
-
-        widget.timelineData['createdOn'] = DateTime.now().toIso8601String();
-        widget.timelineData['slotId'] = slot;
-        widget.timelineData['paymentAmount'] =
-            Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId)!.fees;
-
-        await FirebaseFirestore.instance
-            .collection('appointments/${response.id}/timeline')
-            .add(widget.timelineData);
-
-        appointmentId = response.id;
-
-        await firebaseDatabase.doc(response.id).set(widget._formData);
-
-        Provider.of<Slots>(context, listen: false)
-            .removeSlot(slot.substring(0, 8), slot.substring(8, 10), widget._formData['doctorId']);
-
-        success = true;
-
-        // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        //   content: Padding(
-        //     padding: EdgeInsets.symmetric(vertical: 10.0),
-        //     child: Text('Success'),
-        //   ),
-        // ));
-      } else {
-        appointmentId = widget.appointmentId!;
-        for (int i = 0; i < widget._files.length; i++) {
-          final ref = FirebaseStorage.instance
-              .ref()
-              .child('previousReports')
-              .child('${widget.appointmentId}$i');
-          await ref.putFile(File(widget._files[i].path));
-          final url = await ref.getDownloadURL();
-          (widget.timelineData['prescriptionList']! as List).add(url);
-        }
-
-        final String slot = widget._formData['slotId'];
-
-        widget.timelineData['createdOn'] = DateTime.now().toIso8601String();
-        widget.timelineData['slotId'] = slot;
-        widget.timelineData['paymentAmount'] =
-            Provider.of<Doctors>(context, listen: false).doctorFromId(widget._doctorId)!.fees;
-
-        await FirebaseFirestore.instance
-            .collection('appointments/${widget.appointmentId}/timeline')
-            .add(widget.timelineData);
-
-        Provider.of<Slots>(context, listen: false)
-            .removeSlot(slot.substring(0, 8), slot.substring(8, 10), widget._formData['doctorId']);
-
-        success = true;
-
-        // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        //   content: Padding(
-        //     padding: EdgeInsets.symmetric(vertical: 10.0),
-        //     child: Text('Success'),
-        //   ),
-        // ));
-      }
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Padding(
-            padding: EdgeInsets.symmetric(vertical: 10.0),
-            child: Text('Error'),
-          ),
-        ),
-      );
-    }
-
-    Navigator.of(context).pop();
-    Navigator.of(context).pop();
-    Navigator.of(context).pop();
-    Navigator.of(context).pop();
-
-    final auth = Provider.of<Auth>(context, listen: false);
-
-    if (success) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: ((context) => PaymentSuccess(
-                amount: widget.timelineData['paymentAmount'] as double,
-                date: DateTime.now(),
-                fee: 0,
-                name: '${auth.fName!} ${auth.lName!}',
-                paymentId: widget.timelineData['paymentId'] as String,
-                appointmentId: appointmentId,
-              )),
-        ),
-      );
-    }
   }
 
   @override
@@ -322,7 +186,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
                 children: [
                   const TextSpan(text: 'Chosen Slot : '),
                   TextSpan(
-                      text: expandSlot(widget._slot),
+                      text: expandSlot(widget._slot, widget.isOffline),
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),

@@ -5,20 +5,20 @@ import '../providers/slots.dart';
 import '../widgets/slots_dialog.dart';
 import '../providers/slot_timings.dart';
 
-class SlotPicker extends StatefulWidget {
+class SlotPickerOnline extends StatefulWidget {
   final Function(String) onUpdate;
   Slots? slotsReceived;
-  SlotPicker({
+  SlotPickerOnline({
     required this.onUpdate,
     this.slotsReceived,
     super.key,
   });
 
   @override
-  State<SlotPicker> createState() => _SlotPickerState();
+  State<SlotPickerOnline> createState() => _SlotPickerOnlineState();
 }
 
-class _SlotPickerState extends State<SlotPicker> {
+class _SlotPickerOnlineState extends State<SlotPickerOnline> {
   final TextEditingController _pickedDate = TextEditingController();
   String? _chosenSlot;
 
@@ -67,7 +67,7 @@ class _SlotPickerState extends State<SlotPicker> {
         widget.onUpdate(
             '${DateFormat('ddMMyyyy').format(temp)}${_chosenSlot!.length == 1 ? '0' : ''}$_chosenSlot');
         _pickedDate.text =
-            '${DateFormat('dd MMM').format(temp)} ${slotTimings[_chosenSlot]} - ${slotTimings[(int.parse(_chosenSlot!) + 1).toString()]}';
+            '${DateFormat('dd MMM').format(temp)} ${slotTimings(key: _chosenSlot!, offline: false)} - ${slotTimings(key: (int.parse(_chosenSlot!) + 1).toString(), offline: false)}';
       },
     );
   }

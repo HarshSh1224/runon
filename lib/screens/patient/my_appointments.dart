@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/issue_data.dart';
-import 'package:runon/widgets/method_slot_formatter.dart';
-import 'package:runon/screens/appointment_detail_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:runon/screens/appointment_detail_screen.dart';
+import 'package:runon/widgets/method_slot_formatter.dart';
 
 class MyAppointmentsScreen extends StatelessWidget {
   static const routeName = '/my-appointments-screen';
@@ -17,6 +17,7 @@ class MyAppointmentsScreen extends StatelessWidget {
     await appointmentsProvider.fetchAndSetAppointments();
     await issue.fetchAndSetIssues();
     _myAppointments = appointmentsProvider.getAppointmentsByPatientId(id: auth.userId!);
+    print(_myAppointments.length);
   }
 
   @override
@@ -76,6 +77,7 @@ class MyAppointmentsScreen extends StatelessWidget {
                                 child: ListView.builder(
                                     itemCount: _myAppointments.length,
                                     itemBuilder: ((context, index) {
+                                      // return Container();
                                       return Card(
                                         margin: const EdgeInsets.only(bottom: 20),
                                         elevation: 0,
@@ -94,18 +96,19 @@ class MyAppointmentsScreen extends StatelessWidget {
                                                 .issueFromId(_myAppointments[index].issueId)[0]),
                                           ),
                                           subtitle: Text(
-                                            expandSlot(_myAppointments[index].slotId),
+                                            expandSlot(_myAppointments[index].slotId,
+                                                _myAppointments[index].isOffline),
                                           ),
                                           title: Text(
                                               issue.issueFromId(_myAppointments[index].issueId)),
                                           trailing: Row(
                                             mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Transform.scale(
-                                                scale: 0.8,
-                                                child: UpcomingDeleteButton(_myAppointments[index]),
-                                              ),
-                                              const Icon(Icons.chevron_right_rounded),
+                                            children: const [
+                                              // Transform.scale(
+                                              //   scale: 0.8,
+                                              //   child: UpcomingDeleteButton(_myAppointments[index]),
+                                              // ),
+                                              Icon(Icons.chevron_right_rounded),
                                             ],
                                           ),
                                         ),

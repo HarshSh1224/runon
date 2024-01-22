@@ -162,6 +162,49 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(
                 height: 30,
               ),
+              // Signout button goes here:
+              OutlinedButton(
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text(
+                            'Logout',
+                          ),
+                          content: const Text('Are you sure you want to logout?'),
+                          actions: [
+                            TextButton(
+                                onPressed: Navigator.of(context).pop, child: const Text('No')),
+                            TextButton(
+                                onPressed: () {
+                                  user.logout();
+                                  Navigator.popUntil(
+                                    context,
+                                    ModalRoute.withName('/'),
+                                  );
+                                  if (!Navigator.of(context).canPop()) {
+                                    Navigator.of(context).pushNamed('/');
+                                  }
+                                },
+                                child: const Text('Yes'))
+                          ],
+                        );
+                      });
+                },
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 32),
+                  child: Text(
+                    'Sign Out',
+                    style: TextStyle(
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
             ],
           ),
         ),

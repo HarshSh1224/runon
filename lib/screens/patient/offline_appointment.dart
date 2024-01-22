@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:runon/screens/patient/new_appointment.dart';
 
 class OfflineAppointmentScreen extends StatelessWidget {
   static const routeName = '/offline-appointment-screen';
@@ -21,6 +22,13 @@ class OfflineAppointmentScreen extends StatelessWidget {
             _space20(),
             Expanded(
               child: _card(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => NewAppointment(isOffline: false),
+                      ),
+                    );
+                  },
                   context: context,
                   title: 'Regular',
                   color: Colors.pink,
@@ -37,6 +45,7 @@ class OfflineAppointmentScreen extends StatelessWidget {
             _space20(),
             Expanded(
               child: _card(
+                  onPressed: () {},
                   context: context,
                   title: 'Package',
                   color: Colors.blue,
@@ -61,7 +70,8 @@ class OfflineAppointmentScreen extends StatelessWidget {
       required String image,
       required TextAlign align,
       required Color color,
-      bool isFeatured = false}) {
+      bool isFeatured = false,
+      required void Function()? onPressed}) {
     return Card(
       elevation: 15,
       shape: RoundedRectangleBorder(
@@ -152,7 +162,7 @@ class OfflineAppointmentScreen extends StatelessWidget {
                                 foregroundColor: Theme.of(context).colorScheme.background,
                                 backgroundColor: Theme.of(context).colorScheme.onBackground,
                               ),
-                              onPressed: () {},
+                              onPressed: onPressed,
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: FittedBox(

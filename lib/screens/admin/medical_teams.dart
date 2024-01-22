@@ -179,7 +179,7 @@ class MedicalTeamsScreen extends StatelessWidget {
                                                         onPressed: () {
                                                           Navigator.of(context).pushNamed(
                                                               ManageMedicalTeam.routeName,
-                                                              arguments: doctorsList[index]);
+                                                              arguments: doctorsList[index].id);
                                                         },
                                                         child: const Text('   Manage   ')),
                                                   ],

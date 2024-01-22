@@ -27,7 +27,7 @@ class AppointmentListTile extends StatelessWidget {
           child: Text(issue.issueFromId(appointment.issueId)[0]),
         ),
         title: Text(
-          expandSlot(appointment.slotId),
+          expandSlot(appointment.slotId, appointment.isOffline),
         ),
         subtitle: Text(issue.issueFromId(appointment.issueId)),
         trailing: const Icon(Icons.chevron_right_rounded),

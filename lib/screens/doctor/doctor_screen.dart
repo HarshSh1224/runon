@@ -3,8 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/misc/constants/app_constants.dart';
 import 'package:runon/providers/auth.dart';
+import 'package:runon/providers/doctors.dart';
 import 'package:runon/screens/about_us_screen.dart';
-import 'package:runon/screens/patient/my_schedule_screen.dart';
+import 'package:runon/screens/admin/manage_med_team.dart';
 import '../../widgets/category_item.dart';
 import '../../widgets/clip_paths.dart';
 import 'my_appointments.dart';
@@ -59,7 +60,7 @@ class DoctorScreen extends StatelessWidget {
             child: Container(color: Theme.of(context).colorScheme.secondaryContainer),
           ),
           FutureBuilder(
-            future: user.tryLogin(),
+            future: _futures(context, user),
             builder: (context, snapshot) {
               return snapshot.connectionState == ConnectionState.waiting
                   ? const Center(
@@ -116,8 +117,9 @@ class DoctorScreen extends StatelessWidget {
                                   MouseRegion(
                                     cursor: SystemMouseCursors.click,
                                     child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).pushNamed(MyScheduleScreen.routeName);
+                                      onTap: () async {
+                                        Navigator.of(context).pushNamed(ManageMedicalTeam.routeName,
+                                            arguments: user.userId);
                                       },
                                       child: const CategoryItem('assets/images/stetho.jpg',
                                           'Manage Medical Team', Color(0xFF028E81)),
@@ -236,5 +238,10 @@ class DoctorScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future _futures(context, user) async {
+    await user.tryLogin();
+    await Provider.of<Doctors>(context, listen: false).fetchAndSetDoctors();
   }
 }

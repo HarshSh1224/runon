@@ -24,7 +24,6 @@ import 'package:runon/screens/doctor/doctor_screen.dart';
 import 'package:runon/screens/feedback_screen.dart';
 import 'package:runon/screens/knock_knee_screen.dart';
 import 'package:runon/screens/login.dart';
-import 'package:runon/screens/patient/new_appointment.dart';
 import 'package:runon/screens/patient/offline_appointment.dart';
 import 'package:runon/screens/patient/patient_screen.dart';
 import 'package:runon/screens/signup.dart';
@@ -165,7 +164,6 @@ class _MyAppState extends State<MyApp> {
             SignupScreen.routeName: (ctx) => SignupScreen(),
             PatientScreen.routeName: (ctx) => PatientScreen(),
             AddAppointment.routeName: (ctx) => const AddAppointment(),
-            NewAppointment.routeName: (ctx) => NewAppointment(),
             AppointmentDetailScreen.routeName: (ctx) => AppointmentDetailScreen(),
             ForgotPasswordScreen.routeName: (ctx) => ForgotPasswordScreen(),
             ProfileScreen.routeName: (ctx) => ProfileScreen(toggleTheme),

@@ -5,6 +5,7 @@ class AppConstants {
   static const blankProfileImage =
       'https://firebasestorage.googleapis.com/v0/b/runon-c2c2e.appspot.com/o/profilePics%2Fdefault.jpg?alt=media&token=dbbd8628-1910-40dd-a2cc-fdf9ba86278e';
   static const String channelId = 'channel_id';
+  static const String id = 'id';
   static const String callCreateTime = 'callCreateTime';
   static const String appointment = 'appointment';
   static const String hasDialed = 'hasDialed';
@@ -33,4 +34,5 @@ class AppConstants {
   static const String doctorProfilePic = "doctorProfilePic";
   static const String patientProfilePic = "patientProfilePic";
   static const String isReschedullable = "is_reschedullable";
+  static const String isOffline = "is_offline";
 }

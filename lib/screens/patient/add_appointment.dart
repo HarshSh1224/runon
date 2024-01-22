@@ -44,7 +44,11 @@ class AddAppointment extends StatelessWidget {
                 children: [
                   FilledButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamed(NewAppointment.routeName);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => NewAppointment(isOffline: false),
+                        ),
+                      );
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
@@ -61,6 +65,9 @@ class AddAppointment extends StatelessWidget {
                     height: 10,
                   ),
                   FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.tertiary,
+                    ),
                     onPressed: () {
                       Navigator.of(context).pushNamed(OfflineAppointmentScreen.routeName);
                     },

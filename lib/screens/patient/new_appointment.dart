@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runon/misc/constants/app_constants.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
@@ -16,8 +17,13 @@ import 'package:runon/widgets/add_reports_box.dart';
 import 'package:file_picker/file_picker.dart';
 
 class NewAppointment extends StatelessWidget {
-  static const routeName = '/new-appointment';
-  NewAppointment({this.isFollowUp = false, this.appointment, this.patient, super.key});
+  NewAppointment({
+    this.isFollowUp = false,
+    this.appointment,
+    this.patient,
+    required this.isOffline,
+    super.key,
+  });
 
   final Appointment? appointment;
   final bool isFollowUp;
@@ -25,12 +31,14 @@ class NewAppointment extends StatelessWidget {
   PlatformFile? _flatFeetImage1;
   PlatformFile? _flatFeetImage2;
   Auth? patient;
+  bool isOffline;
 
-  final _formData = {
+  final Map<String, dynamic> _formData = {
     'patientId': '',
     'doctorId': '',
     'issueId': '',
     'slotId': '',
+    AppConstants.isOffline: false,
     'height': '',
     'weight': '',
     'bookedOn': DateTime.now().toIso8601String()
@@ -78,6 +86,7 @@ class NewAppointment extends StatelessWidget {
     }
 
     _formData['patientId'] = patientId ?? Provider.of<Auth>(context, listen: false).userId!;
+    _formData[AppConstants.isOffline] = isOffline;
     _formKey.currentState!.save();
 
     if (_formData['issueId'] == 'I8' && (_flatFeetImage1 == null || _flatFeetImage2 == null)) {
@@ -103,6 +112,7 @@ class NewAppointment extends StatelessWidget {
                   Provider.of<IssueData>(context, listen: false).issueFromId(_formData['issueId']!),
                   _formData,
                   _filesList,
+                  isOffline: isOffline,
                 )
               : ConfirmAppointmentDialog(
                   patient: patient,
@@ -113,6 +123,7 @@ class NewAppointment extends StatelessWidget {
                   _filesList,
                   isFollowUp: true,
                   appointmentId: appointment!.appointmentId,
+                  isOffline: isOffline,
                 );
         });
   }
@@ -200,7 +211,7 @@ class NewAppointment extends StatelessWidget {
                               const SizedBox(
                                 height: 20,
                               ),
-                              SlotPicker(
+                              SlotPickerOnline(
                                   onUpdate: updateSlotId,
                                   slotsReceived: isFollowUp ? slotsProvider : null),
                               const SizedBox(

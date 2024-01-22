@@ -45,7 +45,8 @@ class _MyScheduleScreenState extends State<MyScheduleScreen> {
     // print(events);
 
     for (int i = 0; i < appointments.length; i++) {
-      final date = slotIdTodDateTime(appointments[i].slotId);
+      final date =
+          slotIdTodDateTime(slotId: appointments[i].slotId, offline: appointments[i].isOffline);
       if (events[date] != null) {
         events[date]!.add('value');
       } else {
@@ -92,7 +93,9 @@ class _MyScheduleScreenState extends State<MyScheduleScreen> {
                           children: [
                             ...appointments.map((el) {
                               // debugPrint('${slotIdTodDateTime(el.slotId)}  $_today');
-                              return isSameDay(slotIdTodDateTime(el.slotId), _today)
+                              return isSameDay(
+                                      slotIdTodDateTime(slotId: el.slotId, offline: el.isOffline),
+                                      _today)
                                   ? Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                       child: AppointmentListTile(el.appointmentId),

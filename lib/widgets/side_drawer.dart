@@ -96,7 +96,9 @@ class SideDrawer extends StatelessWidget {
                             Icons.person,
                             color: Colors.white,
                             size: 25,
-                          ), () {
+                          ), () async {
+                        Navigator.of(context).pop();
+                        await Future.delayed(const Duration(seconds: 0));
                         Navigator.of(context).pushNamed(auth.isDoctor
                             ? MyAppointmentsScreenDoctor.routeName
                             : MyAppointmentsScreen.routeName);
@@ -108,7 +110,9 @@ class SideDrawer extends StatelessWidget {
                           Icons.settings,
                           color: Colors.white,
                           size: 25,
-                        ), () {
+                        ), () async {
+                      Navigator.of(context).pop();
+                      await Future.delayed(const Duration(seconds: 0));
                       Navigator.of(context).pushNamed(ProfileScreen.routeName);
                     }),
                     const Spacer(),

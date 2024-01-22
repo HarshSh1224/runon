@@ -35,18 +35,14 @@ class SlotDialog extends StatelessWidget {
               child: Chip(
                 elevation: 2,
                 padding: EdgeInsets.zero,
-                label: Text(slotTimings[element]!),
-                backgroundColor:
-                    Theme.of(context).colorScheme.tertiaryContainer,
+                label: Text(slotTimings(key: element, offline: false)),
+                backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
               ),
             ),
           );
         })
       ]),
-      actions: [
-        TextButton(
-            onPressed: Navigator.of(context).pop, child: const Text('Cancel'))
-      ],
+      actions: [TextButton(onPressed: Navigator.of(context).pop, child: const Text('Cancel'))],
     );
   }
 }

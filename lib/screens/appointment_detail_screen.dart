@@ -397,7 +397,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     return Column(
       children: [
         Text(
-          'Upcoming Appointment on: ${expandSlot(appointment.slotId)}',
+          'Upcoming Appointment on: ${expandSlot(appointment.slotId, appointment.isOffline)}',
           style: GoogleFonts.roboto(
               color: Theme.of(context).colorScheme.outline,
               fontStyle: FontStyle.italic,
@@ -459,7 +459,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         ),
         if (!canStartAppointment(appointment))
           CountdownTimer(
-            countTo: slotIdTodDateTime(appointment.slotId, withTime: true),
+            countTo: slotIdTodDateTime(
+                slotId: appointment.slotId, withTime: true, offline: appointment.isOffline),
             onComplete: () => setState(() {}),
           ),
         // if (!appointment.hasPassed)
@@ -488,7 +489,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             ),
           if (!widget.isDoctor)
             Text(
-              canStartAppointment(appointment) && !incomingCall
+              canStartAppointment(appointment, 0) && !incomingCall
                   ? 'Waiting for Doctor '
                   : 'Join Video Call',
               style: const TextStyle(fontSize: 18),
@@ -542,12 +543,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         ));
   }
 
-  bool canStartAppointment(Appointment appointment) {
+  bool canStartAppointment(Appointment appointment, [int duration = 10]) {
     if (incomingCall) return true;
-    DateTime slot = slotIdTodDateTime(appointment.slotId, withTime: true);
+    DateTime slot = slotIdTodDateTime(
+        slotId: appointment.slotId, withTime: true, offline: appointment.isOffline);
 
     DateTime nowTime = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
-    if (nowTime.isAfter(slot.subtract(const Duration(minutes: 10))) &&
+    if (nowTime.isAfter(slot.subtract(Duration(minutes: duration))) &&
         nowTime.isBefore(slot.add(const Duration(minutes: 30)))) {
       return true;
     }
@@ -565,7 +567,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         doctorName: _appointmentData['doctor']!,
         doctorId: appointment.doctorId,
         issue: _appointmentData['issue']!,
-        date: expandSlot(appointment.slotId),
+        date: expandSlot(appointment.slotId, appointment.isOffline),
         prescription: text,
         feetObservations: feetObservations);
 
@@ -679,6 +681,7 @@ class _FollowUpButtonState extends State<FollowUpButton> {
           patient: patient,
           isFollowUp: true,
           appointment: appointment,
+          isOffline: appointment.isOffline,
         ),
       ));
     } else {

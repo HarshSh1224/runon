@@ -1,6 +1,7 @@
 import 'package:runon/providers/slot_timings.dart';
 
-DateTime slotIdTodDateTime(String slotId, {bool withTime = false}) {
+DateTime slotIdTodDateTime({required String slotId, required bool offline, bool withTime = false}) {
+  return DateTime.now();
   String y = '';
   for (int j = 0; j < 4; j++) {
     y += slotId[4 + j];
@@ -19,7 +20,7 @@ DateTime slotIdTodDateTime(String slotId, {bool withTime = false}) {
   // print(slotId);
 
   if (withTime) {
-    String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
+    String time = slotTimings(key: int.parse(slotId.substring(8, 10)).toString(), offline: offline);
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
     slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
     if (time[6] == 'P' && time.substring(0, 2) != '12') slot = slot.add(const Duration(hours: 12));

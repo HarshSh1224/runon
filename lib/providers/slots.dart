@@ -26,7 +26,7 @@ class Slots with ChangeNotifier {
       Map<String, List<String>> temp = {};
 
       for (int i = 0; i < response.docs.length; i++) {
-        if (slotIdTodDateTime(response.docs[i].id).isBefore(DateTime.now()
+        if (slotIdTodDateTime(offline: false, slotId: response.docs[i].id).isBefore(DateTime.now()
             .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0))) {
           continue;
         }
@@ -34,8 +34,8 @@ class Slots with ChangeNotifier {
       }
       temp.removeWhere((key, value) {
         for (int i = 0; i < value.length; i++) {
-          DateTime slot = slotIdTodDateTime(key);
-          String time = slotTimings[int.parse(value[i]).toString()]!;
+          DateTime slot = slotIdTodDateTime(offline: false, slotId: key);
+          String time = slotTimings(key: int.parse(value[i]).toString(), offline: false);
           slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
           slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
           if (time[6] == 'P' && time.substring(0, 2) != '12') {

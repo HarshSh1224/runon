@@ -49,7 +49,7 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
     // print(Provider.of<Slots>(context, listen: false).slotTimes(slots[0]));
 
     for (int i = 0; i < dates.length; i++) {
-      final date = slotIdTodDateTime(dates[i]);
+      final date = slotIdTodDateTime(slotId: dates[i], offline: false);
       if (events[date] != null) {
         events[date]!.add('value');
       } else {
@@ -100,7 +100,8 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ...slots.map((el) {
-                              return isSameDay(slotIdTodDateTime(el), _today)
+                              return isSameDay(
+                                      slotIdTodDateTime(slotId: el, offline: false), _today)
                                   ? Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
                                       child:
@@ -127,7 +128,9 @@ class _ManageSlotsScreenState extends State<ManageSlotsScreen> {
                                                     backgroundColor: Theme.of(context)
                                                         .colorScheme
                                                         .errorContainer,
-                                                    label: Text(slotTimings[e]!),
+                                                    label: Text(slotTimings(
+                                                        key: int.parse(e).toString(),
+                                                        offline: false)),
                                                     deleteIcon: const Icon(
                                                       Icons.close,
                                                       size: 20,
@@ -246,27 +249,33 @@ class _SlotsDialogState extends State<SlotsDialog> {
       title: Text(DateFormat('dd MMM yyy').format(widget.today)),
       content: SingleChildScrollView(
         child: Wrap(children: [
-          ...slotTimings.values.map((e) {
+          ...slotTimingsOnline.values.map((e) {
             return InkWell(
               onTap: () {
-                if (!slots.isScheduled(dateTimeToSlotId(widget.today),
-                    slotTimings.keys.firstWhere((element) => slotTimings[element] == e))) {
+                if (!slots.isScheduled(
+                    dateTimeToSlotId(widget.today),
+                    slotTimingsOnline.keys
+                        .firstWhere((element) => slotTimingsOnline[element] == e))) {
                   Provider.of<Slots>(context, listen: false).addSlot(
                       dateTimeToSlotId(widget.today),
-                      slotTimings.keys.firstWhere((element) => slotTimings[element] == e),
+                      slotTimingsOnline.keys
+                          .firstWhere((element) => slotTimingsOnline[element] == e),
                       widget.doctorId ?? FirebaseAuth.instance.currentUser!.uid);
                 } else {
                   Provider.of<Slots>(context, listen: false).removeSlot(
                       dateTimeToSlotId(widget.today),
-                      slotTimings.keys.firstWhere((element) => slotTimings[element] == e),
+                      slotTimingsOnline.keys
+                          .firstWhere((element) => slotTimingsOnline[element] == e),
                       widget.doctorId ?? FirebaseAuth.instance.currentUser!.uid);
                 }
                 widget.setstate();
                 // Navigator.of(context).pop();
               },
               child: Card(
-                  color: slots.isScheduled(dateTimeToSlotId(widget.today),
-                          slotTimings.keys.firstWhere((element) => slotTimings[element] == e))
+                  color: slots.isScheduled(
+                          dateTimeToSlotId(widget.today),
+                          slotTimingsOnline.keys
+                              .firstWhere((element) => slotTimingsOnline[element] == e))
                       ? Theme.of(context).colorScheme.inversePrimary
                       : null,
                   child: Padding(

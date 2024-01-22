@@ -89,6 +89,7 @@ class Appointment {
   String slotId;
   List<Timeline> timelines;
   List<String>? reports;
+  bool isOffline;
 
   Appointment({
     required this.appointmentId,
@@ -97,6 +98,7 @@ class Appointment {
     required this.issueId,
     required this.slotId,
     required this.timelines,
+    this.isOffline = false,
     this.reports,
   });
 
@@ -108,6 +110,7 @@ class Appointment {
       AppConstants.issueId: issueId,
       AppConstants.slotId: slotId,
       AppConstants.reportUrl: reports,
+      AppConstants.isOffline: isOffline,
     };
   }
 
@@ -117,6 +120,7 @@ class Appointment {
       patientId: json[AppConstants.patientId],
       doctorId: json[AppConstants.doctorId],
       issueId: json[AppConstants.issueId],
+      isOffline: json[AppConstants.isOffline] ?? false,
       slotId: "",
       timelines: [],
       reports: json.containsKey(AppConstants.reportUrl)
@@ -135,8 +139,9 @@ class Appointment {
 
   bool get hasPassed {
     if (isCancelled) return true;
-    DateTime slot = slotIdTodDateTime(slotId);
-    String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
+    DateTime slot = slotIdTodDateTime(offline: isOffline, slotId: slotId);
+    String time =
+        slotTimings(key: int.parse(slotId.substring(8, 10)).toString(), offline: isOffline);
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
     slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
     if (time[6] == 'P' && time.substring(0, 2) != '12') slot = slot.add(const Duration(hours: 12));
@@ -149,8 +154,9 @@ class Appointment {
   }
 
   bool get hasPassed48Hours {
-    DateTime slot = slotIdTodDateTime(slotId);
-    String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
+    DateTime slot = slotIdTodDateTime(offline: isOffline, slotId: slotId);
+    String time =
+        slotTimings(key: int.parse(slotId.substring(8, 10)).toString(), offline: isOffline);
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
     slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
     if (time[6] == 'P' && time.substring(0, 2) != '12') slot = slot.add(const Duration(hours: 12));
@@ -163,8 +169,9 @@ class Appointment {
   }
 
   bool get before48Hours {
-    DateTime slot = slotIdTodDateTime(slotId);
-    String time = slotTimings[int.parse(slotId.substring(8, 10)).toString()]!;
+    DateTime slot = slotIdTodDateTime(offline: isOffline, slotId: slotId);
+    String time =
+        slotTimings(key: int.parse(slotId.substring(8, 10)).toString(), offline: isOffline);
     slot = slot.add(Duration(hours: int.parse(time.substring(0, 2))));
     slot = slot.add(Duration(minutes: int.parse(time.substring(3, 5))));
     if (time[6] == 'P' && time.substring(0, 2) != '12') slot = slot.add(const Duration(hours: 12));
@@ -261,12 +268,13 @@ class Appointments with ChangeNotifier {
         json[AppConstants.appointmentId] = response.docs[i].id;
         final app = Appointment.fromMap(json);
         app.timelines = timelines;
-        app.slotId = timelines.last.slotId;
+        app.slotId = timelines.isEmpty ? '0101199501' : timelines.last.slotId;
         temp.add(app);
       }
       _appointments = temp;
-      _appointments.sort((a, b) => slotIdTodDateTime(b.slotId, withTime: true)
-          .compareTo(slotIdTodDateTime(a.slotId, withTime: true)));
+      _appointments.sort((a, b) => slotIdTodDateTime(
+              offline: b.isOffline, slotId: b.slotId, withTime: true)
+          .compareTo(slotIdTodDateTime(offline: a.isOffline, slotId: a.slotId, withTime: true)));
     } catch (error) {
       print(error);
       rethrow;

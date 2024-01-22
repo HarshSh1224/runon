@@ -4,7 +4,7 @@ import 'package:runon/misc/constants/app_constants.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/screens/admin/admin_screen.dart';
 import 'package:runon/screens/doctor/doctor_screen.dart';
-import 'package:runon/screens/home/main_view_content.dart/main_view_content.dart';
+import 'package:runon/screens/home/main_view_content/main_view_content.dart';
 import 'package:runon/screens/login.dart';
 import 'package:runon/screens/patient/patient_screen.dart';
 import 'package:runon/widgets/clip_paths.dart';
@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Transform.translate(
                   offset: const Offset(0, -10),
-                  child: const MainViewContent(),
+                  child: MainViewContent(scrollController: _scrollController),
                 ),
               ],
             ),

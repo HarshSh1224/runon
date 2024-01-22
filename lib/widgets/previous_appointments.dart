@@ -84,7 +84,8 @@ class PreviousAppointments extends StatelessWidget {
                                             issue.issueFromId(_myAppointments[index].issueId)[0]),
                                       ),
                                       title: Text(
-                                        expandSlot(_myAppointments[index].slotId),
+                                        expandSlot(_myAppointments[index].slotId,
+                                            _myAppointments[index].isOffline),
                                       ),
                                       subtitle:
                                           Text(issue.issueFromId(_myAppointments[index].issueId)),

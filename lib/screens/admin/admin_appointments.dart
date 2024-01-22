@@ -178,7 +178,8 @@ class AdminAppointments extends StatelessWidget {
                                                 issue.issueFromId(appointments[index].issueId)[0]),
                                           ),
                                           title: Text(
-                                            expandSlot(appointments[index].slotId),
+                                            expandSlot(appointments[index].slotId,
+                                                appointments[index].isOffline),
                                           ),
                                           subtitle:
                                               Text(issue.issueFromId(appointments[index].issueId)),
@@ -225,6 +226,7 @@ class AdminAppointments extends StatelessWidget {
                                       Navigator.of(context).push(MaterialPageRoute(
                                         builder: (context) => NewAppointment(
                                           patient: e,
+                                          isOffline: false,
                                         ),
                                       ));
                                     },

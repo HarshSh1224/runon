@@ -78,7 +78,7 @@ class _RescheduleAppointmentScreenState extends State<RescheduleAppointmentScree
   Widget _content(context) {
     return Column(
       children: [
-        SlotPicker(
+        SlotPickerOnline(
             onUpdate: (newSlot) => setState(() {
                   chosenSlot = newSlot;
                 })),
