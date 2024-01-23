@@ -129,7 +129,7 @@ class AppMethods {
       );
       // print(response.body.length);
       final responseJson = jsonDecode(response.body);
-      if (responseJson.containsKey('errorr')) {
+      if (responseJson.containsKey('error')) {
         print('Refund error: ');
         print(responseJson['error']['description'].toString());
         print('Requesting refund Failedddd');
