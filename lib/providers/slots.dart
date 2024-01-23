@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:runon/controllers/database.dart';
 import 'package:runon/providers/slot_timings.dart';
 import 'package:runon/widgets/method_slotId_to_DateTime.dart';
 
@@ -56,6 +57,29 @@ class Slots with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchOfflineSlots(String date) async {
+    try {
+      final database = Database();
+      List<String> bookedList = await database.fetchBookedOfflineSlotsList(date);
+      // final response = await FirebaseFirestore.instance.collection('offlineSlots/booked/slots').get();
+      Map<String, List<String>> temp = {};
+
+      List<String> allSlots = [];
+
+      final keys = slotTimingsOffline.keys.toList();
+
+      for (var e in keys) {
+        if (!bookedList.contains(e)) allSlots.add(e);
+      }
+
+      temp[date] = allSlots;
+      _slots = temp;
+    } catch (error) {
+      print(error.toString());
+    }
+    notifyListeners();
+  }
+
   List<String> get onlyDates {
     return [..._slots.keys];
   }
@@ -83,7 +107,7 @@ class Slots with ChangeNotifier {
   }
 
   List<String> slotTimes(String date) {
-    return [..._slots[date]!];
+    return slots[date] != null && slots[date]!.isNotEmpty ? [...(_slots[date]!)] : [];
   }
 
   Future<void> addSlot(String date, String slot, String doctorId) async {

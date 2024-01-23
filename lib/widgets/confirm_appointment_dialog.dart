@@ -67,14 +67,14 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
       },
     );
     sendAppointmentDataToServer(
-      context: context,
-      doctorId: widget._doctorId,
-      formData: widget._formData,
-      files: widget._files,
-      isFollowUp: widget.isFollowUp,
-      appointmentID: widget.appointmentId,
-      paymentId: response.paymentId!,
-    );
+        context: context,
+        doctorId: widget._doctorId,
+        formData: widget._formData,
+        files: widget._files,
+        isFollowUp: widget.isFollowUp,
+        appointmentID: widget.appointmentId,
+        paymentId: response.paymentId!,
+        offline: widget.isOffline);
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
@@ -172,14 +172,16 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
                       text: widget._issue, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
-          RichText(
-            text: TextSpan(
-                style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
-                children: [
-                  const TextSpan(text: 'Doctor : '),
-                  TextSpan(text: doctor!.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                ]),
-          ),
+          if (!widget.isOffline)
+            RichText(
+              text: TextSpan(
+                  style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
+                  children: [
+                    const TextSpan(text: 'Doctor : '),
+                    TextSpan(
+                        text: doctor!.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ]),
+            ),
           RichText(
             text: TextSpan(
                 style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
@@ -196,7 +198,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
                 children: [
                   const TextSpan(text: 'Amount Payable : '),
                   TextSpan(
-                      text: doctor.fees.toString(),
+                      text: doctor!.fees.toString(),
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                 ]),
           ),
@@ -208,9 +210,7 @@ class _ConfirmAppointmentDialogState extends State<ConfirmAppointmentDialog> {
           child: const Text('Cancel'),
         ),
         TextButton(
-            // onPressed: () => _sendDataToServer(context),
-            onPressed: () => _razorpay.open(options),
-            child: const Text('Proceed to payment')),
+            onPressed: () => _razorpay.open(options), child: const Text('Proceed to payment')),
       ],
     );
   }

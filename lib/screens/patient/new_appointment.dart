@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runon/misc/constants/app_constants.dart';
 import 'package:runon/providers/appointments.dart';
@@ -15,6 +16,7 @@ import 'package:runon/widgets/doctors_dropdown.dart';
 import 'package:runon/widgets/flat_feet_image_upload.dart';
 import 'package:runon/widgets/add_reports_box.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:runon/widgets/slot_picker_offline.dart';
 
 class NewAppointment extends StatelessWidget {
   NewAppointment({
@@ -89,7 +91,8 @@ class NewAppointment extends StatelessWidget {
     _formData[AppConstants.isOffline] = isOffline;
     _formKey.currentState!.save();
 
-    if (_formData['issueId'] == 'I8' && (_flatFeetImage1 == null || _flatFeetImage2 == null)) {
+    if (!isOffline &&
+        (_formData['issueId'] == 'I8' && (_flatFeetImage1 == null || _flatFeetImage2 == null))) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Padding(
         padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -100,6 +103,7 @@ class NewAppointment extends StatelessWidget {
 
     if (_flatFeetImage1 != null) _filesList.add(_flatFeetImage1!);
     if (_flatFeetImage2 != null) _filesList.add(_flatFeetImage2!);
+    if (isOffline) _formData[AppConstants.doctorId] = AppConstants.offlineDoctorId;
 
     await showDialog(
         context: context,
@@ -135,9 +139,9 @@ class NewAppointment extends StatelessWidget {
     final slotsProvider = Provider.of<Slots>(contextt, listen: false);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Appointment'),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('New Appointment'),
+      // ),
       body: FutureBuilder(
         future: _fetchIssueData(
           issueProvider: issueProvider,
@@ -150,112 +154,172 @@ class NewAppointment extends StatelessWidget {
               ? const Center(
                   child: CircularProgressIndicator(),
                 )
-              : SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Stack(
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.3,
-                            width: double.infinity,
-                            child: Image.asset(
-                              'assets/images/newApntmnt.jpg',
-                              fit: BoxFit.cover,
-                              alignment: Alignment.topCenter,
-                            ),
-                          ),
-                          Positioned.fill(
-                            child: ClipPath(
-                              clipper: OnlyBottomEllipse(0.87),
-                              child: Container(
-                                color: Theme.of(context).colorScheme.background,
-                                // child: Expanded(child: Text('Hello World')),
+              : Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: isOffline
+                        ? ColorScheme.fromSeed(seedColor: AppConstants.secondaryColor)
+                        : null,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Stack(
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.3,
+                              width: double.infinity,
+                              child: Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: Image.asset(
+                                      isOffline
+                                          ? 'assets/images/consulting.jpg'
+                                          : 'assets/images/green_waves.png',
+                                      fit: BoxFit.cover,
+                                      alignment: Alignment.center,
+                                    ),
+                                  ),
+                                  Positioned.fill(
+                                      child: Container(
+                                          color: Theme.of(context)
+                                              .copyWith(
+                                                  colorScheme: isOffline
+                                                      ? ColorScheme.fromSeed(
+                                                          seedColor: AppConstants.secondaryColor,
+                                                          brightness: Brightness.light)
+                                                      : ColorScheme.fromSeed(
+                                                          seedColor: AppConstants.primaryColor,
+                                                          brightness: Brightness.light))
+                                              .colorScheme
+                                              .onPrimaryContainer
+                                              .withOpacity(0.8),
+                                          alignment: Alignment.bottomLeft,
+                                          padding: const EdgeInsets.only(bottom: 50, left: 40),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Opacity(
+                                                opacity: 0.5,
+                                                child: Image.asset(
+                                                  'assets/images/logo.png',
+                                                  height: 20,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                  '${isOffline ? 'Offline' : 'Online'}\nAppointment',
+                                                  style: GoogleFonts.raleway(
+                                                    fontSize: 40,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                  )),
+                                            ],
+                                          ))),
+                                ],
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              const SizedBox(
-                                height: 10,
+                            Positioned.fill(
+                              child: ClipPath(
+                                clipper: OnlyBottomEllipse(0.87),
+                                child: Container(
+                                  color: Theme.of(context).colorScheme.background,
+                                ),
                               ),
-                              IgnorePointer(
-                                  ignoring: isFollowUp,
-                                  child: IssueDropdown(
-                                    issueProvider,
-                                    updateIssueId,
-                                    initIssueId: isFollowUp ? appointment!.issueId : null,
-                                  )),
-                              const SizedBox(
-                                height: 30,
-                              ),
-                              if (isFollowUp)
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  height: 10,
+                                ),
                                 IgnorePointer(
-                                  child: DoctorsDropdown(
+                                    ignoring: isFollowUp,
+                                    child: IssueDropdown(
+                                      issueProvider,
+                                      updateIssueId,
+                                      initIssueId: isFollowUp ? appointment!.issueId : null,
+                                    )),
+                                if (!isOffline)
+                                  const SizedBox(
+                                    height: 30,
+                                  ),
+                                if (!isOffline && isFollowUp)
+                                  IgnorePointer(
+                                    child: DoctorsDropdown(
+                                      doctors: doctorsProvider,
+                                      update: updateDoctorId,
+                                      followUpDoctorId: appointment!.doctorId,
+                                    ),
+                                  ),
+                                if (!isOffline && !isFollowUp)
+                                  DoctorsDropdown(
                                     doctors: doctorsProvider,
                                     update: updateDoctorId,
-                                    followUpDoctorId: appointment!.doctorId,
+                                  ),
+                                // if (!isOffline)
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                if (!isOffline)
+                                  SlotPickerOnline(
+                                      onUpdate: updateSlotId,
+                                      slotsReceived: isFollowUp ? slotsProvider : null),
+                                if (isOffline) SlotPickerOffline(onUpdate: updateSlotId),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                if (!isOffline)
+                                  Consumer<TempProvider>(builder: (context, temp, ch) {
+                                    return _formData['issueId'] != 'I8'
+                                        ? Container()
+                                        : _extraFieldsForFlatFeet(context);
+                                  }),
+                                if (!isOffline)
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                AddReportsBox(updateReportList),
+                                const SizedBox(
+                                  height: 40,
+                                ),
+                                FilledButton(
+                                  onPressed: () {
+                                    _submit(
+                                      contextt,
+                                      slotsProvider,
+                                      patient?.userId,
+                                    );
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 15.0,
+                                      horizontal: 80,
+                                    ),
+                                    child: Text(
+                                      'Submit',
+                                      style: TextStyle(fontSize: 18),
+                                    ),
                                   ),
                                 ),
-                              if (!isFollowUp)
-                                DoctorsDropdown(
-                                  doctors: doctorsProvider,
-                                  update: updateDoctorId,
+                                const SizedBox(
+                                  height: 25,
                                 ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              SlotPickerOnline(
-                                  onUpdate: updateSlotId,
-                                  slotsReceived: isFollowUp ? slotsProvider : null),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Consumer<TempProvider>(builder: (context, temp, ch) {
-                                return _formData['issueId'] != 'I8'
-                                    ? Container()
-                                    : _extraFieldsForFlatFeet(context);
-                              }),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              AddReportsBox(updateReportList),
-                              const SizedBox(
-                                height: 40,
-                              ),
-                              FilledButton(
-                                onPressed: () {
-                                  _submit(
-                                    contextt,
-                                    slotsProvider,
-                                    patient?.userId,
-                                  );
-                                },
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 15.0,
-                                    horizontal: 80,
-                                  ),
-                                  child: Text(
-                                    'Submit',
-                                    style: TextStyle(fontSize: 18),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 25,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
         },

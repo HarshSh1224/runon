@@ -119,7 +119,7 @@ class AppMethods {
 
     try {
       print('https://api.razorpay.com/v1/payments/$paymentId/refund');
-      print('Requesting refund');
+      print('Requesting refund for $paymentId');
       String username = rp.key;
       String password = dotenv.env['razorpay_key_secret']!;
       String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
@@ -129,9 +129,9 @@ class AppMethods {
       );
       // print(response.body.length);
       final responseJson = jsonDecode(response.body);
-      if (responseJson.containsKey('error')) {
+      if (responseJson.containsKey('errorr')) {
         print('Refund error: ');
-        debugPrint(responseJson['error']);
+        print(responseJson['error']['description'].toString());
         print('Requesting refund Failedddd');
         return {'status': false, 'remarks': responseJson['error']['description']};
       } else {

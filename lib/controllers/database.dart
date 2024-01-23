@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:runon/misc/constants/app_constants.dart';
 
 extension UserTypeExtension on String {
   String slotIdDatePart() => substring(0, 8);
@@ -10,6 +11,7 @@ class Database {
   static const String _slotsCollection = "slots";
   static const String _doctorsCollection = "doctors";
   static const String _youtubeFeed = "youtube_feed";
+  static const String _offlineSlotsCollection = "offline_slots";
 
   static Future<Map<String, dynamic>> downloadDoc(
       {required String collection, required String docId}) async {
@@ -29,6 +31,40 @@ class Database {
         .set(content)
         .whenComplete(() => print("successfully uploaded"))
         .catchError((e) => print(e));
+  }
+
+  static Future deleteDocumentListValue({
+    required String collection,
+    required String docId,
+    required String fieldKey,
+    required String valueId,
+    Function()? onDone,
+  }) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference collection0 = firestore.collection(collection);
+    DocumentReference document = collection0.doc(docId);
+
+    return FirebaseFirestore.instance.runTransaction((transaction) async {
+      DocumentSnapshot snapshot = await transaction.get(document);
+
+      if (!snapshot.exists) {
+        print("Document doesn't exit");
+        return false;
+      }
+
+      final currentData = (snapshot.data() ?? {}) as Map<String, dynamic>;
+      var currentList = (currentData[fieldKey] ?? []) as List;
+      int? index;
+      String matchKey = AppConstants.id;
+
+      index = currentList.indexWhere((element) => element == valueId);
+      if (index != -1) currentList.removeAt(index);
+
+      transaction.update(document, {fieldKey: currentList});
+    }).then((value) {
+      print("List successfully updated");
+      if (onDone != null) onDone();
+    }).catchError((error) => print("Failed to update list"));
   }
 
   static Future appendValueToDocumentList({
@@ -79,10 +115,30 @@ class Database {
   }
 
   static Future addSlotToDoctor({required String slotId, required String doctorId}) async {
+    if (doctorId == AppConstants.offlineDoctorId) {
+      final String date = slotId.slotIdDatePart();
+      print(_offlineSlotsCollection);
+      print(date);
+      deleteDocumentListValue(
+          collection: _offlineSlotsCollection,
+          docId: date,
+          fieldKey: AppConstants.booked,
+          valueId: slotId.slotIdTimePart());
+
+      return;
+    }
     appendValueToDocumentList(
         collection: '$_doctorsCollection/$doctorId/$_slotsCollection',
         docId: slotId.slotIdDatePart(),
         fieldKey: "slots",
+        update: slotId.slotIdTimePart());
+  }
+
+  static Future bookOfflineSlot(String slotId) async {
+    await appendValueToDocumentList(
+        collection: _offlineSlotsCollection,
+        docId: slotId.slotIdDatePart(),
+        fieldKey: AppConstants.booked,
         update: slotId.slotIdTimePart());
   }
 
@@ -113,5 +169,16 @@ class Database {
       print(e);
       rethrow;
     }
+  }
+
+  Future<List<String>> fetchBookedOfflineSlotsList(String date) async {
+    try {
+      final response =
+          await FirebaseFirestore.instance.collection(_offlineSlotsCollection).doc(date).get();
+      return (response.data()?[AppConstants.booked].cast<String>() ?? ['']);
+    } catch (e) {
+      print(e.toString());
+    }
+    return [];
   }
 }

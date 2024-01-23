@@ -53,8 +53,9 @@ class _SlotPickerOnlineState extends State<SlotPickerOnline> {
       context: context,
       builder: (ctx) {
         return SlotDialog(
+            offline: false,
             update: _chooseSlot,
-            temp: temp,
+            date: temp,
             context: context,
             slotsList: slots.slotTimes(DateFormat('ddMMyyyy').format(temp)));
       },

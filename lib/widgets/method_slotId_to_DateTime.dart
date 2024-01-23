@@ -1,7 +1,6 @@
 import 'package:runon/providers/slot_timings.dart';
 
 DateTime slotIdTodDateTime({required String slotId, required bool offline, bool withTime = false}) {
-  return DateTime.now();
   String y = '';
   for (int j = 0; j < 4; j++) {
     y += slotId[4 + j];

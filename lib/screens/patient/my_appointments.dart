@@ -17,7 +17,6 @@ class MyAppointmentsScreen extends StatelessWidget {
     await appointmentsProvider.fetchAndSetAppointments();
     await issue.fetchAndSetIssues();
     _myAppointments = appointmentsProvider.getAppointmentsByPatientId(id: auth.userId!);
-    print(_myAppointments.length);
   }
 
   @override

@@ -1,9 +1,20 @@
+import 'package:flutter/material.dart';
+
 class AppConstants {
+  static const blankProfileImage =
+      'https://firebasestorage.googleapis.com/v0/b/runon-c2c2e.appspot.com/o/profilePics%2Fdefault.jpg?alt=media&token=dbbd8628-1910-40dd-a2cc-fdf9ba86278e';
   static const appWebsite = 'healthyaayu.com';
   static const appHelpEmail = 'help@healthyaayu.com';
   static const appPhoneNumber = '+91 1234567890';
-  static const blankProfileImage =
-      'https://firebasestorage.googleapis.com/v0/b/runon-c2c2e.appspot.com/o/profilePics%2Fdefault.jpg?alt=media&token=dbbd8628-1910-40dd-a2cc-fdf9ba86278e';
+  static const offlineDoctorId = 'K5QT7wLe2mgTzxJoqw2W1xxMf3S2';
+
+  // Colors
+
+  static const primaryColor = Color(0xFF51B154);
+  static const secondaryColor = Color(0xff611F69);
+
+  // KEY CONSTANTS
+
   static const String channelId = 'channel_id';
   static const String id = 'id';
   static const String callCreateTime = 'callCreateTime';
@@ -35,4 +46,5 @@ class AppConstants {
   static const String patientProfilePic = "patientProfilePic";
   static const String isReschedullable = "is_reschedullable";
   static const String isOffline = "is_offline";
+  static const String booked = "booked";
 }

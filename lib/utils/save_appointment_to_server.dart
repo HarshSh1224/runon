@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runon/controllers/database.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
 import 'package:runon/providers/slots.dart';
@@ -15,6 +16,7 @@ void sendAppointmentDataToServer({
   required String doctorId,
   required Map<String, dynamic> formData,
   required String paymentId,
+  required bool offline,
   String? appointmentID,
   files,
 }) async {
@@ -33,8 +35,12 @@ void sendAppointmentDataToServer({
 
     await _uploadTimeline(files, appointmentID!, paymentId, slot, context, doctorId);
 
-    Provider.of<Slots>(context, listen: false)
-        .removeSlot(slot.substring(0, 8), slot.substring(8, 10), formData['doctorId']);
+    if (!offline) {
+      await Provider.of<Slots>(context, listen: false)
+          .removeSlot(slot.substring(0, 8), slot.substring(8, 10), formData['doctorId']);
+    } else {
+      await Database.bookOfflineSlot(slot);
+    }
 
     success = true;
   } catch (error) {
@@ -56,6 +62,7 @@ void sendAppointmentDataToServer({
   final auth = Provider.of<Auth>(context, listen: false);
 
   if (success) {
+    print('Appointment Id : ${appointmentID!}');
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: ((context) => PaymentSuccess(
@@ -73,7 +80,7 @@ void sendAppointmentDataToServer({
 
 Future<void> _uploadTimeline(List files, String appointmentId, String paymentId, String slot,
     context, String doctorId) async {
-  Map<String, dynamic> timelineData = const {};
+  Map<String, dynamic> timelineData = {};
 
   for (int i = 0; i < files.length; i++) {
     final ref = FirebaseStorage.instance.ref().child('previousReports').child('$appointmentId$i');

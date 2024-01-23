@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:runon/misc/constants/app_constants.dart';
 
 class Doctor {
   String id;
@@ -41,7 +42,9 @@ class Doctors with ChangeNotifier {
   List<Doctor> _doctors = [];
 
   List<Doctor> get doctors {
-    return [..._doctors];
+    final list = [..._doctors];
+    list.removeWhere((element) => element.id == AppConstants.offlineDoctorId);
+    return list;
   }
 
   Doctor? doctorFromId(String doctorId) {

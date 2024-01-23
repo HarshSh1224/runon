@@ -25,7 +25,7 @@ class OfflineAppointmentScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => NewAppointment(isOffline: false),
+                        builder: (context) => NewAppointment(isOffline: true),
                       ),
                     );
                   },

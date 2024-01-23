@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:runon/misc/constants/app_constants.dart';
 import 'package:runon/screens/patient/new_appointment.dart';
 import 'package:runon/screens/patient/offline_appointment.dart';
 import 'package:runon/widgets/clip_paths.dart';
@@ -43,6 +44,20 @@ class AddAppointment extends StatelessWidget {
               child: Column(
                 children: [
                   FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context)
+                          .copyWith(
+                              colorScheme:
+                                  ColorScheme.fromSeed(seedColor: AppConstants.primaryColor))
+                          .colorScheme
+                          .primary,
+                      foregroundColor: Theme.of(context)
+                          .copyWith(
+                              colorScheme:
+                                  ColorScheme.fromSeed(seedColor: AppConstants.primaryColor))
+                          .colorScheme
+                          .primaryContainer,
+                    ),
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -66,7 +81,18 @@ class AddAppointment extends StatelessWidget {
                   ),
                   FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.tertiary,
+                      backgroundColor: Theme.of(context)
+                          .copyWith(
+                              colorScheme:
+                                  ColorScheme.fromSeed(seedColor: AppConstants.secondaryColor))
+                          .colorScheme
+                          .onPrimaryContainer,
+                      foregroundColor: Theme.of(context)
+                          .copyWith(
+                              colorScheme:
+                                  ColorScheme.fromSeed(seedColor: AppConstants.secondaryColor))
+                          .colorScheme
+                          .primaryContainer,
                     ),
                     onPressed: () {
                       Navigator.of(context).pushNamed(OfflineAppointmentScreen.routeName);

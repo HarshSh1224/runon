@@ -122,14 +122,7 @@ class _RescheduleAppointmentScreenState extends State<RescheduleAppointmentScree
     final prevSlot = widget.appointment.slotId;
 
     await ref.update({AppConstants.slotId: chosenSlot, AppConstants.isReschedullable: false});
-    await Provider.of<Slots>(context, listen: false).addSlot(
-        prevSlot.substring(0, prevSlot.length - 2),
-        prevSlot.substring(prevSlot.length - 2, prevSlot.length),
-        widget.doctorId);
-    await Provider.of<Slots>(context, listen: false).removeSlot(
-        chosenSlot!.substring(0, chosenSlot!.length - 2),
-        chosenSlot!.substring(chosenSlot!.length - 2, chosenSlot!.length),
-        widget.doctorId);
+    await switchOnlineSlots(prevSlot);
 
     setState(() {
       isLoading = false;
@@ -139,5 +132,16 @@ class _RescheduleAppointmentScreenState extends State<RescheduleAppointmentScree
     Navigator.of(context).pop();
     Navigator.of(context).pop();
     Navigator.of(context).pop();
+  }
+
+  Future<void> switchOnlineSlots(String prevSlot) async {
+    await Provider.of<Slots>(context, listen: false).addSlot(
+        prevSlot.substring(0, prevSlot.length - 2),
+        prevSlot.substring(prevSlot.length - 2, prevSlot.length),
+        widget.doctorId);
+    await Provider.of<Slots>(context, listen: false).removeSlot(
+        chosenSlot!.substring(0, chosenSlot!.length - 2),
+        chosenSlot!.substring(chosenSlot!.length - 2, chosenSlot!.length),
+        widget.doctorId);
   }
 }

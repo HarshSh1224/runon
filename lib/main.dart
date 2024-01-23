@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runon/misc/constants/app_constants.dart';
 import 'package:runon/providers/appointments.dart';
 import 'package:runon/providers/auth.dart';
 import 'package:runon/providers/doctors.dart';
@@ -130,7 +131,7 @@ class _MyAppState extends State<MyApp> {
           theme: ThemeData(
             brightness: themeBrightness,
             useMaterial3: true,
-            colorSchemeSeed: const Color(0xFF51B154),
+            colorSchemeSeed: AppConstants.primaryColor,
           ),
           home: StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),
